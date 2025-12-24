@@ -128,3 +128,18 @@ msbuild.cmd
 
 # File generated during compile
 /dep/libmpq/compile
+lua52-src
+lua52-subbuild
+/src/Makefile
+/src/game/AuctionHouseBot/ahbot.conf.dist
+/src/game/Makefile
+/src/game/aiplayerbot.conf.dist
+/src/genrev/Makefile
+/src/mangosd/Makefile
+/src/mangosd/mangosd
+/src/mangosd/mangosd.conf.dist
+/src/modules/Makefile
+/src/shared/Makefile
+/src/tools/Makefile
+/Makefile
+compile_commands.json
