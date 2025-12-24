@@ -4,7 +4,7 @@ rm -f /opt/mangos/bin/realmd
 rm -f /opt/mangos/bin/mangosd
 rm -f src/realmd/realmd
 rm -f src/mangosd/mangosd
-cmake . -DPLAYERBOTS=1 -DBUILD_REALMD=1 -DCMAKE_INSTALL_PREFIX=/opt/mangos -DCMAKE_INSTALL_SYSCONFDIR=/opt/mangos/etc
+cmake . -DPLAYERBOTS=1 -DBUILD_REALMD=1 -DBUILD_TOOLS=0 -DCMAKE_INSTALL_PREFIX=/opt/mangos -DCMAKE_INSTALL_SYSCONFDIR=/opt/mangos/etc
 make -j8
 echo Stopping servers...
 systemctl stop realmd
