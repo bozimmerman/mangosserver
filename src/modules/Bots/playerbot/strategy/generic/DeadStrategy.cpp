@@ -8,6 +8,9 @@ using namespace ai;
 void DeadStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
 {
     PassTroughStrategy::InitTriggers(triggers);
+    triggers.push_back(new TriggerNode(
+        "dead",
+        NextAction::array(0, new NextAction("release spirit", 100.0f), NULL)));
 
     triggers.push_back(new TriggerNode(
         "dead",
