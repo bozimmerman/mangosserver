@@ -13,12 +13,21 @@ namespace ai
     public:
         virtual bool Execute(Event event)
         {
-            if (bot->IsAlive() || bot->GetCorpse())
+            if (bot->IsAlive() || !bot->GetGroup())
             {
                 return false;
             }
 
-            ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
+            uint32 timeDead = (6 * MINUTE * IN_MILLISECONDS) - bot->GetDeathTimer();
+            if (timeDead < 10000)
+            {
+                return false;  // Wait 10 seconds before release
+            }
+
+            if (ai->GetMaster())
+            {
+                ai->TellMaster("I've died and am waiting at the graveyard for escort");
+            }
 
             bot->SetBotDeathTimer();
             bot->BuildPlayerRepop();
