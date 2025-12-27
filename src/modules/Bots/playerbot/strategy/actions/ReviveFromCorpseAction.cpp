@@ -15,20 +15,39 @@ bool ReviveFromCorpseAction::Execute(Event event)
     }
 
     time_t reclaimTime = corpse->GetGhostTime() + bot->GetCorpseReclaimDelay( corpse->GetType()==CORPSE_RESURRECTABLE_PVP );
-    if (reclaimTime > time(0) || corpse->GetDistance(bot) > sPlayerbotAIConfig.spellDistance)
+    if (reclaimTime > time(0))
     {
         return false;
     }
 
-    PlayerbotChatHandler ch(bot);
-    if (! ch.revive(*bot))
+    bool shouldTeleport = (!bot->GetGroup()); // simulate corpse run if NOT grouped
+    if (bot->GetGroup() && ai->HasStrategy("stay", BOT_STATE_DEAD)) // .. or if not following
+        shouldTeleport = true;
+
+    // Teleport to corpse location
+    if (shouldTeleport && corpse->GetDistance(bot) > sPlayerbotAIConfig.spellDistance)
     {
-        ai->TellMaster(".. could not be revived ..");
-        return false;
+        bot->TeleportTo(corpse->GetMapId(),
+                       corpse->GetPositionX(),
+                       corpse->GetPositionY(),
+                       corpse->GetPositionZ(),
+                       bot->GetOrientation());
+        return true;
     }
-    context->GetValue<Unit*>("current target")->Set(NULL);
-    bot->SetSelectionGuid(ObjectGuid());
-    return true;
+
+    if (corpse->GetDistance(bot) <= sPlayerbotAIConfig.spellDistance)
+    {
+        PlayerbotChatHandler ch(bot);
+        if (!ch.revive(*bot))
+        {
+            ai->TellMaster(".. could not be revived ..");
+            return false;
+        }
+        context->GetValue<Unit*>("current target")->Set(NULL);
+        bot->SetSelectionGuid(ObjectGuid());
+        return true;
+    }
+    return false; // wait at graveyard
 }
 
 bool SpiritHealerAction::Execute(Event event)

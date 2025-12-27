@@ -18,7 +18,18 @@ namespace ai
                 return false;
             }
 
-            ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
+            uint32 timeDead = (6 * MINUTE * IN_MILLISECONDS) - bot->GetDeathTimer();
+            if (timeDead < 10000)
+            {
+                return false;  // Wait 10 seconds before release
+            }
+
+            // 1. If you are doing a dungeon or grouped, nofollow adds pain to bot mgmt.
+            // 2. If the bot is on his own (or ungrouped), there is no one to follow anyway, so its OK.
+            if (!bot->GetGroup())
+            {
+                ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
+            }
 
             bot->SetBotDeathTimer();
             bot->BuildPlayerRepop();
