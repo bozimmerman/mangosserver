@@ -30,6 +30,11 @@ namespace ai
             {
                 ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
             }
+            else
+            if (ai->GetMaster())
+            {
+                ai->TellMaster("I've died and am waiting at the graveyard for escort");
+            }
 
             bot->SetBotDeathTimer();
             bot->BuildPlayerRepop();
