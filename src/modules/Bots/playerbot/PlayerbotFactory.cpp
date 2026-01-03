@@ -1383,7 +1383,14 @@ void PlayerbotFactory::InitAvailableSpells()
                 continue;
             }
 
+            // get spell info for validation
+            const SpellEntry* spellInfo = sSpellStore.LookupEntry(tSpell->spell);
+            uint32 learnSpellId = spellInfo ? spellInfo->EffectTriggerSpell[0] : 0;
             ai->CastSpell(tSpell->spell, bot);
+            if (learnSpellId && !bot->HasSpell(learnSpellId))
+            {
+                bot->learnSpell(learnSpellId, false);
+            }
         }
     }
 }
