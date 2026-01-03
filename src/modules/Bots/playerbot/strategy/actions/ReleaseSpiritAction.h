@@ -13,7 +13,7 @@ namespace ai
     public:
         virtual bool Execute(Event event)
         {
-            if (bot->IsAlive() || bot->GetCorpse())
+            if (bot->IsAlive() || bot->GetCorpse() || !bot->GetGroup())
             {
                 return false;
             }
@@ -24,13 +24,6 @@ namespace ai
                 return false;  // Wait 10 seconds before release
             }
 
-            // 1. If you are doing a dungeon or grouped, nofollow adds pain to bot mgmt.
-            // 2. If the bot is on his own (or ungrouped), there is no one to follow anyway, so its OK.
-            if (!bot->GetGroup())
-            {
-                ai->ChangeStrategy("-follow,+stay", BOT_STATE_NON_COMBAT);
-            }
-            else
             if (ai->GetMaster())
             {
                 ai->TellMaster("I've died and am waiting at the graveyard for escort");
