@@ -255,13 +255,6 @@ bool ChatHandler::HandleLookupAreaCommand(char* args)
 // Find tele in game_tele order by name
 bool ChatHandler::HandleLookupTeleCommand(char* args)
 {
-    if (!*args)
-    {
-        SendSysMessage(LANG_COMMAND_TELE_PARAMETER);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
     std::string namepart = args;
     std::wstring wnamepart;
 
@@ -270,7 +263,6 @@ bool ChatHandler::HandleLookupTeleCommand(char* args)
         return false;
     }
 
-    // converting string that we try to find to lower case
     wstrToLower(wnamepart);
 
     std::ostringstream reply;
