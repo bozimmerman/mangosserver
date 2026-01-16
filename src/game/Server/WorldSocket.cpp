@@ -895,11 +895,15 @@ int WorldSocket::HandlePing(WorldPacket& recvPacket)
 
 int WorldSocket::iSendPacket(const WorldPacket& pct)
 {
-    sLog.outWorldPacketDump(uint32(get_handle()), pct.GetOpcode(), pct.GetOpcodeName(), &pct, false);
     if (m_OutBuffer->space() < pct.size() + sizeof(ServerPktHeader))
     {
         errno = ENOBUFS;
         return -1;
+    }
+
+    if (sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))
+    {
+        sLog.outWorldPacketDump(uint32(get_handle()), pct.GetOpcode(), pct.GetOpcodeName(), &pct, false);
     }
 
     ServerPktHeader header;
