@@ -143,7 +143,6 @@ lua52-subbuild
 /src/tools/Makefile
 /Makefile
 compile_commands.json
-=======
 /src/game/AuctionHouseBot/*.dist
 *.dist
 Makefile

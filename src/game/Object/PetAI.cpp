@@ -327,7 +327,13 @@ void PetAI::UpdateAI(const uint32 diff)
                     {
                         SpellRangeEntry const* spellRange = sSpellRangeStore.LookupEntry(spellInfo->rangeIndex);
                         if (spellRange)
-                            maxOutOfRangeDistance = GetSpellMaxRange(spellRange) - 1.0f;
+                        {
+                            float spellMaxRange =  GetSpellMaxRange(spellRange);
+                            if (spellMaxRange >= 7.0f)
+                            {
+                                maxOutOfRangeDistance = spellMaxRange - 1.0f;
+                            }
+                        }
                     }
                 }
 
