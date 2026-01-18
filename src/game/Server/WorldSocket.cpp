@@ -901,7 +901,7 @@ int WorldSocket::iSendPacket(const WorldPacket& pct)
         return -1;
     }
 
-    if (sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))
+    if (sLog.HasLogLevelOrHigher(LOG_LVL_DEBUG))   // allow server packet logging
     {
         sLog.outWorldPacketDump(uint32(get_handle()), pct.GetOpcode(), pct.GetOpcodeName(), &pct, false);
     }

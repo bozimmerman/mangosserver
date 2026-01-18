@@ -364,8 +364,6 @@ bool ChatHandler::HandleListItemCommand(char* args)
     return true;
 }
 
-// Add to /home/user/mangosserver/src/game/ChatCommands/ListCommands.cpp
-
 bool ChatHandler::HandleListPlayersCommand(char* args)
 {
     uint32 limit;
