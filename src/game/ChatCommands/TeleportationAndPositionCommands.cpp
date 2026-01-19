@@ -1512,6 +1512,7 @@ bool ChatHandler::HandleTeleNameCommand(char* args)
     Player* target;
     ObjectGuid target_guid;
     std::string target_name;
+    char* locationArgs = args;
     if (!ExtractPlayerTarget(&nameStr, &target, &target_guid, &target_name))
     {
         return false;
@@ -1590,6 +1591,7 @@ bool ChatHandler::HandleTeleNameCommand(char* args)
             }
         }
     }
+    args = locationArgs;
 
     // Not coordinates, restore args pointer and try as saved location name
     GameTele const* tele = ExtractGameTeleFromLink(&args);
