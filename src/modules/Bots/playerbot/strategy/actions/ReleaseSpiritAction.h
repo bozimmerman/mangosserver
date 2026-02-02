@@ -13,7 +13,7 @@ namespace ai
     public:
         virtual bool Execute(Event event)
         {
-            if (bot->IsAlive() || bot->GetCorpse() || !bot->GetGroup())
+            if (bot->IsAlive() || !bot->GetGroup())
             {
                 return false;
             }
