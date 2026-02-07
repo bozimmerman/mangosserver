@@ -225,6 +225,19 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
     {
         DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: (startPoly == 0 || endPoly == 0) for %s\n", m_sourceUnit->GetGuidStr().c_str());
         BuildShortcut();
+        if (m_sourceUnit->GetTypeId() == TYPEID_PLAYER)
+        {
+            Player* player = (Player*)m_sourceUnit;
+            if (player->GetPlayerbotAI())
+            {
+                if ((startPoly == INVALID_POLYREF && m_sourceUnit->GetMap()->GetTerrain()->IsInWater(startPos.x, startPos.y, startPos.z)) ||
+                    (endPoly == INVALID_POLYREF && m_sourceUnit->GetMap()->GetTerrain()->IsInWater(endPos.x, endPos.y, endPos.z)))
+                {
+                    m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+                    return;
+                }
+            }
+        }
 
         if (m_sourceUnit->GetTypeId() == TYPEID_UNIT)
         {
@@ -254,7 +267,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
         DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: farFromPoly distToStartPoly=%.3f distToEndPoly=%.3f for %s\n",
                          distToStartPoly, distToEndPoly, m_sourceUnit->GetGuidStr().c_str());
 
-        bool buildShotrcut = false;
+        bool buildShortcut = false;
         if (m_sourceUnit->GetTypeId() == TYPEID_UNIT)
         {
             const Creature* owner = m_sourceUnit->ToCreature();
@@ -265,7 +278,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
                 DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: underWater case for %s\n", m_sourceUnit->GetGuidStr().c_str());
                 if (owner->CanSwim())
                 {
-                    buildShotrcut = true;
+                    buildShortcut = true;
                 }
             }
             else
@@ -273,12 +286,21 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
                 DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ BuildPolyPath :: flying case for %s\n", m_sourceUnit->GetGuidStr().c_str());
                 if (owner->CanFly())
                 {
-                    buildShotrcut = true;
+                    buildShortcut = true;
                 }
             }
         }
+        else if (m_sourceUnit->GetTypeId() == TYPEID_PLAYER)
+        {
+            // Players can always swim
+            Vector3 p = (distToStartPoly > 7.0f) ? startPos : endPos;
+            if (m_sourceUnit->GetMap()->GetTerrain()->IsInWater(p.x, p.y, p.z))
+            {
+                buildShortcut = true;
+            }
+        }
 
-        if (buildShotrcut)
+        if (buildShortcut)
         {
             BuildShortcut();
             m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
@@ -451,6 +473,12 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
             // only happens if we passed bad data to findPath(), or navmesh is messed up
             sLog.outError("Path Build failed: 0 length path for %s", m_sourceUnit->GetGuidStr().c_str());
             BuildShortcut();
+            if (m_sourceUnit->GetMap()->GetTerrain()->IsInWater(startPos.x, startPos.y, startPos.z) &&
+                m_sourceUnit->GetMap()->GetTerrain()->IsInWater(endPos.x, endPos.y, endPos.z))
+            {
+                m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+                return;
+            }
             m_type = PATHFIND_NOPATH;
             return;
         }
@@ -464,6 +492,15 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
     else
     {
         m_type = PATHFIND_INCOMPLETE;
+    }
+
+    if (m_type == PATHFIND_INCOMPLETE &&
+        m_sourceUnit->GetMap()->GetTerrain()->IsInWater(startPos.x, startPos.y, startPos.z) &&
+        m_sourceUnit->GetMap()->GetTerrain()->IsInWater(endPos.x, endPos.y, endPos.z))
+    {
+        BuildShortcut();
+        m_type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+        return;
     }
 
     // generate the point-path out of our up-to-date poly-path
