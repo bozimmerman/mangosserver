@@ -78,6 +78,7 @@ AiPlayerbot.CommandPrefix = ~
 #AiPlayerbot.MeleeDistance = 1.0
 #AiPlayerbot.FollowDistance = 1.5
 #AiPlayerbot.WhisperDistance = 6000.0
+#AiPlayerbot.WhisperToZoneOnly = false
 #AiPlayerbot.ContactDistance = 0.5
 
 # Bot can flee for enemy
