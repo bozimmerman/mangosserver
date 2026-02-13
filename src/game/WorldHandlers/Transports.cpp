@@ -620,6 +620,29 @@ void GlobalTransport::TeleportTransport(uint32 newMapid, float x, float y, float
     SetMap(newMap);
     Relocate(x, y, z);
 
+    if (oldMap != newMap)
+    {
+        for (UnitSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end(); ++itr)
+        {
+            Player* receiver = (*itr) ? (*itr)->ToPlayer() : nullptr;
+            if (!receiver)
+                continue;
+
+            for (UnitSet::const_iterator itr2 = m_passengers.begin(); itr2 != m_passengers.end(); ++itr2)
+            {
+                Player* other = (*itr2) ? (*itr2)->ToPlayer() : nullptr;
+                if (!other || other == receiver)
+                    continue;
+
+                UpdateData updateData;
+                other->BuildOutOfRangeUpdateBlock(&updateData);
+                WorldPacket packet;
+                updateData.BuildPacket(&packet);
+                receiver->SendDirectMessage(&packet);
+            }
+        }
+    }
+
     for (UnitSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
         UnitSet::iterator it2 = itr;
