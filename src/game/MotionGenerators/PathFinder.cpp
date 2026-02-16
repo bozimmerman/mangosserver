@@ -30,6 +30,7 @@
 #include "Map.h"
 #include "PathFinder.h"
 #include "Log.h"
+#include "Player.h"
 
 ////////////////// PathFinder //////////////////
 
@@ -461,6 +462,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
     {
         m_type = PATHFIND_NORMAL;
     }
+#ifdef ENABLE_PLAYERBOTS
     else // case for playerbots navigating polyless gaps in water nav
     if (m_sourceUnit->GetMap()->GetTerrain()->IsInWater(startPos.x, startPos.y, startPos.z) &&
         dtVdist(startPoint, endPoint) < 25.0f &&
@@ -476,6 +478,7 @@ void PathFinder::BuildPolyPath(const Vector3& startPos, const Vector3& endPos)
             return;
         }
     }
+#endif
     else
     {
         m_type = PATHFIND_INCOMPLETE;
