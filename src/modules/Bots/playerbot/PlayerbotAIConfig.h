@@ -71,6 +71,7 @@ public:
     uint32 randomBotTeleLevel; ///< The teleport level for random bots.
     bool logInGroupOnly, logValuesPerTick;
     bool fleeingEnabled;
+    bool cautiousDefault;
     std::string randomBotCombatStrategies, randomBotNonCombatStrategies;
     uint32 randomBotMinLevel, randomBotMaxLevel;
     float randomChangeMultiplier;
