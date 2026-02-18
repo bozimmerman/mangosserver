@@ -7,6 +7,13 @@
 #include "../../FleeManager.h"
 #include "../../LootObjectStack.h"
 #include "../../PlayerbotAIConfig.h"
+<<<<<<< HEAD
+=======
+#include "WorldHandlers/Transports.h"
+#include "movement/MoveSplineInit.h"
+#include "movement/MoveSpline.h"
+#include "Creature.h"
+>>>>>>> 418e5fef (More Cautious Bots)
 
 using namespace ai;
 
@@ -30,7 +37,7 @@ bool MovementAction::MoveNear(WorldObject* target, float distance)
     {
         bool moved = MoveTo(target->GetMapId(),
             target->GetPositionX() + cos(angle) * distance,
-            target->GetPositionY()+ sin(angle) * distance,
+            target->GetPositionY() + sin(angle) * distance,
             target->GetPositionZ());
         if (moved)
         {
@@ -40,13 +47,16 @@ bool MovementAction::MoveNear(WorldObject* target, float distance)
     return false;
 }
 
-bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
+bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z, bool unsafe)
 {
     bot->UpdateGroundPositionZ(x, y, z);
     if (!IsMovingAllowed(mapId, x, y, z))
     {
         return false;
     }
+
+    if (!unsafe && ai->HasStrategy("cautious") && IsAggroPosition(x, y, z))
+        return false;
 
     float distance = bot->GetDistance(x, y, z);
     if (distance > sPlayerbotAIConfig.contactDistance)
@@ -74,7 +84,7 @@ bool MovementAction::MoveTo(uint32 mapId, float x, float y, float z)
         mm.Clear();
 
         float botZ = bot->GetPositionZ();
-            mm.MovePoint(mapId, x, y, z);
+        mm.MovePoint(mapId, x, y, z);
     }
 
     AI_VALUE(LastMovement&, "last movement").Set(x, y, z, bot->GetOrientation());
@@ -113,7 +123,20 @@ bool MovementAction::MoveTo(Unit* target, float distance)
     float dx = cos(angle) * needToGo + bx;
     float dy = sin(angle) * needToGo + by;
 
-    return MoveTo(target->GetMapId(), dx, dy, tz);
+    if (needToGo > 0)
+    {
+        float safeDist = CalculateAggroFreeDistance(bx, by, bz, angle, needToGo);
+        if (safeDist < needToGo)
+        {
+            if(safeDist < sPlayerbotAIConfig.contactDistance)
+            {
+                return false;
+            }
+            dx = cos(angle) * safeDist + bx;
+            dy = sin(angle) * safeDist + by;
+        }
+    }
+    return MoveTo(target->GetMapId(), dx, dy, tz, true);
 }
 
 float MovementAction::GetFollowAngle()
@@ -189,6 +212,108 @@ bool MovementAction::IsMovingAllowed()
     return mm.GetCurrentMovementGeneratorType() != FLIGHT_MOTION_TYPE;
 }
 
+<<<<<<< HEAD
+=======
+bool MovementAction::FollowOnTransport(Unit* target, Player* master)
+{
+    float distanceToMaster = bot->GetDistance(master);
+    bool outOfRange = distanceToMaster > sPlayerbotAIConfig.sightDistance;
+    uint32 currentTime = time(0);
+    if (outOfRange)
+    {
+        bot->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
+        transportBoardingDelayTime = 0;
+        return false;
+    }
+
+    bool isApproaching = transportBoardingDelayTime > 0;
+    bool approachTimedOut = isApproaching && (currentTime - transportBoardingDelayTime) > 1;
+    // Determine if we should complete boarding now
+    if (isApproaching && approachTimedOut)
+    {
+        Transport* transport = master->GetTransport();
+        MotionMaster &mm = *bot->GetMotionMaster();
+        // Complete boarding - snap to master and attach to transport
+        transportBoardingDelayTime = 0;
+        bot->clearUnitState(UNIT_STAT_IGNORE_PATHFINDING);
+        mm.Clear();
+        bot->movespline->_Interrupt();
+        bot->NearTeleportTo(master->GetPositionX(),
+                            master->GetPositionY(),
+                            master->GetPositionZ(), bot->GetOrientation());
+        bot->SetTransport(transport);
+        transport->AddPassenger(bot);
+        bot->m_movementInfo.SetTransportData(
+            transport->GetObjectGuid(),
+            master->m_movementInfo.GetTransportPos()->x,
+            master->m_movementInfo.GetTransportPos()->y,
+            master->m_movementInfo.GetTransportPos()->z,
+            bot->GetOrientation(),
+            getMSTime()
+        );
+        bot->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+
+        WorldPacket data(MSG_MOVE_HEARTBEAT, 64);
+        data << bot->GetPackGUID();
+        bot->m_movementInfo.Write(data);
+        bot->SendMessageToSet(&data, false);
+        AI_VALUE(LastMovement&, "last movement").Set(target);
+        return true;
+
+    }
+
+    if (distanceToMaster <= sPlayerbotAIConfig.sightDistance)
+    {
+        bot->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+        // Walk toward master in a straight line, ignoring map geometry
+        if(!isApproaching) // set the timeout
+        {
+            transportBoardingDelayTime = currentTime;
+        }
+        Movement::MoveSplineInit init(*bot);
+        init.MoveTo(master->GetPositionX(), master->GetPositionY(), master->GetPositionZ());
+        init.SetWalk(false);
+        init.Launch();
+        AI_VALUE(LastMovement&, "last movement").Set(target);
+        return true;
+    }
+}
+
+bool MovementAction::FollowOffTransport(Unit* target, Player* master)
+{
+    Transport* transport = master->GetTransport();
+    Transport* botTransport = bot->GetTransport();
+    if(!transport || transport != botTransport) // master has left the transport
+    {
+        ObjectGuid botGuid = bot->GetObjectGuid();
+        uint32 currentTime = time(0);
+        // Delay elapsed or master too far - disembark now
+        transportBoardingDelayTime = 0;
+        bot->TradeCancel(false);
+        botTransport->RemovePassenger(bot);
+        bot->m_movementInfo.ClearTransportData();
+        bot->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
+        bot->TeleportTo(master->GetMapId(),
+                       master->GetPositionX(),
+                       master->GetPositionY(),
+                       master->GetPositionZ(),
+                       bot->GetOrientation(),
+                       TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET);
+        WorldPacket data(MSG_MOVE_HEARTBEAT, 64);
+        data << bot->GetPackGUID();
+        bot->m_movementInfo.Write(data);
+        bot->SendMessageToSet(&data, false);
+        AI_VALUE(LastMovement&, "last movement").Set(target);
+    }
+    else
+    {
+        // Bot and master on same transport - clear any stale delay
+        transportBoardingDelayTime = 0;
+    }
+    return true;
+}
+
+>>>>>>> 418e5fef (More Cautious Bots)
 bool MovementAction::Follow(Unit* target, float distance)
 {
     return Follow(target, distance, GetFollowAngle());
@@ -245,6 +370,12 @@ bool MovementAction::Follow(Unit* target, float distance, float angle)
         bot->CastStop();
         ai->InterruptSpell();
     }
+
+    float followX = target->GetPositionX() + cos(angle) * distance;
+    float followY = target->GetPositionY() + sin(angle) * distance;
+    float followZ = target->GetPositionZ();
+    if (IsAggroPosition(followX, followY, followZ))
+        return false;
 
     mm.MoveFollow(target, distance, angle);
 
@@ -303,6 +434,77 @@ bool MovementAction::Flee(Unit *target)
     }
 
     return MoveTo(target->GetMapId(), rx, ry, rz);
+}
+
+/*
+ * Returns the farthest distance along the beeline from (bx,by,bz) at the
+ * given angle that doesn't enter any hostile creature's aggro zone.
+ * Returns maxDist if the entire path is clear.
+ */
+float MovementAction::CalculateAggroFreeDistance(float bx, float by, float bz,
+                                                  float angle, float maxDist)
+{
+    if( !ai->HasStrategy("cautious"))
+    {
+        return maxDist;
+    }
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+    float safeDist = maxDist;
+    Unit *unsafeUnit = 0;
+
+    list<ObjectGuid> targets = AI_VALUE(list<ObjectGuid>, "possible targets");
+    for (list<ObjectGuid>::iterator i = targets.begin(); i != targets.end(); ++i)
+    {
+        Unit* unit = ai->GetUnit(*i);
+        if (!unit || !unit->IsAlive() || unit->IsInCombat() || !unit->IsHostileTo(bot))
+            continue;
+
+        Creature* creature = dynamic_cast<Creature*>(unit);
+        if (!creature || !creature->CanInitiateAttack())
+            continue;
+
+        float aggroRange = creature->GetAttackDistance(bot);
+        float ex = bx - creature->GetPositionX();
+        float ey = by - creature->GetPositionY();
+        float b = ex * cosA + ey * sinA;
+        float c = ex * ex + ey * ey - aggroRange * aggroRange;
+
+        float disc = b * b - c;
+        if (disc < 0)
+            continue;
+
+        float sqrtDisc = sqrt(disc);
+        float tEntry = -b - sqrtDisc;
+        if (tEntry < 0)
+        {
+            continue;
+        }
+
+        if (tEntry < safeDist)
+        {
+            unsafeUnit = unit; // small margin
+            safeDist = std::max(0.0f, tEntry - 2.0f);
+        }
+    }
+
+    return safeDist;
+}
+
+bool MovementAction::IsAggroPosition(float x, float y, float z)
+{
+    float bx = bot->GetPositionX();
+    float by = bot->GetPositionY();
+    float bz = bot->GetPositionZ();
+
+    float dx = x - bx;
+    float dy = y - by;
+    float dist = sqrt(dx * dx + dy * dy);
+    if (dist < 0.1f)
+        return false;
+
+    float angle = atan2(dy, dx);
+    return CalculateAggroFreeDistance(bx, by, bz, angle, dist) < dist;
 }
 
 bool FleeAction::Execute(Event event)
