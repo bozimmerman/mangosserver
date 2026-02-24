@@ -45,8 +45,8 @@ public:
     uint32 globalCoolDown, reactDelay, maxWaitForMove, passiveDelay;
     float sightDistance, spellDistance, reactDistance, grindDistance, lootDistance,
         fleeDistance, tooCloseDistance, meleeDistance, followDistance, whisperDistance, contactDistance;
-    uint32 criticalHealth, lowHealth, mediumHealth, almostFullHealth;
-    uint32 lowMana, mediumMana;
+    uint32 criticalHealth, lowHealth, mediumHealth, almostFullHealth, hungryHealth;
+    uint32 lowMana, mediumMana, thirstyMana;
 
     bool randomBotAutologin; ///< Indicates if random bots should auto-login.
     std::string randomBotMapsAsString; ///< Comma-separated string of random bot maps.
