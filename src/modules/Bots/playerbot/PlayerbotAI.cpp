@@ -283,6 +283,12 @@ void PlayerbotAI::Reset()
     }
 }
 
+/**
+ * Handles a command from the master.
+ * @param type The type of the command.
+ * @param text The command text.
+ * @param fromPlayer The player who sent the command.
+ */
 void PlayerbotAI::HandleCommand(uint32 type, const string& text, Player& fromPlayer)
 {
     if (!GetSecurity()->CheckLevelFor(PLAYERBOT_SECURITY_INVITE, type != CHAT_MSG_WHISPER, &fromPlayer))
@@ -441,6 +447,11 @@ void PlayerbotAI::SpellInterrupted(uint32 spellid)
     lastSpell.id = 0;
 }
 
+/**
+ * Calculates the global cooldown for a spell.
+ * @param spellid The ID of the spell.
+ * @return The global cooldown in milliseconds.
+ */
 uint32 PlayerbotAI::CalculateGlobalCooldown(uint32 spellid)
 {
     if (!spellid)
@@ -581,6 +592,11 @@ void PlayerbotAI::ReInitCurrentEngine()
     currentEngine->Init();
 }
 
+/**
+ * Changes the strategy for the specified engine type.
+ * @param names The names of the strategies.
+ * @param type The type of the engine.
+ */
 void PlayerbotAI::ChangeStrategy(string names, BotState type)
 {
     Engine* e = engines[type];
@@ -592,6 +608,10 @@ void PlayerbotAI::ChangeStrategy(string names, BotState type)
     e->ChangeStrategy(names);
 }
 
+/**
+ * Executes a specific action for the bot.
+ * @param name The name of the action.
+ */
 void PlayerbotAI::DoSpecificAction(string name)
 {
     for (int i = 0 ; i < BOT_STATE_MAX; i++)
@@ -625,6 +645,11 @@ void PlayerbotAI::DoSpecificAction(string name)
     TellMaster(out);
 }
 
+/**
+ * Checks if the bot contains a specific strategy.
+ * @param type The type of the strategy.
+ * @return True if the strategy is contained, false otherwise.
+ */
 bool PlayerbotAI::ContainsStrategy(StrategyType type)
 {
     for (int i = 0 ; i < BOT_STATE_MAX; i++)
@@ -925,6 +950,13 @@ bool PlayerbotAI::TellMaster(string text, PlayerbotSecurityLevel securityLevel)
     return true;
 }
 
+/**
+ * Checks if an aura is real.
+ * @param bot The bot.
+ * @param aura The aura to check.
+ * @param unit The unit with the aura.
+ * @return True if the aura is real, false otherwise.
+ */
 bool IsRealAura(Player* bot, Aura* aura, Unit* unit)
 {
     if (!aura)
@@ -1490,8 +1522,11 @@ bool PlayerbotAI::canDispel(const SpellEntry* entry, uint32 dispelType)
  */
 bool IsAlliance(uint8 race)
 {
-    return race == RACE_HUMAN || race == RACE_DWARF || race == RACE_NIGHTELF ||
-            race == RACE_GNOME;
+    return race == RACE_HUMAN || race == RACE_DWARF || race == RACE_NIGHTELF
+#if !defined(CLASSIC)
+        || race == RACE_DRAENEI || race == RACE_BLOODELF
+#endif
+        || race == RACE_GNOME;
 }
 
 /**
