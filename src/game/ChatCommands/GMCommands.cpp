@@ -79,7 +79,7 @@ bool ChatHandler::HandlePInfoCommand(char* args)
         }
 
         //                                                     0          1      2      3
-        QueryResult* result = CharacterDatabase.PQuery("SELECT `totaltime`, `level`, `money`, `account`, `race`, `class`"
+        QueryResult* result = CharacterDatabase.PQuery("SELECT `totaltime`, `level`, `money`, `account`, `race`, `class` "
                                                        "FROM `characters` WHERE `guid` = '%u'", target_guid.GetCounter());
         if (!result)
         {

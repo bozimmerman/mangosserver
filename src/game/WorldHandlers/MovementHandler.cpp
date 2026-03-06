@@ -28,6 +28,7 @@
 #include "Opcodes.h"
 #include "Log.h"
 #include "Player.h"
+#include "Pet.h"
 #include "MapManager.h"
 #include "Transports.h"
 #include "BattleGround/BattleGround.h"
@@ -36,6 +37,7 @@
 #include "ObjectMgr.h"
 
 #define MOVEMENT_PACKET_TIME_DELAY 300
+
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recv_data*/)
 {
@@ -640,10 +642,30 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
                         }
                     }
                 }
+
+                // schedule pet boarding with a short delay (same reason as playerbot delay:
+                // the transport needs time to move away from the dock before we snap the pet)
+                if (plMover->m_transport)
+                    if (Pet* pet = plMover->GetPet())
+                        pet->StartBoardingDelay();
             }
         }
         else if (plMover->m_transport)               // if we were on a transport, leave
         {
+            if (Pet* pet = plMover->GetPet())
+            {
+                pet->ClearBoardingDelay();
+                pet->SetTransport(nullptr);
+                plMover->m_transport->RemovePassenger(pet);
+                if (pet->GetCharmInfo())
+                    pet->GetCharmInfo()->SetCommandState(COMMAND_FOLLOW);
+                pet->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
+                pet->m_movementInfo.ClearTransportData();
+                pet->m_movementInfo.ChangePosition(movementInfo.GetPos()->x, movementInfo.GetPos()->y,
+                                                   movementInfo.GetPos()->z, movementInfo.GetPos()->o);
+                pet->NearTeleportTo(movementInfo.GetPos()->x, movementInfo.GetPos()->y,
+                                    movementInfo.GetPos()->z, movementInfo.GetPos()->o);
+            }
             plMover->m_transport->RemovePassenger(plMover);
             plMover->m_transport = NULL;
             movementInfo.ClearTransportData();

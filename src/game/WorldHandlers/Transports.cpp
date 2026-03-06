@@ -26,6 +26,7 @@
 
 #include "Transports.h"
 #include "Map.h"
+#include "Creature.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "ObjectGuid.h"
@@ -159,6 +160,16 @@ Transport::Transport() : GameObject()
 
 Transport::~Transport()
 {
+}
+
+void Transport::UpdateCreaturePassengerPositions()
+{
+    float tx = GetPositionX();
+    float ty = GetPositionY();
+    float tz = GetPositionZ();
+    for (Unit* unit : m_passengers)
+        if (Creature* c = unit->ToCreature())
+            GetMap()->CreatureRelocation(c, tx, ty, tz, c->GetOrientation());
 }
 
 bool Transport::AddPassenger(Unit* passenger)
@@ -646,26 +657,19 @@ void GlobalTransport::TeleportTransport(uint32 newMapid, float x, float y, float
     }
 #endif
 
-    for (UnitSet::iterator itr = m_passengers.begin(); itr != m_passengers.end();)
-    {
-        UnitSet::iterator it2 = itr;
-        ++itr;
-
-        Unit* unit = *it2;
-        if (!unit)
-        {
-            m_passengers.erase(it2);
-            continue;
-        }
-
+    // Snapshot: TeleportTo() may call RemovePassenger(), invalidating a live iterator.
+    std::vector<Player*> playersToTeleport;
+    for (Unit* unit : m_passengers)
         if (Player* plr = unit->ToPlayer())
+            playersToTeleport.push_back(plr);
+
+    for (Player* plr : playersToTeleport)
+    {
+        if (plr->IsDead() && !plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         {
-            if (plr->IsDead() && !plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-            {
-                plr->ResurrectPlayer(1.0);
-            }
-            plr->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+            plr->ResurrectPlayer(1.0);
         }
+        plr->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
     }
 
     if (oldMap != newMap)
@@ -695,6 +699,7 @@ void GlobalTransport::Update(uint32 /*update_diff*/, uint32 /*p_time*/)
         else
         {
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z);
+            UpdateCreaturePassengerPositions();
         }
 
         m_nextNodeTime = m_curr->first;

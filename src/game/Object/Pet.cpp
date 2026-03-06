@@ -31,6 +31,9 @@
 #include "Formulas.h"
 #include "SpellAuras.h"
 #include "Unit.h"
+#include "Transports.h"
+#include "movement/MoveSpline.h"
+
 
 // numbers represent minutes * 100 while happy (you get 100 loyalty points per min while happy)
 uint32 const LevelUpLoyalty[6] =
@@ -56,7 +59,7 @@ uint32 const LevelStartLoyalty[6] =
 Pet::Pet(PetType type) :
     Creature(CREATURE_SUBTYPE_PET),
     m_TrainingPoints(0), m_resetTalentsCost(0), m_resetTalentsTime(0),
-    m_removed(false), m_happinessTimer(7500), m_loyaltyTimer(12000), m_petType(type), m_duration(0),
+    m_removed(false), m_boardingTransportTime(0), m_pendingTransportReboard(false), m_transport(nullptr), m_happinessTimer(7500), m_loyaltyTimer(12000), m_petType(type), m_duration(0),
     m_loyaltyPoints(0), m_bonusdamage(0), m_auraUpdateMask(0), m_loading(false),
     m_petModeFlags(PET_MODE_DEFAULT)
 {
@@ -351,6 +354,20 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     }
 
+    if (owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (Transport* tr = ((Player*)owner)->GetTransport())
+        {
+            Position const* tpos = ((Player*)owner)->m_movementInfo.GetTransportPos();
+            float petTo = tpos->o;
+            float petTx = tpos->x + cos(petTo + PET_FOLLOW_ANGLE) * PET_FOLLOW_DIST;
+            float petTy = tpos->y + sin(petTo + PET_FOLLOW_ANGLE) * PET_FOLLOW_DIST;
+            float petTz = tpos->z;
+            m_movementInfo.SetTransportData(tr->GetObjectGuid(), petTx, petTy, petTz, petTo, 0);
+            m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+        }
+    }
+
     map->Add((Creature*)this);
     AIM_Initialize();
 
@@ -373,6 +390,21 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     }
 
     m_loading = false;
+
+    if (owner->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (Transport* tr = ((Player*)owner)->GetTransport())
+        {
+            Player* plOwner = (Player*)owner;
+            tr->AddPassenger(this);
+            m_transport = tr;
+            GetMotionMaster()->Clear(false);
+            if (GetCharmInfo())
+                GetCharmInfo()->SetCommandState(COMMAND_STAY);
+
+            m_pendingTransportReboard = true;
+        }
+    }
 
     SynchronizeLevelWithOwner();
     return true;
@@ -619,12 +651,13 @@ void Pet::Update(uint32 update_diff, uint32 diff)
             // unsummon pet that lost owner
             Unit* owner = GetOwner();
             if (!owner ||
-                (!IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGuid() && (owner->GetCharmGuid() != GetObjectGuid()))) ||
+                (!m_transport && !IsWithinDistInMap(owner, GetMap()->GetVisibilityDistance()) && (owner->GetCharmGuid() && (owner->GetCharmGuid() != GetObjectGuid()))) ||
                 (isControlled() && !owner->GetPetGuid()))
             {
                 Unsummon(PET_SAVE_REAGENTS);
                 return;
             }
+
 
             if (isControlled())
             {
@@ -647,6 +680,60 @@ void Pet::Update(uint32 update_diff, uint32 diff)
                     return;
                 }
             }
+
+            // boarding snap: once the 1-second delay expires, attach pet to transport
+            if (m_boardingTransportTime && (time(nullptr) - m_boardingTransportTime) >= 1)
+            {
+                m_boardingTransportTime = 0;
+                if (Player* plOwner = owner->ToPlayer())
+                {
+                    if (Transport* tr = plOwner->GetTransport())
+                    {
+                        tr->AddPassenger(this);
+                        m_transport = tr;
+                        Position const* tpos = plOwner->m_movementInfo.GetTransportPos();
+                        m_movementInfo.SetTransportData(tr->GetObjectGuid(), tpos->x, tpos->y, tpos->z, tpos->o, 0);
+                        m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+                        m_movementInfo.ChangePosition(plOwner->GetPositionX(), plOwner->GetPositionY(), plOwner->GetPositionZ(), plOwner->GetOrientation());
+                        GetMotionMaster()->Clear(false);
+                        if (GetCharmInfo())
+                            GetCharmInfo()->SetCommandState(COMMAND_STAY);
+                        NearTeleportTo(plOwner->GetPositionX(), plOwner->GetPositionY(), plOwner->GetPositionZ(), plOwner->GetOrientation());
+                        if (movespline)
+                        {
+                            WorldPacket moveData(SMSG_MONSTER_MOVE_TRANSPORT, 64);
+                            moveData << GetPackGUID();
+                            moveData << tr->GetPackGUID();
+                            moveData << tpos->x << tpos->y << tpos->z;
+                            moveData << movespline->GetId();
+                            moveData << uint8(Movement::MonsterMoveStop);
+                            SendMessageToSet(&moveData, true);
+                        }
+                    }
+                }
+            }
+
+            if (m_pendingTransportReboard)
+            {
+                m_pendingTransportReboard = false;
+                if (Player* plOwner = owner->ToPlayer())
+                {
+                    plOwner->PetSpellInitialize();
+                    Transport* plTransport = plOwner->GetTransport();
+                    if (plTransport && movespline)
+                    {
+                        Position const* tpos = m_movementInfo.GetTransportPos();
+                        WorldPacket moveData(SMSG_MONSTER_MOVE_TRANSPORT, 64);
+                        moveData << GetPackGUID();
+                        moveData << plTransport->GetPackGUID();
+                        moveData << tpos->x << tpos->y << tpos->z;
+                        moveData << movespline->GetId();
+                        moveData << uint8(Movement::MonsterMoveStop);
+                        plOwner->SendDirectMessage(&moveData);
+                    }
+                }
+            }
+
             break;
         }
         default:
@@ -1049,6 +1136,14 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
                 }
                 break;
         }
+
+        // If this pet is still registered as a transport passenger, remove it now.
+        if (p_owner)
+            if (Transport* tr = p_owner->GetTransport())
+            {
+                tr->RemovePassenger(this);
+                m_transport = nullptr;
+            }
     }
 
     SavePetToDB(mode);

@@ -30,6 +30,8 @@
 #include "Creature.h"
 #include "Unit.h"
 
+class Transport;
+
 enum PetType
 {
     SUMMON_PET              = 0,
@@ -298,6 +300,13 @@ class Pet : public Creature
         const char* GetNameForLocaleIdx(int32 locale_idx) const override { return WorldObject::GetNameForLocaleIdx(locale_idx); }
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
+
+        Transport* GetTransport() const          { return m_transport; }
+        void       SetTransport(Transport* t)    { m_transport = t; }
+        void       StartBoardingDelay()          { m_boardingTransportTime = time(nullptr); }
+        void       ClearBoardingDelay()          { m_boardingTransportTime = 0; }
+        void       SetPendingTransportReboard()  { m_pendingTransportReboard = true; }
+
     protected:
         uint32  m_happinessTimer;
         uint32  m_loyaltyTimer;
@@ -309,6 +318,10 @@ class Pet : public Creature
         bool    m_loading;
 
     private:
+        time_t     m_boardingTransportTime;                 ///< non-zero while waiting for boarding snap delay; set when player boards, cleared after snap or disembark
+        bool       m_pendingTransportReboard;               ///< fires PetSpellInitialize + SMSG_MONSTER_MOVE_TRANSPORT on next tick after map re-add
+        Transport* m_transport;                             ///< transport this pet is riding; set/cleared alongside AddPassenger/RemovePassenger
+
         PetModeFlags m_petModeFlags;
 
         void SaveToDB(uint32) override                      // overwrited of Creature::SaveToDB     - don't must be called
