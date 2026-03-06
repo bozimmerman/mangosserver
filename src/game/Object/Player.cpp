@@ -20901,9 +20901,9 @@ void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* targe
 
             if (target->GetTypeId() == TYPEID_UNIT)
             {
-                if (Creature* c = ((WorldObject*)target)->ToCreature())
-                    if (c->IsPet() && GetPetGuid() == c->GetObjectGuid() && ((Pet*)c)->GetTransport())
-                        return;
+                Creature* c = target->ToCreature();
+                if (c->IsPet() && GetPetGuid() == c->GetObjectGuid() && ((Pet*)c)->GetTransport())
+                    return;
                 BeforeVisibilityDestroy(target, this);
             }
 
@@ -20944,9 +20944,9 @@ void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* targe
         {
             if (target->GetTypeId() == TYPEID_UNIT)
             {
-                if (Creature* c = ((WorldObject*)target)->ToCreature())
-                    if (c->IsPet() && GetPetGuid() == c->GetObjectGuid() && ((Pet*)c)->GetTransport())
-                        return;
+                Creature* c = target->ToCreature();
+                if (c->IsPet() && GetPetGuid() == c->GetObjectGuid() && ((Pet*)c)->GetTransport())
+                    return;
             }
 
             BeforeVisibilityDestroy(target, this);

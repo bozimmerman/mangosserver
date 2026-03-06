@@ -355,18 +355,18 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     }
 
-    if (owner->GetTypeId() == TYPEID_PLAYER)
+    Player* p_owner = owner->GetTypeId() == TYPEID_PLAYER ? (Player*)owner : nullptr;
+    Transport* ownerTransport = p_owner ? p_owner->GetTransport() : nullptr;
+
+    if (ownerTransport)
     {
-        if (Transport* tr = ((Player*)owner)->GetTransport())
-        {
-            Position const* tpos = ((Player*)owner)->m_movementInfo.GetTransportPos();
-            float petTo = tpos->o;
-            float petTx = tpos->x + cos(petTo + PET_FOLLOW_ANGLE) * PET_FOLLOW_DIST;
-            float petTy = tpos->y + sin(petTo + PET_FOLLOW_ANGLE) * PET_FOLLOW_DIST;
-            float petTz = tpos->z;
-            m_movementInfo.SetTransportData(tr->GetObjectGuid(), petTx, petTy, petTz, petTo, 0);
-            m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
-        }
+        Position const* tpos = p_owner->m_movementInfo.GetTransportPos();
+        float petTo = tpos->o;
+        float petTx = tpos->x + cos(petTo + PET_FOLLOW_ANGLE) * PET_FOLLOW_DIST;
+        float petTy = tpos->y + sin(petTo + PET_FOLLOW_ANGLE) * PET_FOLLOW_DIST;
+        float petTz = tpos->z;
+        m_movementInfo.SetTransportData(ownerTransport->GetObjectGuid(), petTx, petTy, petTz, petTo, 0);
+        m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
     }
 
     map->Add((Creature*)this);
@@ -381,26 +381,23 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     owner->SetPet(this);                                    // in DB stored only full controlled creature
     DEBUG_LOG("New Pet has guid %u", GetGUIDLow());
 
-    if (owner->GetTypeId() == TYPEID_PLAYER)
+    if (p_owner)
     {
-        ((Player*)owner)->PetSpellInitialize();
-        if (((Player*)owner)->GetGroup())
+        p_owner->PetSpellInitialize();
+        if (p_owner->GetGroup())
         {
-            ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_PET);
+            p_owner->SetGroupUpdateFlag(GROUP_UPDATE_PET);
         }
     }
 
     m_loading = false;
 
-    if (owner->GetTypeId() == TYPEID_PLAYER)
+    if (ownerTransport)
     {
-        if (Transport* tr = ((Player*)owner)->GetTransport())
-        {
-            tr->AddPassenger(this);
-            m_transport = tr;
-            GetMotionMaster()->Clear(false);
-            m_pendingTransportReboard = true;
-        }
+        ownerTransport->AddPassenger(this);
+        m_transport = ownerTransport;
+        GetMotionMaster()->Clear(false);
+        m_pendingTransportReboard = true;
     }
 
     SynchronizeLevelWithOwner();
@@ -804,7 +801,7 @@ bool Pet::HandleTransportFollow(Unit* target, float offset, float angle, bool wa
             moveTransport << GetPackGUID();
             moveTransport << masterTransport->GetPackGUID();
             moveTransport << startRelX << startRelY << startRelZ;
-            moveTransport << uint32(0);
+            moveTransport << movespline->GetId();
             moveTransport << uint8(Movement::MonsterMoveNormal);
             moveTransport << uint32(Movement::MoveSplineFlag::Runmode);
             moveTransport << durationMs;
@@ -1227,6 +1224,11 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
             m_transport->RemovePassenger(this);
             m_transport = nullptr;
         }
+    }
+    else if (m_transport)
+    {
+        m_transport->RemovePassenger(this);
+        m_transport = nullptr;
     }
 
     SavePetToDB(mode);
