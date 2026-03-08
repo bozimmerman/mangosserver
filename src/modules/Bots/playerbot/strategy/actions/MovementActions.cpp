@@ -457,13 +457,12 @@ float MovementAction::CalculateAggroFreeDistance(float bx, float by, float bz,
     float cosA = cos(angle);
     float sinA = sin(angle);
     float safeDist = maxDist;
-    Unit *unsafeUnit = 0;
 
     list<ObjectGuid> targets = AI_VALUE(list<ObjectGuid>, "possible targets");
     for (list<ObjectGuid>::iterator i = targets.begin(); i != targets.end(); ++i)
     {
         Unit* unit = ai->GetUnit(*i);
-        if (!unit || !unit->IsAlive() || unit->IsInCombat() || !unit->IsHostileTo(bot))
+        if (!unit || !unit->IsAlive() || unit->IsInCombat() || !unit->IsHostileTo(bot) || unit == bot->getVictim())
             continue;
 
         Creature* creature = dynamic_cast<Creature*>(unit);
@@ -489,7 +488,6 @@ float MovementAction::CalculateAggroFreeDistance(float bx, float by, float bz,
 
         if (tEntry < safeDist)
         {
-            unsafeUnit = unit; // small margin
             safeDist = std::max(0.0f, tEntry - 2.0f);
         }
     }
