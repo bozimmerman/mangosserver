@@ -32,7 +32,6 @@ PlayerbotAIConfig::PlayerbotAIConfig()
       whisperDistance(0.0f),
       whisperToZoneOnly(false),
       contactDistance(0.0f),
-      whisperToZoneOnly(false),
       criticalHealth(0),
       lowHealth(0),
       mediumHealth(0),
