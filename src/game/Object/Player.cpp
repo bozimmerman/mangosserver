@@ -23059,9 +23059,9 @@ void Player::UnsummonPetTemporaryIfAny()
         m_temporaryUnsummonedPetNumber = pet->GetCharmInfo()->GetPetNumber();
     }
 
-    if (m_transport)
+    if (Transport* petTransport = pet->GetTransport())
     {
-        m_transport->RemovePassenger(pet);
+        petTransport->RemovePassenger(pet);
         pet->SetTransport(nullptr);
     }
 

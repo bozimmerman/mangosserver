@@ -1222,13 +1222,11 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
                 break;
         }
 
-        // If this pet is still registered as a transport passenger, remove it now.
-        if (p_owner)
-            if (Transport* tr = p_owner->GetTransport())
-            {
-                tr->RemovePassenger(this);
-                m_transport = nullptr;
-            }
+        if (m_transport)
+        {
+            m_transport->RemovePassenger(this);
+            m_transport = nullptr;
+        }
     }
 
     SavePetToDB(mode);

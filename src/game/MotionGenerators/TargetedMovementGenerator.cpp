@@ -97,7 +97,9 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T& owner, bool up
     bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->IsPet()
                       && owner.hasUnitState(UNIT_STAT_FOLLOW));
 
-    if (forceDest)
+    if (forceDest &&
+        (owner.m_movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT) ||
+         i_target->m_movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT)))
     {
         bool outMoved = false;
         if (((Creature*)&owner)->HandleTransportFollow(
