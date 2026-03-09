@@ -28,8 +28,8 @@ namespace ai
         bool IsMovingAllowed(uint32 mapId, float x, float y, float z);
         bool IsMovingAllowed();
         bool Flee(Unit *target);
-        float CalculateAggroFreeDistance(float bx, float by, float bz, float angle, float maxDist);
-        bool IsAggroPosition(float x, float y, float z);
+        float CalculateAggroFreeDistance(float bx, float by, float angle, float maxDist);
+        bool IsAggroPosition(float x, float y);
 
     protected:
         Player* bot;

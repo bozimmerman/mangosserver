@@ -3551,8 +3551,14 @@ bool ChatHandler::ExtractPlayerTarget(char** args, Player** player /*= NULL*/, O
             else if (guid)
             {
                 std::string name;
-                sObjectMgr.GetPlayerNameByGUID(guid, name);
-                *player_name = name;
+                if (!sObjectMgr.GetPlayerNameByGUID(guid, name) || name.empty())
+                {
+                    if (player_guid)
+                        *player_guid = ObjectGuid();
+                    *player_name = "";
+                }
+                else
+                    *player_name = name;
             }
             else
                 *player_name = "";

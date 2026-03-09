@@ -18,7 +18,7 @@ bool PartyMemberNeedsSustenanceTrigger::IsActive()
 {
     uint32 now = getMSTime();
     uint32 interval = m_lastResult ? ACTIVE_SCAN_MS : IDLE_SCAN_MS;
-    if (now - m_lastScanTime < interval)
+    if (getMSTimeDiff(m_lastScanTime, now) < interval)
         return m_lastResult;
 
     m_lastScanTime = now;
