@@ -2469,9 +2469,20 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint32 level)
     }
 
     PetLevelInfoMap::const_iterator itr = petInfo.find(creature_id);
+
     if (itr == petInfo.end())
     {
-        return NULL;
+        // The pet level info table is completely broken.  It should either have every creature,
+        //   or at least every family id, but it's empty (right now).  This must be fixed.  In the
+        //   meantime, we should at least pretend it's set up correctly by looking up the Family
+        //   id as backup.
+        CreatureInfo const* cinfo = sCreatureStorage.LookupEntry<CreatureInfo>(creature_id);
+        if (cinfo && cinfo->Family > 0)
+            itr = petInfo.find(cinfo->Family);
+        if (itr == petInfo.end())
+            itr = petInfo.find(1); // fall back to generic entry 1 as default
+        if (itr == petInfo.end())
+            return NULL;
     }
 
     return &itr->second[level - 1];                         // data for level 1 stored in [0] array element, ...
