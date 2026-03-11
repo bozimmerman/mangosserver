@@ -2,6 +2,7 @@
 #include "playerbot.h"
 #include "ahbot/AhBot.h"
 #include "PlayerbotFactory.h"
+#include "Pet.h"
 #include "SQLStorages.h"
 #include "ItemPrototype.h"
 #include "PlayerbotAIConfig.h"
@@ -236,12 +237,6 @@ void PlayerbotFactory::InitPet()
             int index = urand(0, ids.size() - 1);
             CreatureInfo const* co = sCreatureStorage.LookupEntry<CreatureInfo>(ids[index]);
 
-            PetLevelInfo const* petInfo = sObjectMgr.GetPetLevelInfo(co->Entry, bot->getLevel());
-            if (!petInfo)
-            {
-                continue;
-            }
-
             uint32 guid = map->GenerateLocalLowGuid(HIGHGUID_PET);
             uint32 pet_number = sObjectMgr.GeneratePetNumber();
             CreatureCreatePos pos(map, bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ(), bot->GetOrientation());
@@ -263,7 +258,8 @@ void PlayerbotFactory::InitPet()
             pet->InitStatsForLevel(bot->getLevel());
             pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL)));
             pet->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
-            pet->SetByteValue(UNIT_FIELD_BYTES_1, 1, 0); // loyalty level
+            pet->SetLoyaltyLevel(BEST_FRIEND);
+            pet->ModifyLoyalty(pet->GetStartLoyaltyPoints(BEST_FRIEND));
             pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE | UNIT_FLAG_RESTING);
             pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_RENAME); // Allow renaming
             pet->SetPowerType(POWER_FOCUS);
