@@ -59,6 +59,7 @@ bool AttackAction::Attack(Unit* target)
             ai->TellMaster("I have no target");
             return false;
         }
+        return false;
     }
 
     ostringstream msg;
