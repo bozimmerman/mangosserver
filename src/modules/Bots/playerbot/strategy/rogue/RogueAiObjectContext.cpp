@@ -5,7 +5,7 @@
 #include "RogueAiObjectContext.h"
 #include "DpsRogueStrategy.h"
 #include "GenericRogueNonCombatStrategy.h"
-#include "../generic/PullStrategy.h"
+#include "RogueAmbushStrategy.h"
 #include "../NamedObjectContext.h"
 
 using namespace ai;
@@ -30,7 +30,7 @@ namespace ai
         private:
             static Strategy* dps(PlayerbotAI* ai) { return new DpsRogueStrategy(ai); }
             static Strategy* nc(PlayerbotAI* ai) { return new GenericRogueNonCombatStrategy(ai); }
-            static Strategy* pull(PlayerbotAI* ai) { return new PullStrategy(ai, "shoot"); }
+            static Strategy* pull(PlayerbotAI* ai) { return new RogueAmbushStrategy(ai); }
         };
     };
 };
@@ -51,6 +51,8 @@ namespace ai
                 creators["slice and dice"] = &TriggerFactoryInternal::slice_and_dice;
                 creators["expose armor"] = &TriggerFactoryInternal::expose_armor;
                 creators["kick on enemy healer"] = &TriggerFactoryInternal::kick_on_enemy_healer;
+                creators["combo points for target available"] = &TriggerFactoryInternal::combo_points_for_target_available;
+                creators["stealth"] = &TriggerFactoryInternal::stealth;
 
             }
 
@@ -60,6 +62,8 @@ namespace ai
             static Trigger* slice_and_dice(PlayerbotAI* ai) { return new SliceAndDiceTrigger(ai); }
             static Trigger* expose_armor(PlayerbotAI* ai) { return new ExposeArmorTrigger(ai); }
             static Trigger* kick_on_enemy_healer(PlayerbotAI* ai) { return new KickInterruptEnemyHealerSpellTrigger(ai); }
+            static Trigger* combo_points_for_target_available(PlayerbotAI* ai) { return new ComboPointsForTargetAvailableTrigger(ai); }
+            static Trigger* stealth(PlayerbotAI* ai) { return new StealthTrigger(ai); }
         };
     };
 };
@@ -90,6 +94,10 @@ namespace ai
                 creators["backstab"] = &AiObjectContextInternal::backstab;
                 creators["expose armor"] = &AiObjectContextInternal::expose_armor;
                 creators["kick on enemy healer"] = &AiObjectContextInternal::kick_on_enemy_healer;
+                creators["sap"] = &AiObjectContextInternal::sap;
+                creators["garrote"] = &AiObjectContextInternal::garrote;
+                creators["cheap shot"] = &AiObjectContextInternal::cheap_shot;
+                creators["stealth"] = &AiObjectContextInternal::stealth;
             }
 
         private:
@@ -107,6 +115,10 @@ namespace ai
             static Action* backstab(PlayerbotAI* ai) { return new CastBackstabAction(ai); }
             static Action* expose_armor(PlayerbotAI* ai) { return new CastExposeArmorAction(ai); }
             static Action* kick_on_enemy_healer(PlayerbotAI* ai) { return new CastKickOnEnemyHealerAction(ai); }
+            static Action* sap(PlayerbotAI* ai) { return new CastSapAction(ai); }
+            static Action* garrote(PlayerbotAI* ai) { return new CastGarroteAction(ai); }
+            static Action* cheap_shot(PlayerbotAI* ai) { return new CastCheapShotAction(ai); }
+            static Action* stealth(PlayerbotAI* ai) { return new CastStealthAction(ai); }
         };
     };
 };
