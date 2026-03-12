@@ -60,4 +60,15 @@ namespace ai
     public:
         CastKickOnEnemyHealerAction(PlayerbotAI* ai) : CastSpellOnEnemyHealerAction(ai, "kick") {}
     };
+
+    class CastStealthAction : public CastBuffSpellAction
+    {
+    public:
+        CastStealthAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "stealth") {}
+
+        virtual bool isUseful()
+        {
+            return CastBuffSpellAction::isUseful() && !ai->HasAura("stealth", ai->GetBot());
+        }
+    };
 }

@@ -11,4 +11,7 @@ void GenericRogueNonCombatStrategy::InitTriggers(std::list<TriggerNode*> &trigge
 {
     NonCombatStrategy::InitTriggers(triggers);
 
+    triggers.push_back(new TriggerNode(
+        "stealth",
+        NextAction::array(0, new NextAction("stealth", ACTION_NORMAL), NULL)));
 }
