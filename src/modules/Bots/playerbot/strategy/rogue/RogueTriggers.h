@@ -33,4 +33,51 @@ namespace ai
     public:
         KickInterruptEnemyHealerSpellTrigger(PlayerbotAI* ai) : InterruptEnemyHealerTrigger(ai, "kick") {}
     };
+
+    class StealthTrigger : public Trigger
+    {
+    public:
+        StealthTrigger(PlayerbotAI* ai) : Trigger(ai, "stealth") {}
+
+        virtual bool IsActive()
+        {
+            Unit* target = AI_VALUE(Unit*, "current target");
+            return target && !ai->HasAura("stealth", ai->GetBot());
+        }
+    };
+
+    class ComboPointsForTargetAvailableTrigger : public Trigger
+    {
+    public:
+        ComboPointsForTargetAvailableTrigger(PlayerbotAI* ai)
+            : Trigger(ai, "combo points for target available"), m_threshold(2) {}
+
+        virtual bool IsActive()
+        {
+            Unit* target = AI_VALUE(Unit*, "current target");
+            if (!target)
+                return false;
+
+            uint8 combo = AI_VALUE2(uint8, "combo", "current target");
+            if (combo >= m_threshold)
+            {
+                m_threshold = nextThreshold(target);
+                return true;
+            }
+            return false;
+        }
+
+    private:
+        uint8 m_threshold;
+
+        uint8 nextThreshold(Unit* target)
+        {
+            Creature* creature = dynamic_cast<Creature*>(target);
+            if (creature && creature->GetCreatureInfo() &&
+                creature->GetCreatureInfo()->Rank > CREATURE_ELITE_NORMAL)
+                return 3 + urand(0, 2);  // 3, 4, or 5
+            else
+                return 1 + urand(0, 1);  // 1 or 2
+        }
+    };
 }
