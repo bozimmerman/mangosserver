@@ -120,7 +120,8 @@ namespace ai
         CastWingClipAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "wing clip") {}
         virtual bool isUseful()
         {
-            return CastMeleeSpellAction::isUseful() && !ai->HasAura(spell, GetTarget());
+            Unit* target = GetTarget();
+            return target && target->IsAlive() && CastMeleeSpellAction::isUseful() && !ai->HasAura(spell, target);
         }
     };
 
@@ -128,5 +129,58 @@ namespace ai
     {
     public:
         CastSerpentStingOnAttackerAction(PlayerbotAI* ai) : CastDebuffSpellOnAttackerAction(ai, "serpent sting") {}
+    };
+
+    BEGIN_MELEE_SPELL_ACTION(CastImmolationTrapAction, "immolation trap")
+    END_SPELL_ACTION()
+
+    BEGIN_MELEE_SPELL_ACTION(CastFrostTrapAction, "frost trap")
+    END_SPELL_ACTION()
+
+    BEGIN_MELEE_SPELL_ACTION(CastExplosiveTrapAction, "explosive trap")
+    END_SPELL_ACTION()
+
+    BEGIN_RANGED_SPELL_ACTION(CastScatterShotAction, "scatter shot")
+    END_SPELL_ACTION()
+
+    class CastBestialWrathAction : public CastBuffSpellAction
+    {
+    public:
+        CastBestialWrathAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "bestial wrath") {}
+    };
+
+    BEGIN_MELEE_SPELL_ACTION(CastMongooseBiteAction, "mongoose bite")
+    END_SPELL_ACTION()
+
+    class CastIntimidationAction : public CastMeleeSpellAction
+    {
+    public:
+        CastIntimidationAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "intimidation") {}
+        virtual bool isUseful();
+    };
+
+    class HunterMeleeAction : public Action
+    {
+    public:
+        HunterMeleeAction(PlayerbotAI* ai) : Action(ai, "hunter melee") {}
+        virtual bool Execute(Event event);
+        virtual bool isUseful();
+    };
+
+    class HunterEnsureRangedPositionAction : public MovementAction
+    {
+    public:
+        HunterEnsureRangedPositionAction(PlayerbotAI* ai) : MovementAction(ai, "hunter ensure ranged position") {}
+        virtual bool Execute(Event event)
+        {
+            return MoveTo(AI_VALUE(Unit*, "current target"), sPlayerbotAIConfig.spellDistance);
+        }
+        virtual bool isUseful()
+        {
+            Unit* target = AI_VALUE(Unit*, "current target");
+            if (!target || !target->IsAlive()) return false;
+            return target->getVictim() != bot &&
+                   bot->GetDistance(target) < sPlayerbotAIConfig.spellDistance;
+        }
     };
 }
