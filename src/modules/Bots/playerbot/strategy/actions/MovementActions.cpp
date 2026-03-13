@@ -272,6 +272,7 @@ bool MovementAction::FollowOnTransport(Unit* target, Player* master)
         AI_VALUE(LastMovement&, "last movement").Set(target);
         return true;
     }
+    return false;
 }
 
 bool MovementAction::FollowOffTransport(Unit* target, Player* master)

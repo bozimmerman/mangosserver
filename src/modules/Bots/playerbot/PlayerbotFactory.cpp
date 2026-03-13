@@ -292,6 +292,32 @@ void PlayerbotFactory::InitPet()
         return;
     }
 
+    // Teach all universal pet trainer skills appropriate for this pet's level.
+    // "Universal" means taught by every pet trainer (not family-restricted).
+    QueryResult* trainerSpells = WorldDatabase.PQuery(
+        "SELECT nt.spell"
+        " FROM npc_trainer nt"
+        " JOIN creature_template ct ON nt.entry = ct.Entry AND ct.TrainerType = 3"
+        " WHERE nt.reqlevel <= %u"
+        " GROUP BY nt.spell"
+        " HAVING COUNT(DISTINCT nt.entry) = ("
+        "   SELECT COUNT(DISTINCT nt2.entry)"
+        "   FROM npc_trainer nt2"
+        "   JOIN creature_template ct2 ON nt2.entry = ct2.Entry AND ct2.TrainerType = 3"
+        " )",
+        pet->getLevel());
+
+    if (trainerSpells)
+    {
+        do
+        {
+            uint32 spellId = (*trainerSpells)[0].GetUInt32();
+            pet->addSpell(spellId, ACT_DECIDE, PETSPELL_NEW, PETSPELL_NORMAL);
+        }
+        while (trainerSpells->NextRow());
+        delete trainerSpells;
+    }
+
     for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
     {
         if (itr->second.state == PETSPELL_REMOVED)
