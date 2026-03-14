@@ -125,7 +125,7 @@ void PlayerbotHolder::OnBotLogin(Player* const bot)
     }
 
     Group* group = bot->GetGroup();
-    if (group)
+    if (group && !sPlayerbotAIConfig.randomBotKeepGroups)
     {
         bool groupValid = false;
         Group::MemberSlotList const& slots = group->GetMemberSlots();

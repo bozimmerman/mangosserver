@@ -37,6 +37,11 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
         return;
     }
 
+    if (!processTicks && sPlayerbotAIConfig.randomBotKeepGroups)
+    {
+        EnsureGroupedBotsOnline();
+    }
+
     sLog.outBasic("Processing random bots...");
 
     uint32 cachedMin = GetEventValue(0, "config_min");
@@ -157,8 +162,15 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
         Player* player = GetPlayerBot(bot);
         if (!player || !player->GetGroup())
         {
-            sLog.outDetail("Bot %d expired", bot);
-            SetEventValue(bot, "add", 0, 0);
+            if (sPlayerbotAIConfig.randomBotKeepGroups && IsBotInGroup(bot))
+            {
+                SetEventValue(bot, "add", 1, sPlayerbotAIConfig.maxRandomBotInWorldTime);
+            }
+            else
+            {
+                sLog.outDetail("Bot %d expired", bot);
+                SetEventValue(bot, "add", 0, 0);
+            }
         }
         return true;
     }
@@ -688,6 +700,60 @@ bool RandomPlayerbotMgr::IsZoneSafeForBot(Player* bot, uint32 mapId, float x, fl
         return true;
     }
     return false;
+}
+
+bool RandomPlayerbotMgr::IsBotInGroup(uint32 botGuid)
+{
+    QueryResult* result = CharacterDatabase.PQuery(
+        "SELECT 1 FROM `group_member` WHERE `memberGuid` = '%u' LIMIT 1",
+        botGuid);
+
+    if (!result)
+        return false;
+
+    delete result;
+    return true;
+}
+
+void RandomPlayerbotMgr::EnsureGroupedBotsOnline()
+{
+    if (sPlayerbotAIConfig.randomBotAccounts.empty())
+        return;
+
+    ostringstream os;
+    bool first = true;
+    for (list<uint32>::iterator i = sPlayerbotAIConfig.randomBotAccounts.begin(); i != sPlayerbotAIConfig.randomBotAccounts.end(); ++i)
+    {
+        if (!first) os << ",";
+        os << *i;
+        first = false;
+    }
+    string accountList = os.str();
+
+    QueryResult* result = CharacterDatabase.PQuery(
+        "SELECT gm.`memberGuid` FROM `group_member` gm "
+        "INNER JOIN `characters` c ON gm.`memberGuid` = c.`guid` "
+        "WHERE c.`account` IN (%s)",
+        accountList.c_str());
+
+    if (!result)
+        return;
+
+    uint32 count = 0;
+    do
+    {
+        Field* fields = result->Fetch();
+        uint32 botGuid = fields[0].GetUInt32();
+        if (!GetEventValue(botGuid, "add"))
+        {
+            SetEventValue(botGuid, "add", 1, sPlayerbotAIConfig.maxRandomBotInWorldTime);
+            count++;
+        }
+    } while (result->NextRow());
+    delete result;
+
+    if (count > 0)
+        sLog.outString("Queued %u grouped bot(s) for login at startup", count);
 }
 
 uint32 RandomPlayerbotMgr::GetEventValue(uint32 bot, string event)
