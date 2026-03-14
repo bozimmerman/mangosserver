@@ -189,14 +189,23 @@ void PlayerbotFactory::Randomize(bool incremental)
  */
 void PlayerbotFactory::InitPet()
 {
+    if (bot->getClass() != CLASS_HUNTER)
+        return;
+
     Pet* pet = bot->GetPet();
+
+    // If not summoned, try loading existing pet from DB before creating a new one
     if (!pet)
     {
-        if (bot->getClass() != CLASS_HUNTER)
-        {
-            return;
-        }
+        Pet* loadPet = new Pet;
+        if (loadPet->LoadPetFromDB(bot, 0))
+            pet = bot->GetPet();
+        else
+            delete loadPet;
+    }
 
+    if (!pet)
+    {
         Map* map = bot->GetMap();
         if (!map)
         {
@@ -275,9 +284,7 @@ void PlayerbotFactory::InitPet()
             pet->SetHealth(pet->GetMaxHealth());
             pet->SetPower(POWER_FOCUS, pet->GetMaxPower(POWER_FOCUS));
             bot->SetPet(pet);
-
             sLog.outDetail("Bot %s: assign pet %d (%d level)", bot->GetName(), co->Entry, bot->getLevel());
-            pet->SavePetToDB(PET_SAVE_AS_CURRENT);
             break;
         }
     }
@@ -288,30 +295,57 @@ void PlayerbotFactory::InitPet()
         return;
     }
 
-    // Teach all universal pet trainer skills appropriate for this pet's level.
-    // "Universal" means taught by every pet trainer (not family-restricted).
+    // Teach all pet trainer skills appropriate for this pet's level.
     QueryResult* trainerSpells = WorldDatabase.PQuery(
-        "SELECT nt.spell"
+        "SELECT DISTINCT nt.spell"
         " FROM npc_trainer nt"
         " JOIN creature_template ct ON nt.entry = ct.Entry AND ct.TrainerType = 3"
-        " WHERE nt.reqlevel <= %u"
-        " GROUP BY nt.spell"
-        " HAVING COUNT(DISTINCT nt.entry) = ("
-        "   SELECT COUNT(DISTINCT nt2.entry)"
-        "   FROM npc_trainer nt2"
-        "   JOIN creature_template ct2 ON nt2.entry = ct2.Entry AND ct2.TrainerType = 3"
-        " )",
+        " WHERE nt.reqlevel <= %u",
         pet->getLevel());
 
     if (trainerSpells)
     {
         do
         {
-            uint32 spellId = (*trainerSpells)[0].GetUInt32();
-            pet->addSpell(spellId, ACT_DECIDE, PETSPELL_NEW, PETSPELL_NORMAL);
+            uint32 trainerSpellId = (*trainerSpells)[0].GetUInt32();
+            SpellEntry const* trainerSpellInfo = sSpellStore.LookupEntry(trainerSpellId);
+            if (!trainerSpellInfo)
+                continue;
+            for (int i = 0; i < MAX_EFFECT_INDEX; ++i)
+            {
+                if (trainerSpellInfo->Effect[i] == SPELL_EFFECT_LEARN_PET_SPELL &&
+                    trainerSpellInfo->EffectTriggerSpell[i])
+                {
+                    pet->learnSpell(trainerSpellInfo->EffectTriggerSpell[i]);
+                    break;
+                }
+            }
         }
         while (trainerSpells->NextRow());
         delete trainerSpells;
+    }
+
+    CreatureInfo const* cInfo = pet->GetCreatureInfo();
+    if (cInfo && cInfo->Family)
+    {
+        CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->Family);
+        if (cFamily)
+        {
+            for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+            {
+                SkillLineAbilityEntry const* slab = sSkillLineAbilityStore.LookupEntry(j);
+                if (!slab || !slab->spellId)
+                    continue;
+                if (slab->skillId != cFamily->skillLine[0] && slab->skillId != cFamily->skillLine[1])
+                    continue;
+                SpellEntry const* spellInfo = sSpellStore.LookupEntry(slab->spellId);
+                if (!spellInfo || IsPassiveSpell(spellInfo))
+                    continue;
+                if (spellInfo->spellLevel > pet->getLevel())
+                    continue;
+                pet->learnSpell(slab->spellId);
+            }
+        }
     }
 
     for (PetSpellMap::const_iterator itr = pet->m_spells.begin(); itr != pet->m_spells.end(); ++itr)
@@ -329,6 +363,8 @@ void PlayerbotFactory::InitPet()
 
         pet->ToggleAutocast(spellId, true);
     }
+
+    pet->SavePetToDB(PET_SAVE_AS_CURRENT);
 }
 
 /**
