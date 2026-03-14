@@ -19,6 +19,8 @@ public:
         creators["rake"] = &rake;
         creators["ferocious bite"] = &ferocious_bite;
         creators["rip"] = &rip;
+        creators["shred"] = &shred;
+        creators["swipe (cat)"] = &swipe_cat;
     }
 private:
     static ActionNode* faerie_fire_feral(PlayerbotAI* ai)
@@ -84,6 +86,20 @@ private:
             /*A*/ NULL,
             /*C*/ NULL);
     }
+    static ActionNode* shred(PlayerbotAI* ai)
+    {
+        return new ActionNode ("shred",
+            /*P*/ NULL,
+            /*A*/ NextAction::array(0, new NextAction("mangle (cat)"), NULL),
+            /*C*/ NULL);
+    }
+    static ActionNode* swipe_cat(PlayerbotAI* ai)
+    {
+        return new ActionNode ("swipe (cat)",
+            /*P*/ NULL,
+            /*A*/ NextAction::array(0, new NextAction("claw"), NULL),
+            /*C*/ NULL);
+    }
 };
 
 CatDpsDruidStrategy::CatDpsDruidStrategy(PlayerbotAI* ai) : FeralDruidStrategy(ai)
@@ -93,7 +109,10 @@ CatDpsDruidStrategy::CatDpsDruidStrategy(PlayerbotAI* ai) : FeralDruidStrategy(a
 
 NextAction** CatDpsDruidStrategy::getDefaultActions()
 {
-    return NextAction::array(0, new NextAction("mangle (cat)", ACTION_NORMAL + 1), NULL);
+    return NextAction::array(0,
+        new NextAction("shred", ACTION_NORMAL + 2),
+        new NextAction("mangle (cat)", ACTION_NORMAL + 1),
+        NULL);
 }
 
 void CatDpsDruidStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
