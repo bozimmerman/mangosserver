@@ -12,7 +12,7 @@ public:
     {
         creators["melee"] = &melee;
         creators["shield wall"] = &shield_wall;
-        creators["rend"] = &rend;
+        creators["thunder clap"] = &thunder_clap;
         creators["revenge"] = &revenge;
         creators["devastate"] = &devastate;
         creators["shockwave"] = &shockwave;
@@ -33,10 +33,10 @@ private:
             /*A*/ NextAction::array(0, new NextAction("shield block"), NULL),
             /*C*/ NULL);
     }
-    static ActionNode* rend(PlayerbotAI* ai)
+    static ActionNode* thunder_clap(PlayerbotAI* ai)
     {
-        return new ActionNode ("rend",
-            /*P*/ NextAction::array(0, new NextAction("defensive stance"), NULL),
+        return new ActionNode ("thunder clap",
+            /*P*/ NextAction::array(0, new NextAction("battle stance"), NULL),
             /*A*/ NULL,
             /*C*/ NULL);
     }
