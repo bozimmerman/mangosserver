@@ -18,6 +18,9 @@ namespace ai
     BEGIN_RANGED_SPELL_ACTION(CastShadowBoltAction, "shadow bolt")
     END_SPELL_ACTION()
 
+    BEGIN_RANGED_SPELL_ACTION(CastIncinerateAction, "incinerate")
+    END_SPELL_ACTION()
+
     class CastDrainSoulAction : public CastSpellAction
     {
     public:
