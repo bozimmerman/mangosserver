@@ -40,6 +40,40 @@ namespace ai
         virtual bool isUseful() { return AI_VALUE2(bool, "combat", "self target"); }
     };
 
+    class UseBandage : public UseItemAction {
+    public:
+        UseBandage(PlayerbotAI* ai) : UseItemAction(ai, "bandage") {}
+
+        virtual bool Execute(Event event)
+        {
+            if (ai->IsBandaging())
+            {
+                if (AI_VALUE(uint8, "my attacker count") > 0)
+                {
+                    ai->ClearBandaging();
+                    return false;
+                }
+                return true;
+            }
+            bool result = UseItemAction::Execute(event);
+            if (result)
+                ai->SetBandaging();
+            return result;
+        }
+
+        virtual bool isPossible()
+        {
+            if (ai->IsBandaging())
+                return true;
+            return AI_VALUE(uint8, "my attacker count") == 0 && UseItemAction::isPossible();
+        }
+
+        virtual bool isUseful()
+        {
+            return AI_VALUE2(bool, "combat", "self target");
+        }
+    };
+
     class UseManaPotion : public UseItemAction
     {
     public:

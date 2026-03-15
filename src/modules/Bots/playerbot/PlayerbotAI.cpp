@@ -78,7 +78,7 @@ void PacketHandlingHelper::AddPacket(const WorldPacket& packet)
  */
 PlayerbotAI::PlayerbotAI() : PlayerbotAIBase(), bot(NULL), aiObjectContext(NULL),
     currentEngine(NULL), chatHelper(this), chatFilter(this), accountId(0), security(NULL), master(NULL), currentState(BOT_STATE_NON_COMBAT),
-    m_eatingUntil(0), m_drinkingUntil(0),
+    m_eatingUntil(0), m_drinkingUntil(0), m_bandagingUntil(0),
     m_isJumping(false), m_jumpStartTime(0),
     m_jumpStartX(0.f), m_jumpStartY(0.f), m_jumpStartZ(0.f),
     m_jumpSinAngle(0.f), m_jumpCosAngle(1.f), m_jumpXYSpeed(0.f),
@@ -97,7 +97,7 @@ PlayerbotAI::PlayerbotAI() : PlayerbotAIBase(), bot(NULL), aiObjectContext(NULL)
  */
 PlayerbotAI::PlayerbotAI(Player* bot) :
     PlayerbotAIBase(), chatHelper(this), chatFilter(this), security(bot), master(NULL),
-    m_eatingUntil(0), m_drinkingUntil(0),
+    m_eatingUntil(0), m_drinkingUntil(0), m_bandagingUntil(0),
     m_isJumping(false), m_jumpStartTime(0),
     m_jumpStartX(0.f), m_jumpStartY(0.f), m_jumpStartZ(0.f),
     m_jumpSinAngle(0.f), m_jumpCosAngle(1.f), m_jumpXYSpeed(0.f),
