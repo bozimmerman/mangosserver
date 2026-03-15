@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DBCStore.h"
+
 char * strstri (const char* str1, const char* str2);
 
 namespace ai
@@ -280,6 +282,15 @@ namespace ai
         map<uint32, int> count;
     };
 
+    inline bool IsBuffFood(const ItemPrototype* proto)
+    {
+        if (proto->Class != ITEM_CLASS_CONSUMABLE ||
+            proto->Spells[0].SpellCategory != SPELLCATEGORY_FOOD)
+            return false;
+        SpellEntry const* sp = sSpellStore.LookupEntry(proto->Spells[0].SpellId);
+        return sp && (sp->Effect[1] != 0 || sp->Effect[2] != 0);
+    }
+
     class FindFoodVisitor : public FindUsableItemVisitor
     {
     public:
@@ -295,6 +306,17 @@ namespace ai
         }
     private:
         uint32 spellCategory;
+    };
+
+    class FindBuffFoodVisitor : public FindUsableItemVisitor
+    {
+    public:
+        FindBuffFoodVisitor(Player* bot) : FindUsableItemVisitor(bot) {}
+
+        virtual bool Accept(const ItemPrototype* proto)
+        {
+            return IsBuffFood(proto);
+        }
     };
 
     class FindConjuredFoodVisitor : public FindUsableItemVisitor
