@@ -46,25 +46,14 @@ namespace ai
 
         virtual bool Execute(Event event)
         {
-            if (ai->IsBandaging())
-            {
-                if (AI_VALUE(uint8, "my attacker count") > 0)
-                {
-                    ai->ClearBandaging();
-                    return false;
-                }
-                return true;
-            }
             bool result = UseItemAction::Execute(event);
             if (result)
-                ai->SetBandaging();
+                ai->SetNextCheckDelay(8000);
             return result;
         }
 
         virtual bool isPossible()
         {
-            if (ai->IsBandaging())
-                return true;
             return AI_VALUE(uint8, "my attacker count") == 0 && UseItemAction::isPossible();
         }
 

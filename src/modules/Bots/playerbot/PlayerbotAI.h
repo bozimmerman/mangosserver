@@ -201,14 +201,6 @@ public:
     void SetEating() { m_eatingUntil = time(0) + 30; }
     void SetDrinking() { m_drinkingUntil = time(0) + 30; }
 
-    bool IsBandaging() const
-    {
-        return m_bandagingUntil && time(0) <= m_bandagingUntil
-            && bot->GetHealth() < bot->GetMaxHealth();
-    }
-    void SetBandaging() { m_bandagingUntil = time(0) + 10; }
-    void ClearBandaging() { m_bandagingUntil = 0; }
-
 protected:
     Player* bot;
     Player* master;
@@ -226,7 +218,6 @@ protected:
     PlayerbotSecurity security;
     time_t m_eatingUntil;
     time_t m_drinkingUntil;
-    time_t m_bandagingUntil;
 
     bool   m_isJumping;
     uint32 m_jumpStartTime;

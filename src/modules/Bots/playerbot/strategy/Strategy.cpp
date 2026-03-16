@@ -101,7 +101,7 @@ private:
     {
         return new ActionNode ("bandage",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("healing potion"), NULL),
+            /*A*/ NULL,
             /*C*/ NULL);
     }
     static ActionNode* flee(PlayerbotAI* ai)

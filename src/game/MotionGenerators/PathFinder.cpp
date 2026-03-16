@@ -979,5 +979,9 @@ void PathFinder::NormalizePath(uint32& size)
         m_sourceUnit->UpdateAllowedPositionZ(m_pathPoints[i].x, m_pathPoints[i].y, m_pathPoints[i].z);
     }
 
-    size = m_pathPoints.size();
+    // NOTE: A midpoint-insertion loop was here to smooth steep Z descents,
+    // but it could loop infinitely when UpdateAllowedPositionZ returned terrain Z
+    // values that prevented convergence (cliff faces, etc.).  Removed.
+
+    size = static_cast<uint32>(m_pathPoints.size());
 }

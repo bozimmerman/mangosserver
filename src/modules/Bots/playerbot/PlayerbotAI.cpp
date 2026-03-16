@@ -78,7 +78,7 @@ void PacketHandlingHelper::AddPacket(const WorldPacket& packet)
  */
 PlayerbotAI::PlayerbotAI() : PlayerbotAIBase(), bot(NULL), aiObjectContext(NULL),
     currentEngine(NULL), chatHelper(this), chatFilter(this), accountId(0), security(NULL), master(NULL), currentState(BOT_STATE_NON_COMBAT),
-    m_eatingUntil(0), m_drinkingUntil(0), m_bandagingUntil(0),
+    m_eatingUntil(0), m_drinkingUntil(0),
     m_isJumping(false), m_jumpStartTime(0),
     m_jumpStartX(0.f), m_jumpStartY(0.f), m_jumpStartZ(0.f),
     m_jumpSinAngle(0.f), m_jumpCosAngle(1.f), m_jumpXYSpeed(0.f),
@@ -97,7 +97,7 @@ PlayerbotAI::PlayerbotAI() : PlayerbotAIBase(), bot(NULL), aiObjectContext(NULL)
  */
 PlayerbotAI::PlayerbotAI(Player* bot) :
     PlayerbotAIBase(), chatHelper(this), chatFilter(this), security(bot), master(NULL),
-    m_eatingUntil(0), m_drinkingUntil(0), m_bandagingUntil(0),
+    m_eatingUntil(0), m_drinkingUntil(0),
     m_isJumping(false), m_jumpStartTime(0),
     m_jumpStartX(0.f), m_jumpStartY(0.f), m_jumpStartZ(0.f),
     m_jumpSinAngle(0.f), m_jumpCosAngle(1.f), m_jumpXYSpeed(0.f),
@@ -206,8 +206,8 @@ void PlayerbotAI::StartJump(bool forward, float orientation)
     m_jumpStartZ    = bot->GetPositionZ();
 
     float o = (orientation >= 0.f) ? orientation : bot->GetOrientation();
-    m_jumpSinAngle  = cosf(o);
-    m_jumpCosAngle  = sinf(o);
+    m_jumpCosAngle  = cosf(o);
+    m_jumpSinAngle  = sinf(o);
     m_jumpXYSpeed   = forward ? bot->GetSpeed(MOVE_RUN) : 0.f;
     m_isJumping     = true;
 
@@ -217,7 +217,7 @@ void PlayerbotAI::StartJump(bool forward, float orientation)
     if (forward)
         bot->m_movementInfo.AddMovementFlag(MOVEFLAG_FORWARD);
     bot->m_movementInfo.SetFallTime(0);
-    bot->m_movementInfo.SetJumpInfo(-BOT_JUMP_VELOCITY, m_jumpSinAngle, m_jumpCosAngle, m_jumpXYSpeed);
+    bot->m_movementInfo.SetJumpInfo(-BOT_JUMP_VELOCITY, m_jumpCosAngle, m_jumpSinAngle, m_jumpXYSpeed);
     bot->m_movementInfo.ChangePosition(m_jumpStartX, m_jumpStartY, m_jumpStartZ, o);
     bot->m_movementInfo.UpdateTime(m_jumpStartTime);
 
@@ -261,8 +261,8 @@ void PlayerbotAI::UpdateJump()
     float  t          = fallTimeMs / 1000.f;
 
     float z = m_jumpStartZ + BOT_JUMP_VELOCITY * t - 0.5f * BOT_JUMP_GRAVITY * t * t;
-    float x = m_jumpStartX + m_jumpSinAngle * m_jumpXYSpeed * t;
-    float y = m_jumpStartY + m_jumpCosAngle * m_jumpXYSpeed * t;
+    float x = m_jumpStartX + m_jumpCosAngle * m_jumpXYSpeed * t;
+    float y = m_jumpStartY + m_jumpSinAngle * m_jumpXYSpeed * t;
 
     float maxDuration = 2.f * BOT_JUMP_VELOCITY / BOT_JUMP_GRAVITY * 1000.f + 100.f;
     bool  landed      = fallTimeMs > 200 && ((z <= m_jumpStartZ + 0.05f) || (float(fallTimeMs) >= maxDuration));
@@ -283,7 +283,7 @@ void PlayerbotAI::UpdateJump()
                 landZ = terrainZ;
         }
 
-        bot->m_movementInfo.RemoveMovementFlag(MOVEFLAG_FALLING);
+        bot->m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEFLAG_FALLING | MOVEFLAG_FORWARD));
         bot->m_movementInfo.ChangePosition(x, y, landZ, bot->GetOrientation());
 
         WorldPacket data(MSG_MOVE_FALL_LAND, 64);
@@ -292,7 +292,9 @@ void PlayerbotAI::UpdateJump()
         bot->SendMessageToSet(&data, false);
 
         bot->SetFallInformation(fallTimeMs, landZ);
-        bot->Relocate(x, y, landZ, bot->GetOrientation());
+        bot->GetMotionMaster()->Clear();
+        bot->GetMotionMaster()->MoveIdle();
+        bot->GetMap()->PlayerRelocation(bot, x, y, landZ, bot->GetOrientation());
     }
 }
 
@@ -302,8 +304,6 @@ void PlayerbotAI::UpdateAI(uint32 elapsed)
     {
         return;
     }
-
-    UpdateJump();
 
     if (nextAICheckDelay > sPlayerbotAIConfig.globalCoolDown &&
             bot->IsNonMeleeSpellCasted(true, true, false) &&
@@ -341,6 +341,9 @@ void PlayerbotAI::UpdateAI(uint32 elapsed)
             m_eatingUntil = 0;
         }
     }
+
+    if (m_isJumping || m_pendingJump)
+        UpdateJump();
 
     PlayerbotAIBase::UpdateAI(elapsed);
 }
