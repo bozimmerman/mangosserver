@@ -65,10 +65,5 @@ namespace ai
     {
     public:
         CastStealthAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "stealth") {}
-
-        virtual bool isUseful()
-        {
-            return CastBuffSpellAction::isUseful() && !ai->HasAura("stealth", ai->GetBot());
-        }
     };
 }

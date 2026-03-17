@@ -27,5 +27,3 @@ bool HuntersPetLowHealthTrigger::IsActive()
     return pet && AI_VALUE2(uint8, "health", "pet target") < 40 &&
         !AI_VALUE2(bool, "dead", "pet target") && !AI_VALUE2(bool, "mounted", "self target");
 }
-
-

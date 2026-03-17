@@ -40,27 +40,50 @@ namespace ai
         virtual bool isUseful() { return AI_VALUE2(bool, "combat", "self target"); }
     };
 
-    class UseBandage : public UseItemAction {
+    class UseBandage : public UseItemAction
+    {
     public:
-        UseBandage(PlayerbotAI* ai) : UseItemAction(ai, "bandage") {}
+        UseBandage(PlayerbotAI* ai) : UseItemAction(ai, "bandage"), m_isBandaging(false) {}
 
         virtual bool Execute(Event event)
         {
-            bool result = UseItemAction::Execute(event);
+            if (m_isBandaging)
+            {
+                ai->SetNextCheckDelay(500);
+                return true;
+            }
+
+            list<Item*> items = AI_VALUE2(list<Item*>, "inventory items", "bandage");
+            if (items.empty())
+                return false;
+
+            bool result = UseItemAuto(*items.begin());
             if (result)
-                ai->SetNextCheckDelay(8000);
+            {
+                m_isBandaging = true;
+                ai->SetNextCheckDelay(500);
+            }
             return result;
         }
 
         virtual bool isPossible()
         {
-            return AI_VALUE(uint8, "my attacker count") == 0 && UseItemAction::isPossible();
+            if (m_isBandaging && !bot->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                m_isBandaging = false;
+            if (m_isBandaging)
+                return true;
+            return UseItemAction::isPossible();
         }
 
         virtual bool isUseful()
         {
-            return AI_VALUE2(bool, "combat", "self target");
+            return AI_VALUE2(bool, "combat", "self target") &&
+                   bot->getAttackers().empty() &&
+                   !bot->HasAura(SPELL_ID_RECENTLY_BANDAGED);
         }
+
+    private:
+        bool m_isBandaging;
     };
 
     class UseManaPotion : public UseItemAction

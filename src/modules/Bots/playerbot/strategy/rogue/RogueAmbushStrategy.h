@@ -18,6 +18,7 @@ namespace ai
                 new NextAction("stealth", 105.0f),
                 new NextAction("cheap shot", 104.0f),
                 new NextAction("end pull", 103.0f),
+                new NextAction("sinister strike", 100.0f),
                 NULL);
         }
     };

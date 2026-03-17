@@ -50,7 +50,7 @@ private:
     {
         return new ActionNode ("fire nova",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("chain lightning"), NULL),
+            /*A*/ NULL,
             /*C*/ NULL);
     }
     static ActionNode* flametongue_weapon(PlayerbotAI* ai)

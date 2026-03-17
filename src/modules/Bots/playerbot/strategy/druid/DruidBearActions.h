@@ -62,10 +62,10 @@ namespace ai {
         CastBashOnEnemyHealerAction(PlayerbotAI* ai) : CastSpellOnEnemyHealerAction(ai, "bash") {}
     };
 
-    class CastFrenziedRegenerationAction : public CastBuffSpellAction
+    class CastFrenziedRegenerationAction : public CastSpellAction
     {
     public:
-        CastFrenziedRegenerationAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "frenzied regeneration") {}
+        CastFrenziedRegenerationAction(PlayerbotAI* ai) : CastSpellAction(ai, "frenzied regeneration") {}
     };
 
     class CastChallengingRoarAction : public CastSpellAction

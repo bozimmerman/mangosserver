@@ -66,8 +66,8 @@ namespace ai
         virtual bool Execute(Event event);
         virtual bool isPossible()
         {
-            return MovementAction::isPossible() &&
-                    !bot->GetGroup() &&
+            return !bot->GetGroup() &&
+                    MovementAction::isPossible() &&
                     AI_VALUE2(uint8, "health", "self target") > sPlayerbotAIConfig.mediumHealth &&
                     (!AI_VALUE2(uint8, "mana", "self target") || AI_VALUE2(uint8, "mana", "self target") > sPlayerbotAIConfig.mediumMana);
         }

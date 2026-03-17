@@ -25,7 +25,8 @@ bool AuraTrigger::IsActive()
         !ai->HasAura("concentration aura", target) &&
         !ai->HasAura("shadow resistance aura", target) &&
         !ai->HasAura("frost resistance aura", target) &&
-        !ai->HasAura("fire resistance aura", target);
+        !ai->HasAura("fire resistance aura", target) &&
+        !ai->HasAura("crusader aura", target);
 }
 
 bool CrusaderAuraTrigger::IsActive()
@@ -57,5 +58,5 @@ bool ExorcismTrigger::IsActive()
 bool BlessingOfFreedomTrigger::IsActive()
 {
     Unit* bot = ai->GetBot();
-    return bot->IsInRoots();
+    return bot->IsInRoots() || bot->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED);
 }

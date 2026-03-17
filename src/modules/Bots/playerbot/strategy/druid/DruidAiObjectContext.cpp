@@ -180,7 +180,7 @@ namespace ai
                 creators["rejuvenation on party"] = &AiObjectContextInternal::rejuvenation_on_party;
                 creators["healing touch on party"] = &AiObjectContextInternal::healing_touch_on_party;
                 creators["rebirth"] = &AiObjectContextInternal::rebirth;
-                creators["barskin"] = &AiObjectContextInternal::barskin;
+                creators["barkskin"] = &AiObjectContextInternal::barskin;
                 creators["lacerate"] = &AiObjectContextInternal::lacerate;
                 creators["hurricane"] = &AiObjectContextInternal::hurricane;
                 creators["innervate"] = &AiObjectContextInternal::innervate;
@@ -190,7 +190,6 @@ namespace ai
                 creators["remove curse on party"] = &AiObjectContextInternal::remove_curse_on_party;
                 creators["frenzied regeneration"] = &AiObjectContextInternal::frenzied_regeneration;
                 creators["challenging roar"] = &AiObjectContextInternal::challenging_roar;
-                creators["shred"] = &AiObjectContextInternal::shred;
             }
 
         private:
@@ -252,7 +251,6 @@ namespace ai
             static Action* remove_curse_on_party(PlayerbotAI* ai) { return new CastRemoveCurseOnPartyAction(ai); }
             static Action* frenzied_regeneration(PlayerbotAI* ai) { return new CastFrenziedRegenerationAction(ai); }
             static Action* challenging_roar(PlayerbotAI* ai) { return new CastChallengingRoarAction(ai); }
-            static Action* shred(PlayerbotAI* ai) { return new CastShredAction(ai); }
         };
     };
 };

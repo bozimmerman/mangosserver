@@ -105,7 +105,6 @@ bool AttackAction::Attack(Unit* target)
         if (creatureAI)
         {
             creatureAI->AttackStart(target);
-
         }
     }
 

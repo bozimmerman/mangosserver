@@ -65,11 +65,11 @@ void GenericDruidNonCombatStrategy::InitTriggers(std::list<TriggerNode*> &trigge
 
     triggers.push_back(new TriggerNode(
         "remove curse",
-        NextAction::array(0, new NextAction("remove curse", 21.5f), NULL)));
+        NextAction::array(0, new NextAction("remove curse", ACTION_DISPEL + 2), NULL)));
 
     triggers.push_back(new TriggerNode(
         "remove curse on party",
-        NextAction::array(0, new NextAction("remove curse on party", 20.5f), NULL)));
+        NextAction::array(0, new NextAction("remove curse on party", ACTION_DISPEL + 1), NULL)));
 
     triggers.push_back(new TriggerNode(
         "party member dead",

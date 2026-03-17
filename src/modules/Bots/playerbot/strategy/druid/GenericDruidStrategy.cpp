@@ -90,14 +90,14 @@ private:
     static ActionNode* remove_curse(PlayerbotAI* ai)
     {
         return new ActionNode ("remove curse",
-            /*P*/ NULL,
+            /*P*/ NextAction::array(0, new NextAction("caster form"), NULL),
             /*A*/ NULL,
             /*C*/ NULL);
     }
     static ActionNode* remove_curse_on_party(PlayerbotAI* ai)
     {
         return new ActionNode ("remove curse on party",
-            /*P*/ NULL,
+            /*P*/ NextAction::array(0, new NextAction("caster form"), NULL),
             /*A*/ NULL,
             /*C*/ NULL);
     }

@@ -3,12 +3,12 @@
 
 namespace ai
 {
-    // Base for judgement actions that fuards against judging with no active seal
+    // Base for judgement actions that guards against judging with no active seal
     class CastJudgementBaseAction : public CastMeleeSpellAction
     {
     public:
         CastJudgementBaseAction(PlayerbotAI* ai, string spell) : CastMeleeSpellAction(ai, spell) {}
-        virtual bool Execute(Event event)
+        virtual bool isPossible()
         {
             Unit* bot = ai->GetBot();
             if (!ai->HasAura("seal of righteousness", bot) &&
@@ -19,7 +19,7 @@ namespace ai
                 !ai->HasAura("seal of light", bot) &&
                 !ai->HasAura("seal of wisdom", bot))
                 return false;
-            return CastMeleeSpellAction::Execute(event);
+            return CastMeleeSpellAction::isPossible();
         }
     };
 
@@ -93,12 +93,12 @@ namespace ai
     {
     public:
         CastSealOfTheCrusaderAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "seal of the crusader") {}
-        virtual bool Execute(Event event)
+        virtual bool isPossible()
         {
             Unit* target = AI_VALUE(Unit*, "current target");
             if (target && ai->HasAura("judgement of the crusader", target))
-                return false; // JotC already up — use the damage seal instead
-            return CastBuffSpellAction::Execute(event);
+                return false;
+            return CastBuffSpellAction::isPossible();
         }
     };
 

@@ -124,6 +124,15 @@ namespace ai
         CastConflagrateAction(PlayerbotAI* ai) : CastSpellAction(ai, "conflagrate") {}
     };
 
+    class CastSeedOfCorruptionAction : public CastDebuffSpellAction
+    {
+    public:
+        CastSeedOfCorruptionAction(PlayerbotAI* ai) : CastDebuffSpellAction(ai, "seed of corruption") {}
+    };
+
+    BEGIN_RANGED_SPELL_ACTION(CastShadowfuryAction, "shadowfury")
+    END_SPELL_ACTION()
+
     class CastFearAction : public CastDebuffSpellAction
     {
     public:

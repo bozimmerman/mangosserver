@@ -199,7 +199,11 @@ void PlayerbotFactory::InitPet()
     {
         Pet* loadPet = new Pet;
         if (loadPet->LoadPetFromDB(bot, 0))
+        {
             pet = bot->GetPet();
+            if (!pet)
+                delete loadPet;
+        }
         else
             delete loadPet;
     }
@@ -284,7 +288,6 @@ void PlayerbotFactory::InitPet()
             pet->SetHealth(pet->GetMaxHealth());
             pet->SetPower(POWER_FOCUS, pet->GetMaxPower(POWER_FOCUS));
             bot->SetPet(pet);
-            sLog.outDetail("Bot %s: assign pet %d (%d level)", bot->GetName(), co->Entry, bot->getLevel());
             break;
         }
     }
@@ -329,7 +332,7 @@ void PlayerbotFactory::InitPet()
     if (cInfo && cInfo->Family)
     {
         CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cInfo->Family);
-        if (cFamily)
+        if (cFamily && (cFamily->skillLine[0] || cFamily->skillLine[1]))
         {
             for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
             {
@@ -1441,13 +1444,20 @@ void PlayerbotFactory::InitAvailableSpells()
                 continue;
             }
 
-            // get spell info for validation
-            const SpellEntry* spellInfo = sSpellStore.LookupEntry(tSpell->spell);
-            uint32 learnSpellId = spellInfo ? spellInfo->EffectTriggerSpell[0] : 0;
             ai->CastSpell(tSpell->spell, bot);
-            if (learnSpellId && !bot->HasSpell(learnSpellId))
+            const SpellEntry* spellInfo = sSpellStore.LookupEntry(tSpell->spell);
+            if (spellInfo)
             {
-                bot->learnSpell(learnSpellId, false);
+                for (int ei = 0; ei < MAX_EFFECT_INDEX; ++ei)
+                {
+                    if (spellInfo->Effect[ei] == SPELL_EFFECT_LEARN_SPELL &&
+                        spellInfo->EffectTriggerSpell[ei] &&
+                        !bot->HasSpell(spellInfo->EffectTriggerSpell[ei]))
+                    {
+                        bot->learnSpell(spellInfo->EffectTriggerSpell[ei], false);
+                        break;
+                    }
+                }
             }
         }
     }

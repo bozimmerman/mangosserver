@@ -2463,6 +2463,9 @@ void ObjectMgr::LoadPetLevelInfo()
 
 PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint32 level) const
 {
+    if (level == 0)
+        return NULL;
+
     if (level > sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
     {
         level = sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL);
@@ -2472,10 +2475,9 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint32 level)
 
     if (itr == petInfo.end())
     {
-        // The pet level info table is completely broken.  It should either have every creature,
-        //   or at least every family id, but it's empty (right now).  This must be fixed.  In the
-        //   meantime, we should at least pretend it's set up correctly by looking up the Family
-        //   id as backup.
+        // The pet_levelinfo table only contains 2 entries -- no per-creature or per-family data
+        //   exists.  Fall back to family ID, then to entry 1 (the only populated default).
+        //   Ideally this table should be populated per-family at minimum.
         CreatureInfo const* cinfo = sCreatureStorage.LookupEntry<CreatureInfo>(creature_id);
         if (cinfo && cinfo->Family > 0)
             itr = petInfo.find(cinfo->Family);

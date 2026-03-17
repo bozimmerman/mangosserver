@@ -138,10 +138,14 @@ namespace ai
                 creators["fear"] = &AiObjectContextInternal::fear;
                 creators["fear on cc"] = &AiObjectContextInternal::fear_on_cc;
                 creators["conflagrate"] = &AiObjectContextInternal::conflagrate;
+                creators["seed of corruption"] = &AiObjectContextInternal::seed_of_corruption;
+                creators["shadowfury"] = &AiObjectContextInternal::shadowfury;
             }
 
         private:
             static Action* conflagrate(PlayerbotAI* ai) { return new CastConflagrateAction(ai); }
+            static Action* seed_of_corruption(PlayerbotAI* ai) { return new CastSeedOfCorruptionAction(ai); }
+            static Action* shadowfury(PlayerbotAI* ai) { return new CastShadowfuryAction(ai); }
             static Action* fear_on_cc(PlayerbotAI* ai) { return new CastFearOnCcAction(ai); }
             static Action* fear(PlayerbotAI* ai) { return new CastFearAction(ai); }
             static Action* immolate(PlayerbotAI* ai) { return new CastImmolateAction(ai); }

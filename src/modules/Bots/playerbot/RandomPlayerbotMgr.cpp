@@ -37,9 +37,11 @@ void RandomPlayerbotMgr::UpdateAIInternal(uint32 elapsed)
         return;
     }
 
-    if (!processTicks && sPlayerbotAIConfig.randomBotKeepGroups)
+    if (sPlayerbotAIConfig.randomBotKeepGroups)
     {
-        EnsureGroupedBotsOnline();
+        if (!processTicks)
+            EnsureGroupedBotsOnline();
+        LoadGroupedBots();
     }
 
     sLog.outBasic("Processing random bots...");
@@ -162,7 +164,7 @@ bool RandomPlayerbotMgr::ProcessBot(uint32 bot)
         Player* player = GetPlayerBot(bot);
         if (!player || !player->GetGroup())
         {
-            if (sPlayerbotAIConfig.randomBotKeepGroups && IsBotInGroup(bot))
+            if (sPlayerbotAIConfig.randomBotKeepGroups && m_groupedBots.count(bot))
             {
                 SetEventValue(bot, "add", 1, sPlayerbotAIConfig.maxRandomBotInWorldTime);
             }
@@ -702,25 +704,10 @@ bool RandomPlayerbotMgr::IsZoneSafeForBot(Player* bot, uint32 mapId, float x, fl
     return false;
 }
 
-bool RandomPlayerbotMgr::IsBotInGroup(uint32 botGuid)
-{
-    QueryResult* result = CharacterDatabase.PQuery(
-        "SELECT 1 FROM `group_member` gm "
-        "INNER JOIN `groups` g ON gm.`leaderGuid` = g.`leaderGuid` "
-        "WHERE gm.`memberGuid` = %u LIMIT 1",
-        botGuid);
-
-    if (!result)
-        return false;
-
-    delete result;
-    return true;
-}
-
-void RandomPlayerbotMgr::EnsureGroupedBotsOnline()
+QueryResult* RandomPlayerbotMgr::QueryGroupedBots()
 {
     if (sPlayerbotAIConfig.randomBotAccounts.empty())
-        return;
+        return nullptr;
 
     ostringstream os;
     bool first = true;
@@ -730,15 +717,35 @@ void RandomPlayerbotMgr::EnsureGroupedBotsOnline()
         os << *i;
         first = false;
     }
-    string accountList = os.str();
 
-    QueryResult* result = CharacterDatabase.PQuery(
+    // JOIN on `groups` ensures we only include members of groups that still exist
+    // (i.e., not orphaned group_member rows from disbanded groups).
+    return CharacterDatabase.PQuery(
         "SELECT gm.`memberGuid` FROM `group_member` gm "
         "INNER JOIN `characters` c ON gm.`memberGuid` = c.`guid` "
-        "INNER JOIN `groups` g ON gm.`leaderGuid` = g.`leaderGuid` "
+        "INNER JOIN `groups` g ON gm.`groupId` = g.`groupId` "
         "WHERE c.`account` IN (%s)",
-        accountList.c_str());
+        os.str().c_str());
+}
 
+void RandomPlayerbotMgr::LoadGroupedBots()
+{
+    m_groupedBots.clear();
+    QueryResult* result = QueryGroupedBots();
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+        m_groupedBots.insert(fields[0].GetUInt32());
+    } while (result->NextRow());
+    delete result;
+}
+
+void RandomPlayerbotMgr::EnsureGroupedBotsOnline()
+{
+    QueryResult* result = QueryGroupedBots();
     if (!result)
         return;
 

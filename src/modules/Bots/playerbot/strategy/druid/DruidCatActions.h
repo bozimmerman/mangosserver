@@ -64,8 +64,4 @@ namespace ai {
         CastRipAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "rip") {}
     };
 
-    class CastShredAction : public CastMeleeSpellAction {
-    public:
-        CastShredAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "shred") {}
-    };
 }

@@ -143,19 +143,25 @@ namespace ai
     BEGIN_RANGED_SPELL_ACTION(CastScatterShotAction, "scatter shot")
     END_SPELL_ACTION()
 
-    class CastBestialWrathAction : public CastBuffSpellAction
+    class CastBestialWrathAction : public CastAuraSpellAction
     {
     public:
-        CastBestialWrathAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "bestial wrath") {}
+        CastBestialWrathAction(PlayerbotAI* ai) : CastAuraSpellAction(ai, "bestial wrath") {}
+        virtual string GetTargetName() { return "pet target"; }
+        virtual bool isUseful() { return CastAuraSpellAction::isUseful() && AI_VALUE(Unit*, "pet target") != NULL; }
     };
 
-    BEGIN_MELEE_SPELL_ACTION(CastMongooseBiteAction, "mongoose bite")
-    END_SPELL_ACTION()
-
-    class CastIntimidationAction : public CastMeleeSpellAction
+    class CastMongooseBiteAction : public CastMeleeSpellAction
     {
     public:
-        CastIntimidationAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "intimidation") {}
+        CastMongooseBiteAction(PlayerbotAI* ai) : CastMeleeSpellAction(ai, "mongoose bite") {}
+        virtual bool isPossible() { return bot->HasAuraState(AURA_STATE_DEFENSE) && CastMeleeSpellAction::isPossible(); }
+    };
+
+    class CastIntimidationAction : public CastSpellAction
+    {
+    public:
+        CastIntimidationAction(PlayerbotAI* ai) : CastSpellAction(ai, "intimidation") {}
         virtual bool isUseful();
     };
 

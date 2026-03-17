@@ -58,6 +58,13 @@ namespace ai
             if (!target)
                 return false;
 
+            ObjectGuid guid = target->GetObjectGuid();
+            if (guid != m_lastTargetGuid)
+            {
+                m_lastTargetGuid = guid;
+                m_threshold = 2;
+            }
+
             uint8 combo = AI_VALUE2(uint8, "combo", "current target");
             if (combo >= m_threshold)
             {
@@ -69,6 +76,7 @@ namespace ai
 
     private:
         uint8 m_threshold;
+        ObjectGuid m_lastTargetGuid;
 
         uint8 nextThreshold(Unit* target)
         {

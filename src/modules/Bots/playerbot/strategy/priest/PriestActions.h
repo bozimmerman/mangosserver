@@ -250,4 +250,11 @@ namespace ai
         CastPowerInfusionAction(PlayerbotAI* ai) : BuffOnPartyAction(ai, "power infusion") {}
         virtual string getName() { return "power infusion"; }
     };
+
+    class CastCircleOfHealingAction : public HealPartyMemberAction
+    {
+    public:
+        CastCircleOfHealingAction(PlayerbotAI* ai) : HealPartyMemberAction(ai, "circle of healing") {}
+        virtual string getName() { return "circle of healing"; }
+    };
 }

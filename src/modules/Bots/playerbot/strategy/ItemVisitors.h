@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DBCStore.h"
+#include "DBCStores.h"
 
 char * strstri (const char* str1, const char* str2);
 
@@ -288,7 +289,7 @@ namespace ai
             proto->Spells[0].SpellCategory != SPELLCATEGORY_FOOD)
             return false;
         SpellEntry const* sp = sSpellStore.LookupEntry(proto->Spells[0].SpellId);
-        return sp && (sp->Effect[1] != 0 || sp->Effect[2] != 0);
+        return sp && ((sp->AttributesEx2 & SPELL_ATTR_EX2_FOOD_BUFF) || sp->Effect[1] != 0 || sp->Effect[2] != 0);
     }
 
     class FindFoodVisitor : public FindUsableItemVisitor

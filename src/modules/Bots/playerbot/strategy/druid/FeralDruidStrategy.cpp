@@ -15,15 +15,13 @@ public:
         creators["cure poison on party"] = &cure_poison_on_party;
         creators["abolish poison"] = &abolish_poison;
         creators["abolish poison on party"] = &abolish_poison_on_party;
-        creators["remove curse"] = &remove_curse;
-        creators["remove curse on party"] = &remove_curse_on_party;
     }
 private:
     static ActionNode* survival_instincts(PlayerbotAI* ai)
     {
         return new ActionNode ("survival instincts",
             /*P*/ NULL,
-            /*A*/ NextAction::array(0, new NextAction("barskin"), NULL),
+            /*A*/ NextAction::array(0, new NextAction("barkskin"), NULL),
             /*C*/ NULL);
     }
     static ActionNode* thorns(PlayerbotAI* ai)
@@ -57,20 +55,6 @@ private:
     static ActionNode* abolish_poison_on_party(PlayerbotAI* ai)
     {
         return new ActionNode ("abolish poison on party",
-            /*P*/ NextAction::array(0, new NextAction("caster form"), NULL),
-            /*A*/ NULL,
-            /*C*/ NULL);
-    }
-    static ActionNode* remove_curse(PlayerbotAI* ai)
-    {
-        return new ActionNode ("remove curse",
-            /*P*/ NextAction::array(0, new NextAction("caster form"), NULL),
-            /*A*/ NULL,
-            /*C*/ NULL);
-    }
-    static ActionNode* remove_curse_on_party(PlayerbotAI* ai)
-    {
-        return new ActionNode ("remove curse on party",
             /*P*/ NextAction::array(0, new NextAction("caster form"), NULL),
             /*A*/ NULL,
             /*C*/ NULL);

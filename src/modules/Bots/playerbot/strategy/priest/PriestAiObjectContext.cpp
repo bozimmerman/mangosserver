@@ -85,7 +85,6 @@ namespace ai
                 creators["vampiric embrace"] = &TriggerFactoryInternal::vampiric_embrace;
                 creators["shackle undead"] = &TriggerFactoryInternal::shackle_undead;
                 creators["power infusion"] = &TriggerFactoryInternal::power_infusion;
-
             }
 
         private:
@@ -164,6 +163,7 @@ namespace ai
                 creators["vampiric touch"] = &AiObjectContextInternal::vampiric_touch;
                 creators["shackle undead"] = &AiObjectContextInternal::shackle_undead;
                 creators["power infusion"] = &AiObjectContextInternal::power_infusion;
+                creators["circle of healing"] = &AiObjectContextInternal::circle_of_healing;
             }
 
         private:
@@ -171,6 +171,7 @@ namespace ai
             static Action* vampiric_touch(PlayerbotAI* ai) { return new CastVampiricTouchAction(ai); }
             static Action* shackle_undead(PlayerbotAI* ai) { return new CastShackleUndeadAction(ai); }
             static Action* power_infusion(PlayerbotAI* ai) { return new CastPowerInfusionAction(ai); }
+            static Action* circle_of_healing(PlayerbotAI* ai) { return new CastCircleOfHealingAction(ai); }
             static Action* psychic_scream(PlayerbotAI* ai) { return new CastPsychicScreamAction(ai); }
             static Action* resurrection(PlayerbotAI* ai) { return new CastResurrectionAction(ai); }
             static Action* shadow_word_pain(PlayerbotAI* ai) { return new CastPowerWordPainAction(ai); }

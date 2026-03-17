@@ -27,7 +27,7 @@ Value<Unit*>* CastFreezingTrap::GetTargetValue()
 
 bool CastIntimidationAction::isUseful()
 {
-    return CastMeleeSpellAction::isUseful() && AI_VALUE(Unit*, "pet target") != NULL;
+    return CastSpellAction::isUseful() && AI_VALUE(Unit*, "pet target") != NULL;
 }
 
 bool HunterMeleeAction::isUseful()

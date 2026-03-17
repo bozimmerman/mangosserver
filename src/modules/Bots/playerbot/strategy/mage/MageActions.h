@@ -222,13 +222,11 @@ namespace ai
         virtual string GetTargetName() { return "self target"; }
     };
 
-    class CastArcaneBrillianceAction : public CastSpellAction
+    class CastArcaneBrillianceAction : public CastBuffSpellAction
     {
     public:
-        CastArcaneBrillianceAction(PlayerbotAI* ai) : CastSpellAction(ai, "arcane brilliance") {}
-        virtual string GetTargetName() { return "self target"; }
+        CastArcaneBrillianceAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "arcane brilliance") {}
     };
-
 
     class GiveConjuredFoodAction : public InventoryAction
     {

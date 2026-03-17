@@ -110,7 +110,7 @@ namespace ai
                 creators["maelstrom weapon"] = &TriggerFactoryInternal::maelstrom_weapon;
                 creators["wind shear on enemy healer"] = &TriggerFactoryInternal::wind_shear_on_enemy_healer;
                 creators["ghost wolf"] = &TriggerFactoryInternal::ghost_wolf;
-                creators["tremor totem"] = &TriggerFactoryInternal::tremor_totem;
+                creators["tremor totem"] = &TriggerFactoryInternal::tremor_totem; // unwired intentionally
             }
 
         private:
@@ -200,7 +200,7 @@ namespace ai
                 creators["fire nova"] = &AiObjectContextInternal::fire_nova;
                 creators["thunderstorm"] = &AiObjectContextInternal::thunderstorm;
                 creators["ghost wolf"] = &AiObjectContextInternal::ghost_wolf;
-                creators["tremor totem"] = &AiObjectContextInternal::tremor_totem;
+                creators["tremor totem"] = &AiObjectContextInternal::tremor_totem; // unwired intentionally
             }
 
         private:
