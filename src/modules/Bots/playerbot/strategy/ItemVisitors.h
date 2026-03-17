@@ -319,6 +319,25 @@ namespace ai
         }
     };
 
+    inline bool HasFoodBuff(Player* bot, const list<Item*>& buffFoods)
+    {
+        for (Item* item : buffFoods)
+        {
+            SpellEntry const* sp = sSpellStore.LookupEntry(item->GetProto()->Spells[0].SpellId);
+            if (!sp)
+                continue;
+            if (bot->HasAura(sp->Id))
+                return true;
+            for (int i = 1; i < MAX_EFFECT_INDEX; ++i)
+            {
+                uint32 triggerSpell = sp->EffectTriggerSpell[i];
+                if (triggerSpell && bot->HasAura(triggerSpell))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     class FindConjuredFoodVisitor : public FindUsableItemVisitor
     {
     public:

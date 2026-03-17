@@ -527,13 +527,15 @@ bool RunAwayAction::Execute(Event event)
 
 bool MoveRandomAction::Execute(Event event)
 {
-    if (m_hasFaceTarget && bot->IsStopped())
+    if (m_hasFaceTarget)
     {
-        m_hasFaceTarget = false;
-        bot->SetFacingTo(bot->GetAngle(m_faceX, m_faceY));
+        if (bot->IsStopped())
+        {
+            m_hasFaceTarget = false;
+            bot->SetFacingTo(bot->GetAngle(m_faceX, m_faceY));
+        }
         return true;
     }
-    m_hasFaceTarget = false;
 
     WorldObject* target = NULL;
 

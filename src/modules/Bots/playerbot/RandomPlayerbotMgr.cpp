@@ -705,7 +705,9 @@ bool RandomPlayerbotMgr::IsZoneSafeForBot(Player* bot, uint32 mapId, float x, fl
 bool RandomPlayerbotMgr::IsBotInGroup(uint32 botGuid)
 {
     QueryResult* result = CharacterDatabase.PQuery(
-        "SELECT 1 FROM `group_member` WHERE `memberGuid` = '%u' LIMIT 1",
+        "SELECT 1 FROM `group_member` gm "
+        "INNER JOIN `groups` g ON gm.`leaderGuid` = g.`leaderGuid` "
+        "WHERE gm.`memberGuid` = %u LIMIT 1",
         botGuid);
 
     if (!result)
@@ -733,6 +735,7 @@ void RandomPlayerbotMgr::EnsureGroupedBotsOnline()
     QueryResult* result = CharacterDatabase.PQuery(
         "SELECT gm.`memberGuid` FROM `group_member` gm "
         "INNER JOIN `characters` c ON gm.`memberGuid` = c.`guid` "
+        "INNER JOIN `groups` g ON gm.`leaderGuid` = g.`leaderGuid` "
         "WHERE c.`account` IN (%s)",
         accountList.c_str());
 

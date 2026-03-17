@@ -3,7 +3,7 @@
 #include "../Action.h"
 #include "UseItemAction.h"
 #include "../../PlayerbotAIConfig.h"
-#include "DBCStore.h"
+#include "../ItemVisitors.h"
 
 namespace ai
 {
@@ -57,12 +57,9 @@ namespace ai
                 return true;
 
             bool result = false;
-            if (!HasFoodBuff())
-            {
-                list<Item*> buffFoods = AI_VALUE2(list<Item*>, "inventory items", "buff food");
-                if (!buffFoods.empty())
-                    result = UseItemAuto(*buffFoods.begin());
-            }
+            list<Item*> buffFoods = AI_VALUE2(list<Item*>, "inventory items", "buff food");
+            if (!buffFoods.empty() && !HasFoodBuff(bot, buffFoods))
+                result = UseItemAuto(*buffFoods.begin());
             if (!result)
                 result = UseItemAction::Execute(event);
 
@@ -81,25 +78,6 @@ namespace ai
             if (ai->IsEating())
                 return true;
             return UseItemAction::isUseful() && AI_VALUE2(uint8, "health", "self target") < sPlayerbotAIConfig.hungryHealth;
-        }
-
-    private:
-        bool HasFoodBuff()
-        {
-            list<Item*> buffFoods = AI_VALUE2(list<Item*>, "inventory items", "buff food");
-            for (Item* item : buffFoods)
-            {
-                SpellEntry const* sp = sSpellStore.LookupEntry(item->GetProto()->Spells[0].SpellId);
-                if (!sp)
-                    continue;
-                for (int i = 1; i < MAX_EFFECT_INDEX; ++i)
-                {
-                    uint32 triggerSpell = sp->EffectTriggerSpell[i];
-                    if (triggerSpell && bot->HasAura(triggerSpell))
-                        return true;
-                }
-            }
-            return false;
         }
     };
 
