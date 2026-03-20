@@ -45,7 +45,7 @@ private:
 class FindBandageVisitor : public FindUsableItemVisitor
 {
 public:
-    FindBandageVisitor(Player* bot) : FindUsableItemVisitor(bot) {}
+    explicit FindBandageVisitor(Player* bot) : FindUsableItemVisitor(bot) {}
 
     virtual bool Accept(const ItemPrototype* proto)
     {
