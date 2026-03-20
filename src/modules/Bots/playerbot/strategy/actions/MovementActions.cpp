@@ -273,6 +273,7 @@ bool MovementAction::FollowOnTransport(Unit* target, Player* master)
         AI_VALUE(LastMovement&, "last movement").Set(target);
         return true;
     }
+    return false;
 }
 
 bool MovementAction::FollowOffTransport(Unit* target, Player* master)
@@ -527,6 +528,16 @@ bool RunAwayAction::Execute(Event event)
 
 bool MoveRandomAction::Execute(Event event)
 {
+    if (m_hasFaceTarget)
+    {
+        if (bot->IsStopped())
+        {
+            m_hasFaceTarget = false;
+            bot->SetFacingTo(bot->GetAngle(m_faceX, m_faceY));
+        }
+        return true;
+    }
+
     WorldObject* target = NULL;
 
     if (!(rand() % 3))
@@ -561,7 +572,14 @@ bool MoveRandomAction::Execute(Event event)
 
     if (target)
     {
-        return MoveNear(target);
+        bool moved = MoveNear(target);
+        if (moved)
+        {
+            m_faceX = target->GetPositionX();
+            m_faceY = target->GetPositionY();
+            m_hasFaceTarget = true;
+        }
+        return moved;
     }
 
     for (int i = 0; i < 10; ++i)
