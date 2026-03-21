@@ -131,6 +131,9 @@ namespace ai
         CastSerpentStingOnAttackerAction(PlayerbotAI* ai) : CastDebuffSpellOnAttackerAction(ai, "serpent sting") {}
     };
 
+    BEGIN_MELEE_SPELL_ACTION(CastDisengageAction, "disengage")
+    END_SPELL_ACTION()
+
     BEGIN_MELEE_SPELL_ACTION(CastImmolationTrapAction, "immolation trap")
     END_SPELL_ACTION()
 

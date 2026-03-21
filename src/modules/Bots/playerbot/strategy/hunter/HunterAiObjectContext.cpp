@@ -143,6 +143,7 @@ namespace ai
                 creators["trueshot aura"] = &AiObjectContextInternal::trueshot_aura;
                 creators["feign death"] = &AiObjectContextInternal::feign_death;
                 creators["wing clip"] = &AiObjectContextInternal::wing_clip;
+                creators["disengage"] = &AiObjectContextInternal::disengage;
                 creators["immolation trap"] = &AiObjectContextInternal::immolation_trap;
                 creators["frost trap"] = &AiObjectContextInternal::frost_trap;
                 creators["explosive trap"] = &AiObjectContextInternal::explosive_trap;
@@ -178,6 +179,7 @@ namespace ai
             static Action* rapid_fire(PlayerbotAI* ai) { return new CastRapidFireAction(ai); }
             static Action* aspect_of_the_hawk(PlayerbotAI* ai) { return new CastAspectOfTheHawkAction(ai); }
             static Action* aspect_of_the_wild(PlayerbotAI* ai) { return new CastAspectOfTheWildAction(ai); }
+            static Action* disengage(PlayerbotAI* ai) { return new CastDisengageAction(ai); }
             static Action* immolation_trap(PlayerbotAI* ai) { return new CastImmolationTrapAction(ai); }
             static Action* frost_trap(PlayerbotAI* ai) { return new CastFrostTrapAction(ai); }
             static Action* explosive_trap(PlayerbotAI* ai) { return new CastExplosiveTrapAction(ai); }
