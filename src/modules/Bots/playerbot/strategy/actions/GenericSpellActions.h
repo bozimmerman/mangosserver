@@ -97,6 +97,7 @@ namespace ai
             }
             else if (range > ATTACK_DISTANCE)
             {
+                context->GetValue<float>("reach spell distance")->Set(range);
                 return NextAction::merge( NextAction::array(0, new NextAction("reach spell"), NULL), Action::getPrerequisites());
             }
             else
