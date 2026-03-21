@@ -52,6 +52,16 @@ namespace ai
     class ReachSpellAction : public ReachTargetAction
     {
     public:
-        ReachSpellAction(PlayerbotAI* ai, float distance = sPlayerbotAIConfig.spellDistance) : ReachTargetAction(ai, "reach spell", distance) {}
+        ReachSpellAction(PlayerbotAI* ai) : ReachTargetAction(ai, "reach spell", sPlayerbotAIConfig.spellDistance) {}
+        virtual bool Execute(Event event)
+        {
+            distance = AI_VALUE(float, "reach spell distance");
+            return ReachTargetAction::Execute(event);
+        }
+        virtual bool isUseful()
+        {
+            distance = AI_VALUE(float, "reach spell distance");
+            return ReachTargetAction::isUseful();
+        }
     };
 }
