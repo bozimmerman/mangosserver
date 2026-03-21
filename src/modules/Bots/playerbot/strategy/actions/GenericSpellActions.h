@@ -77,27 +77,22 @@ namespace ai
 
         virtual NextAction** getPrerequisites()
         {
-            float currentDistance = AI_VALUE2(float, "distance", GetTargetName());
-
-            if (currentDistance <= range)
-            {
-                if (range > ATTACK_DISTANCE)
-                {
-                    return Action::getPrerequisites();
-                }
-                else
-                {
-                    return NextAction::merge(NextAction::array(0, new NextAction("reach melee"), NULL), Action::getPrerequisites());
-                }
-            }
-
             if (range > sPlayerbotAIConfig.spellDistance)
             {
                 return NULL;
             }
             else if (range > ATTACK_DISTANCE)
             {
-                return NextAction::merge( NextAction::array(0, new NextAction("reach spell"), NULL), Action::getPrerequisites());
+                float currentDistance = AI_VALUE2(float, "distance", GetTargetName());
+                if (currentDistance <= range)
+                {
+                    return NextAction::merge(NextAction::array(0, new NextAction("back off"), NULL), Action::getPrerequisites());
+                }
+                else
+                {
+                    context->GetValue<float>("reach spell distance")->Set(range);
+                    return NextAction::merge( NextAction::array(0, new NextAction("reach spell"), NULL), Action::getPrerequisites());
+                }
             }
             else
             {
