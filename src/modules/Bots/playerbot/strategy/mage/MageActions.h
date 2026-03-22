@@ -46,7 +46,15 @@ namespace ai
     {
     public:
         CastFrostNovaAction(PlayerbotAI* ai) : CastSpellAction(ai, "frost nova") {}
-        virtual bool isUseful() { return AI_VALUE2(float, "distance", GetTargetName()) <= sPlayerbotAIConfig.tooCloseDistance; }
+        virtual bool isUseful()
+        {
+            Unit* target = AI_VALUE(Unit*, "current target");
+            if (!target || target->getVictim() != bot)
+                return false;
+            if (AI_VALUE2(float, "distance", GetTargetName()) > sPlayerbotAIConfig.tooCloseDistance)
+                return false;
+            return !ai->HasAttackersNotTargetingBotInRange(10.0f);
+        }
     };
 
     class CastFrostboltAction : public CastSpellAction

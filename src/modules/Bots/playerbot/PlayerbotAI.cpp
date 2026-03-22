@@ -869,6 +869,18 @@ bool PlayerbotAI::IsRanged(Player* player)
  * @param player The player to check.
  * @return True if the player is a tank class, false otherwise.
  */
+bool PlayerbotAI::HasAttackersNotTargetingBotInRange(float range)
+{
+    list<ObjectGuid> attackers = aiObjectContext->GetValue<list<ObjectGuid>>("attackers")->Get();
+    for (list<ObjectGuid>::iterator i = attackers.begin(); i != attackers.end(); ++i)
+    {
+        Unit* unit = GetUnit(*i);
+        if (unit && unit->getVictim() != bot && bot->GetDistance(unit) <= range)
+            return true;
+    }
+    return false;
+}
+
 bool PlayerbotAI::IsTank(Player* player)
 {
     PlayerbotAI* botAi = player->GetPlayerbotAI();
@@ -894,6 +906,22 @@ bool PlayerbotAI::IsTank(Player* player)
  * @param player The player to check.
  * @return True if the player is a healer class, false otherwise.
  */
+Player* PlayerbotAI::GetGroupTank(Player* except)
+{
+    Group* group = except->GetGroup();
+    if (!group)
+        return nullptr;
+
+    Group::MemberSlotList const& slots = group->GetMemberSlots();
+    for (Group::member_citerator itr = slots.begin(); itr != slots.end(); ++itr)
+    {
+        Player* member = sObjectMgr.GetPlayer(itr->guid);
+        if (member && member != except && IsTank(member))
+            return member;
+    }
+    return nullptr;
+}
+
 bool PlayerbotAI::IsHeal(Player* player)
 {
     PlayerbotAI* botAi = player->GetPlayerbotAI();

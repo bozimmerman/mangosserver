@@ -228,6 +228,7 @@ namespace ai
     {
     public:
         CastPsychicScreamAction(PlayerbotAI* ai) : CastSpellAction(ai, "psychic scream") {}
+        virtual bool isUseful() { return CastSpellAction::isUseful() && !ai->GetGroupTank(bot); }
     };
 
     class CastShackleUndeadAction : public CastDebuffSpellOnAttackerAction

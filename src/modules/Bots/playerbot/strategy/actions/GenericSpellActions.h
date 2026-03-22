@@ -275,6 +275,10 @@ namespace ai
     public:
         CastShootAction(PlayerbotAI* ai) : CastSpellAction(ai, "shoot") {}
         virtual ActionThreatType getThreatType() { return ACTION_THREAT_NONE; }
+        virtual bool isUseful()
+        {
+            return CastSpellAction::isUseful() && !(ai->IsHeal(bot) && ai->GetGroupTank(bot));
+        }
     };
 
     class CastLifeBloodAction : public CastHealingSpellAction
