@@ -110,6 +110,7 @@ namespace ai
     {
     public:
         CastRainOfFireAction(PlayerbotAI* ai) : CastSpellAction(ai, "rain of fire") {}
+        virtual bool isUseful() { return CastSpellAction::isUseful() && !ai->GetGroupTank(bot); }
     };
 
     class CastImmolateAction : public CastDebuffSpellAction
@@ -137,6 +138,7 @@ namespace ai
     {
     public:
         CastFearAction(PlayerbotAI* ai) : CastDebuffSpellAction(ai, "fear") {}
+        virtual bool isUseful() { return CastDebuffSpellAction::isUseful() && !ai->GetGroupTank(bot); }
     };
 
     class CastFearOnCcAction : public CastBuffSpellAction
@@ -145,6 +147,7 @@ namespace ai
         CastFearOnCcAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "fear on cc") {}
         virtual Value<Unit*>* GetTargetValue() { return context->GetValue<Unit*>("cc target", "fear"); }
         virtual bool Execute(Event event) { return ai->CastSpell("fear", GetTarget()); }
+        virtual bool isUseful() { return CastBuffSpellAction::isUseful() && !ai->GetGroupTank(bot); }
     };
 
     class CastLifeTapAction: public CastSpellAction

@@ -147,6 +147,8 @@ public:
     void ReInitCurrentEngine();
     void Reset();
     bool IsTank(Player* player);
+    Player* GetGroupTank(Player* except);
+    bool HasAttackersNotTargetingBotInRange(float range);
     bool IsHeal(Player* player);
     bool IsRanged(Player* player);
     Creature* GetCreature(ObjectGuid guid);
