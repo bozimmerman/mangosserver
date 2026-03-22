@@ -1377,8 +1377,6 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     Pet* pet = bot->GetPet();
     if (pet && pet->HasSpell(spellId))
     {
-        if (spellId == 982)
-            sLog.outString("CastSpell(982/RevivePet): %s - pet has spell, toggling autocast instead of casting", bot->GetName());
         pet->ToggleAutocast(spellId, true);
         TellMaster("My pet will auto-cast this spell");
         return true;
@@ -1392,15 +1390,11 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     MotionMaster &mm = *bot->GetMotionMaster();
     if (bot->isMoving() && GetSpellCastTime(pSpellInfo, NULL))
     {
-        if (spellId == 982)
-            sLog.outString("CastSpell(982/RevivePet): %s - returning false: bot is moving", bot->GetName());
         return false;
     }
 
     if (bot->IsTaxiFlying())
     {
-        if (spellId == 982)
-            sLog.outString("CastSpell(982/RevivePet): %s - returning false: taxi flying", bot->GetName());
         return false;
     }
 
@@ -1455,16 +1449,11 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
 
     if (!bot->IsInFront(faceTo, sPlayerbotAIConfig.sightDistance))
     {
-        if (spellId == 982)
-            sLog.outString("CastSpell(982/RevivePet): %s - returning false: not in front of target", bot->GetName());
         bot->SetFacingTo(bot->GetAngle(faceTo));
         SetNextCheckDelay(sPlayerbotAIConfig.globalCoolDown);
         delete spell;
         return false;
     }
-
-    if (spellId == 982)
-        sLog.outString("CastSpell(982/RevivePet): %s - calling spell->prepare", bot->GetName());
 
     WaitForSpellCast(spellId);
 
@@ -1472,9 +1461,6 @@ bool PlayerbotAI::CastSpell(uint32 spellId, Unit* target)
     bot->SetSelectionGuid(oldSel);
 
     LastSpellCast& lastSpell = aiObjectContext->GetValue<LastSpellCast&>("last spell cast")->Get();
-    if (spellId == 982)
-        sLog.outString("CastSpell(982/RevivePet): %s - spell->prepare done, lastSpell.id=%u, returning %s",
-            bot->GetName(), lastSpell.id, (lastSpell.id == spellId) ? "true" : "false");
     return lastSpell.id == spellId;
 }
 

@@ -2,6 +2,7 @@
 #include "../../playerbot.h"
 #include "../actions/GenericActions.h"
 #include "HunterActions.h"
+#include "../../PlayerbotFactory.h"
 
 using namespace ai;
 
@@ -39,6 +40,25 @@ bool HunterMeleeAction::isUseful()
     bool victim = target->getVictim() == bot;
     float dist = AI_VALUE2(float, "distance", "current target");
     return victim && dist <= ATTACK_DISTANCE;
+}
+
+bool CastRevivePetAction::isPossible()
+{
+    if (bot->GetPet())
+        return CastBuffSpellAction::isPossible();
+    PetDatabaseStatus status = Pet::GetStatusFromDB(bot);
+    return status == PET_DB_DEAD || status == PET_DB_NO_PET;
+}
+
+bool CastRevivePetAction::Execute(Event event)
+{
+    if (!bot->GetPet() && Pet::GetStatusFromDB(bot) == PET_DB_NO_PET)
+    {
+        PlayerbotFactory factory(bot, bot->getLevel());
+        factory.InitPet();
+        return true;
+    }
+    return CastBuffSpellAction::Execute(event);
 }
 
 bool HunterMeleeAction::Execute(Event event)
