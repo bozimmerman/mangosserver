@@ -17,7 +17,10 @@ bool HunterNoStingsActiveTrigger::IsActive()
 bool HuntersPetDeadTrigger::IsActive()
 {
     Unit* pet = AI_VALUE(Unit*, "pet target");
-    return pet && AI_VALUE2(bool, "dead", "pet target") && !AI_VALUE2(bool, "mounted", "self target");
+    bool active = pet && AI_VALUE2(bool, "dead", "pet target") && !AI_VALUE2(bool, "mounted", "self target");
+    if (active)
+        sLog.outString("HuntersPetDeadTrigger: %s has dead pet in world, trigger active", bot->GetName());
+    return active;
 }
 
 

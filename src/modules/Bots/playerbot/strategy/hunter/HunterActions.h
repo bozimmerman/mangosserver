@@ -87,6 +87,25 @@ namespace ai
     {
     public:
         CastRevivePetAction(PlayerbotAI* ai) : CastBuffSpellAction(ai, "revive pet") {}
+        virtual bool isPossible()
+        {
+            bool result = CastBuffSpellAction::isPossible();
+            sLog.outString("CastRevivePetAction::isPossible for %s: %s", bot->GetName(), result ? "true" : "false");
+            return result;
+        }
+        virtual bool isUseful()
+        {
+            bool result = CastBuffSpellAction::isUseful();
+            sLog.outString("CastRevivePetAction::isUseful for %s: %s", bot->GetName(), result ? "true" : "false");
+            return result;
+        }
+        virtual bool Execute(Event event)
+        {
+            sLog.outString("CastRevivePetAction::Execute for %s: calling CastSpell", bot->GetName());
+            bool result = CastBuffSpellAction::Execute(event);
+            sLog.outString("CastRevivePetAction::Execute for %s: CastSpell returned %s", bot->GetName(), result ? "true" : "false");
+            return result;
+        }
     };
 
     class CastTrueshotAuraAction : public CastBuffSpellAction
