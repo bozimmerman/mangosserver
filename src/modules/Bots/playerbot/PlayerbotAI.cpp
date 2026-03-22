@@ -1037,7 +1037,11 @@ bool PlayerbotAI::HasBreakableCrowdControl(Unit* unit)
  * Uses the bots in-range unfriendlys as a pool to determine if
  * the given center point (or the bots position) has any unfriendlys
  * within the given range of that point. Such npcs would have to be
+<<<<<<< HEAD
  * non-combatants, and non-cced.
+=======
+ * non-combatants, non-cced, and
+>>>>>>> c1f61d0e (DPS bot threat management and disruptive spell suppression in groups)
  */
 bool PlayerbotAI::HasNonCombatantInRange(float range,
     float centerX, float centerY, float centerZ)

@@ -490,6 +490,7 @@ float MovementAction::CalculateAggroFreeDistance(float bx, float by,
     {
         return maxDist;
     }
+
     float cosA = cos(angle);
     float sinA = sin(angle);
     float safeDist = maxDist;
