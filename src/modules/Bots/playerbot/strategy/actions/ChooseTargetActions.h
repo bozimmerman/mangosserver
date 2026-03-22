@@ -43,7 +43,7 @@ namespace ai
 
             virtual bool isUseful()
             {
-                return GetTarget() &&
+                return AttackAction::isUseful() && GetTarget() &&
                     (AI_VALUE2(uint8, "health", "self target") > sPlayerbotAIConfig.mediumHealth &&
                     (!AI_VALUE2(uint8, "mana", "self target") || AI_VALUE2(uint8, "mana", "self target") > sPlayerbotAIConfig.mediumMana)) || AI_VALUE2(bool, "combat", "self target");
             }
