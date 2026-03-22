@@ -72,7 +72,9 @@ PlayerbotAIConfig::PlayerbotAIConfig()
       randomBotMaxLevel(0),
       randomChangeMultiplier(0.0f),
       commandServerPort(0),
-      iterationsPerTick(0)
+      iterationsPerTick(0),
+      tankDelaySeconds(0),
+      tankThreatPct(0.0f)
 {
 }
 
@@ -198,6 +200,9 @@ bool PlayerbotAIConfig::Initialize()
     commandPrefix = config.GetStringDefault("AiPlayerbot.CommandPrefix", "");
 
     commandServerPort = config.GetIntDefault("AiPlayerbot.CommandServerPort", 0);
+
+    tankDelaySeconds = (uint32) config.GetIntDefault("AiPlayerbot.TankDelaySeconds", 3);
+    tankThreatPct = config.GetFloatDefault("AiPlayerbot.TankThreatPct", 2.0f);
 
     // Load class spec probabilities from the configuration file
     for (uint32 cls = 0; cls < MAX_CLASSES; ++cls)
