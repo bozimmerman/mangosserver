@@ -17,6 +17,22 @@ namespace ai
     {
     public:
         CastSapAction(PlayerbotAI* ai) : CastStealthedOpeningAction(ai, "sap") {}
+
+        virtual bool Execute(Event event)
+        {
+            bool result = CastStealthedOpeningAction::Execute(event);
+            if (result)
+            {
+                Unit* sapTarget = GetTarget();
+                if (sapTarget)
+                {
+                    sapTarget->DeleteThreatList();
+                    sapTarget->CombatStop();
+                }
+                ai->GetBot()->ClearInCombat();
+            }
+            return result;
+        }
     };
 
     class CastGarroteAction : public CastStealthedOpeningAction

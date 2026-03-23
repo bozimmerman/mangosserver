@@ -2,10 +2,12 @@
 #include "../../playerbot.h"
 #include "RogueActions.h"
 #include "RogueTriggers.h"
+#include "../triggers/ChatCommandTrigger.h"
 #include "RogueAiObjectContext.h"
 #include "DpsRogueStrategy.h"
 #include "GenericRogueNonCombatStrategy.h"
 #include "RogueAmbushStrategy.h"
+#include "RogueSapStrategy.h"
 #include "../NamedObjectContext.h"
 
 using namespace ai;
@@ -24,13 +26,15 @@ namespace ai
             {
                 creators["dps"] = &rogue::StrategyFactoryInternal::dps;
                 creators["nc"] = &rogue::StrategyFactoryInternal::nc;
-                creators["pull"] = &rogue::StrategyFactoryInternal::pull;
+                creators["ambush"] = &rogue::StrategyFactoryInternal::ambush;
+                creators["sap"] = &rogue::StrategyFactoryInternal::sap_strategy;
             }
 
         private:
             static Strategy* dps(PlayerbotAI* ai) { return new DpsRogueStrategy(ai); }
             static Strategy* nc(PlayerbotAI* ai) { return new GenericRogueNonCombatStrategy(ai); }
-            static Strategy* pull(PlayerbotAI* ai) { return new RogueAmbushStrategy(ai); }
+            static Strategy* ambush(PlayerbotAI* ai) { return new RogueAmbushStrategy(ai); }
+            static Strategy* sap_strategy(PlayerbotAI* ai) { return new RogueSapStrategy(ai); }
         };
     };
 };
@@ -53,6 +57,7 @@ namespace ai
                 creators["kick on enemy healer"] = &TriggerFactoryInternal::kick_on_enemy_healer;
                 creators["combo points for target available"] = &TriggerFactoryInternal::combo_points_for_target_available;
                 creators["stealth"] = &TriggerFactoryInternal::stealth;
+                creators["sap"] = &TriggerFactoryInternal::sap;
 
             }
 
@@ -64,6 +69,7 @@ namespace ai
             static Trigger* kick_on_enemy_healer(PlayerbotAI* ai) { return new KickInterruptEnemyHealerSpellTrigger(ai); }
             static Trigger* combo_points_for_target_available(PlayerbotAI* ai) { return new ComboPointsForTargetAvailableTrigger(ai); }
             static Trigger* stealth(PlayerbotAI* ai) { return new StealthTrigger(ai); }
+            static Trigger* sap(PlayerbotAI* ai) { return new ChatCommandTrigger(ai, "sap"); }
         };
     };
 };
@@ -95,9 +101,13 @@ namespace ai
                 creators["expose armor"] = &AiObjectContextInternal::expose_armor;
                 creators["kick on enemy healer"] = &AiObjectContextInternal::kick_on_enemy_healer;
                 creators["sap"] = &AiObjectContextInternal::sap;
+                creators["begin sap"] = &AiObjectContextInternal::begin_sap;
+                creators["end sap"] = &AiObjectContextInternal::end_sap;
                 creators["garrote"] = &AiObjectContextInternal::garrote;
                 creators["cheap shot"] = &AiObjectContextInternal::cheap_shot;
                 creators["stealth"] = &AiObjectContextInternal::stealth;
+                creators["begin ambush"] = &AiObjectContextInternal::begin_ambush;
+                creators["end ambush"] = &AiObjectContextInternal::end_ambush;
             }
 
         private:
@@ -116,9 +126,13 @@ namespace ai
             static Action* expose_armor(PlayerbotAI* ai) { return new CastExposeArmorAction(ai); }
             static Action* kick_on_enemy_healer(PlayerbotAI* ai) { return new CastKickOnEnemyHealerAction(ai); }
             static Action* sap(PlayerbotAI* ai) { return new CastSapAction(ai); }
+            static Action* begin_sap(PlayerbotAI* ai) { return new BeginSapAction(ai); }
+            static Action* end_sap(PlayerbotAI* ai) { return new EndSapAction(ai); }
             static Action* garrote(PlayerbotAI* ai) { return new CastGarroteAction(ai); }
             static Action* cheap_shot(PlayerbotAI* ai) { return new CastCheapShotAction(ai); }
             static Action* stealth(PlayerbotAI* ai) { return new CastStealthAction(ai); }
+            static Action* begin_ambush(PlayerbotAI* ai) { return new BeginAmbushAction(ai); }
+            static Action* end_ambush(PlayerbotAI* ai) { return new RogueEndAmbushAction(ai); }
         };
     };
 };
