@@ -913,6 +913,9 @@ Player* PlayerbotAI::GetGroupTank(Player* except)
         return nullptr;
 
     Group::MemberSlotList const& slots = group->GetMemberSlots();
+    if (slots.size() < 5)
+        return nullptr;
+
     for (Group::member_citerator itr = slots.begin(); itr != slots.end(); ++itr)
     {
         Player* member = sObjectMgr.GetPlayer(itr->guid);

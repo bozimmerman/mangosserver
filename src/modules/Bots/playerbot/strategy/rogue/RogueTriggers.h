@@ -42,7 +42,9 @@ namespace ai
         virtual bool IsActive()
         {
             Unit* target = AI_VALUE(Unit*, "current target");
-            return target && !ai->HasAura("stealth", ai->GetBot());
+            if (!target && !bot->IsInCombat() && ai->HasAura("stealth", bot))
+                bot->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+            return target && !ai->HasAura("stealth", bot);
         }
     };
 
