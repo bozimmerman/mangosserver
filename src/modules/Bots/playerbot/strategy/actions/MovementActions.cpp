@@ -454,6 +454,10 @@ float MovementAction::CalculateAggroFreeDistance(float bx, float by,
     {
         return maxDist;
     }
+    if (bot->HasAuraType(SPELL_AURA_MOD_STEALTH) || bot->HasAuraType(SPELL_AURA_MOD_INVISIBILITY))
+    {
+        return maxDist;
+    }
     float cosA = cos(angle);
     float sinA = sin(angle);
     float safeDist = maxDist;
