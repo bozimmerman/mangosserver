@@ -110,6 +110,7 @@ namespace ai
     {
     public:
         CastRainOfFireAction(PlayerbotAI* ai) : CastSpellAction(ai, "rain of fire") {}
+        virtual bool isUseful() { return CastSpellAction::isUseful() && !ai->GetGroupTank(bot); }
     };
 
     class CastImmolateAction : public CastDebuffSpellAction
