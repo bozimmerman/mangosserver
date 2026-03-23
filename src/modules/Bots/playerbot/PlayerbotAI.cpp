@@ -83,7 +83,8 @@ PlayerbotAI::PlayerbotAI() : PlayerbotAIBase(), bot(NULL), aiObjectContext(NULL)
     m_jumpStartX(0.f), m_jumpStartY(0.f), m_jumpStartZ(0.f),
     m_jumpSinAngle(0.f), m_jumpCosAngle(1.f), m_jumpXYSpeed(0.f),
     m_pendingJump(false), m_jumpRequestTime(0),
-    m_jumpTargetX(0.f), m_jumpTargetY(0.f), m_jumpTargetZ(0.f), m_jumpTargetO(0.f)
+    m_jumpTargetX(0.f), m_jumpTargetY(0.f), m_jumpTargetZ(0.f), m_jumpTargetO(0.f),
+    m_spellAttackRange(0.f)
 {
     for (int i = 0 ; i < BOT_STATE_MAX; i++)
     {
@@ -102,7 +103,8 @@ PlayerbotAI::PlayerbotAI(Player* bot) :
     m_jumpStartX(0.f), m_jumpStartY(0.f), m_jumpStartZ(0.f),
     m_jumpSinAngle(0.f), m_jumpCosAngle(1.f), m_jumpXYSpeed(0.f),
     m_pendingJump(false), m_jumpRequestTime(0),
-    m_jumpTargetX(0.f), m_jumpTargetY(0.f), m_jumpTargetZ(0.f), m_jumpTargetO(0.f)
+    m_jumpTargetX(0.f), m_jumpTargetY(0.f), m_jumpTargetZ(0.f), m_jumpTargetO(0.f),
+    m_spellAttackRange(0.f)
 {
     this->bot = bot;
 

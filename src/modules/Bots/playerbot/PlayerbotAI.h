@@ -229,6 +229,8 @@ protected:
     uint32 m_jumpRequestTime;
     float  m_jumpTargetX, m_jumpTargetY, m_jumpTargetZ, m_jumpTargetO;
 
+    float  m_spellAttackRange;  // actual range of spell requesting "reach spell" movement
+
     void UpdateJump();
 };
 
