@@ -50,7 +50,7 @@ bool AttackAction::isUseful()
 
     Player* tank = ai->GetGroupTank(bot);
 
-    if (!tank)
+    if (!tank || !tank->getVictim())
         return true;
 
     Unit* target = GetTarget();
