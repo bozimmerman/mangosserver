@@ -87,6 +87,39 @@ ItemUsage ItemUsageValue::QueryItemUsageForEquip(ItemPrototype const * item)
     return ITEM_USAGE_NONE;
 }
 
+static bool IsFirstAidMaterial(uint32 itemId, uint32 botSkill)
+{
+    static std::map<uint32, uint32> firstAidMaterials;
+    static bool initialized = false;
+    if (!initialized)
+    {
+        initialized = true;
+        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        {
+            SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
+            if (!entry || entry->skillId != SKILL_FIRST_AID)
+                continue;
+            SpellEntry const* spell = sSpellStore.LookupEntry(entry->spellId);
+            if (!spell)
+                continue;
+            for (int r = 0; r < MAX_SPELL_REAGENTS; ++r)
+            {
+                if (spell->Reagent[r] <= 0)
+                    continue;
+                uint32 reagentId = (uint32)spell->Reagent[r];
+                uint32 greyAt = entry->max_value;
+                auto it = firstAidMaterials.find(reagentId);
+                if (it == firstAidMaterials.end() || greyAt > it->second)
+                    firstAidMaterials[reagentId] = greyAt;
+            }
+        }
+    }
+    auto it = firstAidMaterials.find(itemId);
+    if (it == firstAidMaterials.end())
+        return false;
+    return it->second == 0 || botSkill < it->second;
+}
+
 bool ItemUsageValue::IsItemUsefulForSkill(ItemPrototype const * proto)
 {
     switch (proto->Class)
@@ -99,6 +132,8 @@ bool ItemUsageValue::IsItemUsefulForSkill(ItemPrototype const * proto)
         case ITEM_SUBCLASS_DEVICES:
             return bot->HasSkill(SKILL_ENGINEERING);
         }
+        if (bot->HasSkill(SKILL_FIRST_AID) && IsFirstAidMaterial(proto->ItemId, bot->GetSkillValue(SKILL_FIRST_AID)))
+            return true;
         break;
     case ITEM_CLASS_RECIPE:
         {
