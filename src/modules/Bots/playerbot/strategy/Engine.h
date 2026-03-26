@@ -151,6 +151,8 @@ namespace ai
         std::unordered_map<string, ActionNode*> actionNodeCache; /**< Cache of action nodes by name */
         float lastRelevance; /**< Last relevance value */
         std::string lastAction; /**< Last executed action */
+        bool initPending; /**< Deferred Init() requested while DoNextAction is running */
+        bool inDoNextAction; /**< True while DoNextAction loop is executing */
 
     public:
         bool testMode; /**< Flag for test mode */

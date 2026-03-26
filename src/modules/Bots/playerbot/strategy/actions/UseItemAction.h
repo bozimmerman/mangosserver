@@ -77,9 +77,12 @@ namespace ai
 
         virtual bool isUseful()
         {
-            return AI_VALUE2(bool, "combat", "self target") &&
-                   bot->getAttackers().empty() &&
-                   !bot->HasAura(SPELL_ID_RECENTLY_BANDAGED);
+            if (bot->HasAura(SPELL_ID_RECENTLY_BANDAGED))
+                return false;
+            if (AI_VALUE2(bool, "combat", "self target"))
+                return bot->getAttackers().empty();
+            return bot->GetGroup() &&
+                   AI_VALUE2(list<Item*>, "inventory items", "food").empty();
         }
 
     private:

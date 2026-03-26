@@ -12,6 +12,8 @@ Engine::Engine(PlayerbotAI* ai, AiObjectContext *factory) : PlayerbotAIAware(ai)
 {
     lastRelevance = 0.0f;
     testMode = false;
+    initPending = false;
+    inDoNextAction = false;
 }
 
 // Executes actions before the main action
@@ -110,6 +112,11 @@ void Engine::Reset()
 // Initializes the engine by resetting it and initializing strategies
 void Engine::Init()
 {
+    if (inDoNextAction)
+    {
+        initPending = true;
+        return;
+    }
     Reset();
     ClearActionNodeCache();
 
@@ -148,7 +155,15 @@ bool Engine::DoNextAction(Unit* unit, int depth)
 
     int iterations = 0;
     int iterationsPerTick = queue.Size() * sPlayerbotAIConfig.iterationsPerTick;
+    inDoNextAction = true;
     do {
+        if (initPending)
+        {
+            initPending = false;
+            inDoNextAction = false;
+            Init();
+            inDoNextAction = true;
+        }
         basket = queue.Peek();
         if (basket)
         {
@@ -220,6 +235,7 @@ bool Engine::DoNextAction(Unit* unit, int depth)
         }
     }
     while (basket);
+    inDoNextAction = false;
 
     if (!basket)
     {
@@ -332,13 +348,11 @@ ActionResult Engine::ExecuteAction(string &name)
 
     if (!action->isPossible())
     {
-        delete actionNode;
         return ACTION_RESULT_IMPOSSIBLE;
     }
 
     if (!action->isUseful())
     {
-        delete actionNode;
         return ACTION_RESULT_USELESS;
     }
 
@@ -346,7 +360,6 @@ ActionResult Engine::ExecuteAction(string &name)
     Event emptyEvent;
     result = ListenAndExecute(action, emptyEvent);
     MultiplyAndPush(action->getContinuers(), 0.0f, false, emptyEvent);
-    delete actionNode;
     return result ? ACTION_RESULT_OK : ACTION_RESULT_FAILED;
 }
 

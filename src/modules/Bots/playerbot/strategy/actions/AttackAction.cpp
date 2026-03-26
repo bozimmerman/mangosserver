@@ -101,7 +101,6 @@ bool AttackAction::Attack(Unit* target)
         if (verbose)
         {
             ai->TellMaster("I have no target");
-            return false;
         }
         return false;
     }
