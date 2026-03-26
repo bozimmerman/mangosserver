@@ -15,7 +15,7 @@ Engine::Engine(PlayerbotAI* ai, AiObjectContext *factory) : PlayerbotAIAware(ai)
 }
 
 // Executes actions before the main action
-bool ActionExecutionListeners::Before(Action* action, Event event)
+bool ActionExecutionListeners::Before(Action* action, const Event& event)
 {
     bool result = true;
     for (list<ActionExecutionListener*>::iterator i = listeners.begin(); i!=listeners.end(); i++)
@@ -26,7 +26,7 @@ bool ActionExecutionListeners::Before(Action* action, Event event)
 }
 
 // Executes actions after the main action
-void ActionExecutionListeners::After(Action* action, bool executed, Event event)
+void ActionExecutionListeners::After(Action* action, bool executed, const Event& event)
 {
     for (list<ActionExecutionListener*>::iterator i = listeners.begin(); i!=listeners.end(); i++)
     {
@@ -35,7 +35,7 @@ void ActionExecutionListeners::After(Action* action, bool executed, Event event)
 }
 
 // Overrides the result of the action execution
-bool ActionExecutionListeners::OverrideResult(Action* action, bool executed, Event event)
+bool ActionExecutionListeners::OverrideResult(Action* action, bool executed, const Event& event)
 {
     bool result = executed;
     for (list<ActionExecutionListener*>::iterator i = listeners.begin(); i!=listeners.end(); i++)
@@ -46,7 +46,7 @@ bool ActionExecutionListeners::OverrideResult(Action* action, bool executed, Eve
 }
 
 // Checks if the action execution is allowed
-bool ActionExecutionListeners::AllowExecution(Action* action, Event event)
+bool ActionExecutionListeners::AllowExecution(Action* action, const Event& event)
 {
     bool result = true;
     for (list<ActionExecutionListener*>::iterator i = listeners.begin(); i!=listeners.end(); i++)
@@ -71,6 +71,16 @@ Engine::~Engine(void)
 {
     Reset();
     strategies.clear();
+    ClearActionNodeCache();
+}
+
+void Engine::ClearActionNodeCache()
+{
+    for (unordered_map<string, ActionNode*>::iterator i = actionNodeCache.begin(); i != actionNodeCache.end(); i++)
+    {
+        delete i->second;
+    }
+    actionNodeCache.clear();
 }
 
 // Resets the engine by clearing the action queue, triggers, and multipliers
@@ -79,8 +89,7 @@ void Engine::Reset()
     ActionNode* action = NULL;
     do
     {
-        action = queue.Pop();
-        delete action;
+        action = queue.Pop(); // popped from queue, remain in cache
     } while (action != NULL);
 
     for (list<TriggerNode*>::iterator i = triggers.begin(); i != triggers.end(); i++)
@@ -102,6 +111,7 @@ void Engine::Reset()
 void Engine::Init()
 {
     Reset();
+    ClearActionNodeCache();
 
     for (map<string, Strategy*>::iterator i = strategies.begin(); i != strategies.end(); i++)
     {
@@ -188,7 +198,6 @@ bool Engine::DoNextAction(Unit* unit, int depth)
                         LogAction("A:%s - OK", action->getName().c_str());
                         MultiplyAndPush(actionNode->getContinuers(), 0, false, event);
                         lastRelevance = relevance;
-                        delete actionNode;
                         break;
                     }
                     else
@@ -208,7 +217,6 @@ bool Engine::DoNextAction(Unit* unit, int depth)
                 lastRelevance = relevance;
                 LogAction("A:%s - USELESS", action->getName().c_str());
             }
-            delete actionNode;
         }
     }
     while (basket);
@@ -240,23 +248,30 @@ bool Engine::DoNextAction(Unit* unit, int depth)
 // Creates an action node based on the action name
 ActionNode* Engine::CreateActionNode(string name)
 {
+    unordered_map<string, ActionNode*>::iterator cached = actionNodeCache.find(name);
+    if (cached != actionNodeCache.end())
+    {
+        return cached->second;
+    }
+
+    ActionNode* node = NULL;
     for (map<string, Strategy*>::iterator i = strategies.begin(); i != strategies.end(); i++)
     {
-        Strategy* strategy = i->second;
-        ActionNode* node = strategy->GetAction(name);
+        node = i->second->GetAction(name);
         if (node)
-        {
-            return node;
-        }
+            break;
     }
-    return new ActionNode (name,
-        /*P*/ NULL,
-        /*A*/ NULL,
-        /*C*/ NULL);
+    if (!node)
+    {
+        node = new ActionNode(name, /*P*/ NULL, /*A*/ NULL, /*C*/ NULL);
+    }
+
+    actionNodeCache[name] = node;
+    return node;
 }
 
 // Multiplies the relevance of actions and pushes them to the queue
-bool Engine::MultiplyAndPush(NextAction** actions, float forceRelevance, bool skipPrerequisites, Event event)
+bool Engine::MultiplyAndPush(NextAction** actions, float forceRelevance, bool skipPrerequisites, const Event& event)
 {
     bool pushed = false;
     if (actions)
@@ -283,7 +298,7 @@ bool Engine::MultiplyAndPush(NextAction** actions, float forceRelevance, bool sk
                 }
                 else
                 {
-                    delete action;
+                    // ActionNode owned by cache, not deleted here
                 }
 
                 delete nextAction;
@@ -487,13 +502,12 @@ string Engine::ListStrategies()
 }
 
 // Pushes an action node to the queue again
-void Engine::PushAgain(ActionNode* actionNode, float relevance, Event event)
+void Engine::PushAgain(ActionNode* actionNode, float relevance, const Event& event)
 {
     NextAction** nextAction = new NextAction*[2];
     nextAction[0] = new NextAction(actionNode->getName(), relevance);
     nextAction[1] = NULL;
     MultiplyAndPush(nextAction, relevance, true, event);
-    delete actionNode;
 }
 
 // Checks if the engine contains a specific strategy type
@@ -523,7 +537,7 @@ Action* Engine::InitializeAction(ActionNode* actionNode)
 }
 
 // Listens and executes an action
-bool Engine::ListenAndExecute(Action* action, Event event)
+bool Engine::ListenAndExecute(Action* action, const Event& event)
 {
     bool actionExecuted = false;
 
