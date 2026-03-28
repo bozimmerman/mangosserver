@@ -189,6 +189,7 @@ public:
     void RequestJump();
     bool IsJumping() const { return m_isJumping; }
     bool IsPendingJump() const { return m_pendingJump; }
+    void UpdateJump();
 
     bool IsEating() const
     {
@@ -231,7 +232,5 @@ protected:
     bool   m_pendingJump;
     uint32 m_jumpRequestTime;
     float  m_jumpTargetX, m_jumpTargetY, m_jumpTargetZ, m_jumpTargetO;
-
-    void UpdateJump();
 };
 

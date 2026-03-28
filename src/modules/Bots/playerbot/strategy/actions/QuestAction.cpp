@@ -33,7 +33,22 @@ bool QuestAction::ProcessQuests(ObjectGuid questGiver)
     GameObject *gameObject = ai->GetGameObject(questGiver);
     if (gameObject && gameObject->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
     {
-        return ProcessQuests(gameObject);
+        if(!ProcessQuests(gameObject))
+        {
+            gameObject->Use(bot);
+            GossipMenu& gossipMenu = bot->PlayerTalkClass->GetGossipMenu();
+            for (uint32 i = 0; i < gossipMenu.MenuItemCount(); ++i)
+            {
+                if (gossipMenu.GetItem(i).m_gOptionId == GOSSIP_OPTION_GOSSIP ||
+                    gossipMenu.GetItem(i).m_gOptionId == GOSSIP_OPTION_QUESTGIVER)
+                {
+                    bot->OnGossipSelect(gameObject, i);
+                    ProcessQuests(gameObject);
+                    break;
+                }
+            }
+        }
+        return true;
     }
 
     Creature* creature = ai->GetCreature(questGiver);
@@ -77,8 +92,7 @@ bool QuestAction::ProcessQuests(WorldObject* questGiver)
 
         ProcessQuest(quest, questGiver);
     }
-
-    return true;
+    return (questMenu.MenuItemCount() >0);
 }
 
 bool QuestAction::AcceptQuest(Quest const* quest, uint64 questGiver)

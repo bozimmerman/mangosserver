@@ -93,6 +93,8 @@ void LootObject::Refresh(Player* bot, ObjectGuid guid)
         LockEntry const *lockInfo = sLockStore.LookupEntry(lockId);
         if (!lockInfo)
         {
+            if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST && go->ActivateToQuest(bot))
+                this->guid = guid;
             return;
         }
 
@@ -119,6 +121,9 @@ void LootObject::Refresh(Player* bot, ObjectGuid guid)
                 break;
             }
         }
+
+        if (!this->guid && go->GetGoType() == GAMEOBJECT_TYPE_CHEST && go->ActivateToQuest(bot))
+            this->guid = guid;
     }
 }
 
