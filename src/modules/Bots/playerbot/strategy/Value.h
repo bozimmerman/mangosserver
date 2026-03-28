@@ -181,6 +181,13 @@ namespace ai
         }
     };
 
+    class ObjectGuidCalculatedValue : public CalculatedValue<ObjectGuid>
+    {
+    public:
+        ObjectGuidCalculatedValue(PlayerbotAI* ai, string name = "value", int checkInterval = 1) :
+            CalculatedValue<ObjectGuid>(ai, name, checkInterval) {}
+    };
+
     /**
      * @brief Class for calculated list<ObjectGuid> values.
      */

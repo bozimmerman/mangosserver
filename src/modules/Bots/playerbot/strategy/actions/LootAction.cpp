@@ -408,3 +408,14 @@ bool StoreLootAction::IsLootAllowed(uint32 itemid)
 
     return true;
 }
+
+bool UseQuestObjectAction::Execute(Event event)
+{
+    ObjectGuid guid = AI_VALUE(ObjectGuid, "nearest quest gameobject");
+    GameObject* go = ai->GetGameObject(guid);
+    if (!go || !go->isSpawned())
+        return false;
+    go->Use(bot);
+    bot->GetPlayerbotAI()->SetUsed(guid);
+    return true;
+}

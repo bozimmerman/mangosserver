@@ -54,6 +54,7 @@
 #include "LfgValues.h"
 #include "EnemyHealerTargetValue.h"
 #include "ItemUsageValue.h"
+#include "NearestQuestGameObject.h"
 
 namespace ai
 {
@@ -140,6 +141,7 @@ namespace ai
             creators["enemy healer target"] = &ValueContext::enemy_healer_target;
             creators["item usage"] = &ValueContext::item_usage;
             creators["reach spell distance"] = &ValueContext::reach_spell_distance;
+            creators["nearest quest gameobject"] = &ValueContext::nearest_quest_gameobject;
         }
 
     private:
@@ -220,5 +222,6 @@ namespace ai
         static UntypedValue* lfg_proposal(PlayerbotAI* ai) { return new LfgProposalValue(ai); }
         static UntypedValue* bag_space(PlayerbotAI* ai) { return new BagSpaceValue(ai); }
         static UntypedValue* enemy_healer_target(PlayerbotAI* ai) { return new EnemyHealerTargetValue(ai); }
+        static UntypedValue* nearest_quest_gameobject(PlayerbotAI* ai) { return new NearestQuestGameObject(ai); }
     };
 };

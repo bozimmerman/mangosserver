@@ -113,4 +113,11 @@ namespace ai
         virtual bool Execute(Event event);
     };
 
+    class MoveToQuestObjectAction : public MovementAction
+    {
+    public:
+        MoveToQuestObjectAction(PlayerbotAI* ai) : MovementAction(ai, "move to quest object") {}
+        virtual bool Execute(Event event);
+    };
+
 }

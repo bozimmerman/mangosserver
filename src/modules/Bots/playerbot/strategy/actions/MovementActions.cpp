@@ -667,3 +667,12 @@ bool JumpInPlaceAction::Execute(Event event)
     ai->StartJump(false);
     return true;
 }
+
+bool MoveToQuestObjectAction::Execute(Event event)
+{
+    ObjectGuid guid = AI_VALUE(ObjectGuid, "nearest quest gameobject");
+    GameObject* go = ai->GetGameObject(guid);
+    if (!go)
+        return false;
+    return MoveNear(go);
+}

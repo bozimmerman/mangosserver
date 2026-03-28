@@ -24,6 +24,14 @@ void GatherStrategy::InitTriggers(std::list<TriggerNode*> &triggers)
     triggers.push_back(new TriggerNode(
         "no possible targets",
         NextAction::array(0, new NextAction("add gathering loot", 2.0f), NULL)));
+
+    triggers.push_back(new TriggerNode(
+        "quest gameobject nearby",
+        NextAction::array(0, new NextAction("use quest object", 5.0f), NULL)));
+
+    triggers.push_back(new TriggerNode(
+        "far from quest gameobject",
+        NextAction::array(0, new NextAction("move to quest object", 4.0f), NULL)));
 }
 
 

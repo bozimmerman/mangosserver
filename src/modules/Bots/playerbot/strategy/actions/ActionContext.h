@@ -69,6 +69,8 @@ namespace ai
             creators["drop target"] = &ActionContext::drop_target;
             creators["jump"] = &ActionContext::jump;
             creators["jump up"] = &ActionContext::jump_up;
+            creators["use quest object"] = &ActionContext::use_quest_object;
+            creators["move to quest object"] = &ActionContext::move_to_quest_object;
         }
 
     private:
@@ -118,5 +120,7 @@ namespace ai
         static Action* set_facing(PlayerbotAI* ai) { return new SetFacingTargetAction(ai); }
         static Action* jump(PlayerbotAI* ai) { return new JumpAction(ai); }
         static Action* jump_up(PlayerbotAI* ai) { return new JumpInPlaceAction(ai); }
+        static Action* use_quest_object(PlayerbotAI* ai) { return new UseQuestObjectAction(ai); }
+        static Action* move_to_quest_object(PlayerbotAI* ai) { return new MoveToQuestObjectAction(ai); }
     };
 };
