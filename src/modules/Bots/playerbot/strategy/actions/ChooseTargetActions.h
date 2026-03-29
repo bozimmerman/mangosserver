@@ -61,6 +61,13 @@ namespace ai
         virtual string GetTargetName() { return "rti target"; }
     };
 
+    class AttackThreatTargetAction : public AttackAction
+    {
+    public:
+        AttackThreatTargetAction(PlayerbotAI* ai) : AttackAction(ai, "attack threat target") {}
+        virtual string GetTargetName() { return "threat target"; }
+    };
+
     class DropTargetAction : public Action
     {
     public:
