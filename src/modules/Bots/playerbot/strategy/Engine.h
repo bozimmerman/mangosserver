@@ -137,6 +137,7 @@ namespace ai
         Action* InitializeAction(ActionNode* actionNode);
         bool ListenAndExecute(Action* action, const Event& event);
         void ClearActionNodeCache();
+        void InitStrategies();
 
     private:
         void LogAction(const char* format, ...);
@@ -151,8 +152,7 @@ namespace ai
         std::unordered_map<string, ActionNode*> actionNodeCache; /**< Cache of action nodes by name */
         float lastRelevance; /**< Last relevance value */
         std::string lastAction; /**< Last executed action */
-        bool initPending; /**< Deferred Init() requested while DoNextAction is running */
-        bool inDoNextAction; /**< True while DoNextAction loop is executing */
+        bool strategiesDirty; /**< True when strategies changed and ActualInit() is pending */
 
     public:
         bool testMode; /**< Flag for test mode */

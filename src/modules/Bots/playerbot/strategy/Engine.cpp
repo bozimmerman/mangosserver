@@ -12,8 +12,7 @@ Engine::Engine(PlayerbotAI* ai, AiObjectContext *factory) : PlayerbotAIAware(ai)
 {
     lastRelevance = 0.0f;
     testMode = false;
-    initPending = false;
-    inDoNextAction = false;
+    strategiesDirty = false;
 }
 
 // Executes actions before the main action
@@ -109,16 +108,18 @@ void Engine::Reset()
     multipliers.clear();
 }
 
-// Initializes the engine by resetting it and initializing strategies
+// Marks the engine for reinitialization at the next DoNextAction entry
 void Engine::Init()
 {
-    if (inDoNextAction)
-    {
-        initPending = true;
-        return;
-    }
+    strategiesDirty = true;
+}
+
+// Initializes strategies, triggers, multipliers, and default actions
+void Engine::InitStrategies()
+{
     Reset();
     ClearActionNodeCache();
+    strategiesDirty = false;
 
     for (map<string, Strategy*>::iterator i = strategies.begin(); i != strategies.end(); i++)
     {
@@ -149,21 +150,18 @@ bool Engine::DoNextAction(Unit* unit, int depth)
     bool actionExecuted = false;
     ActionBasket* basket = NULL;
 
+    if (strategiesDirty)
+    {
+        InitStrategies();
+    }
+
     time_t currentTime = time(0);
     aiObjectContext->Update();
     ProcessTriggers();
 
     int iterations = 0;
     int iterationsPerTick = queue.Size() * sPlayerbotAIConfig.iterationsPerTick;
-    inDoNextAction = true;
     do {
-        if (initPending)
-        {
-            initPending = false;
-            inDoNextAction = false;
-            Init();
-            inDoNextAction = true;
-        }
         basket = queue.Peek();
         if (basket)
         {
@@ -235,7 +233,6 @@ bool Engine::DoNextAction(Unit* unit, int depth)
         }
     }
     while (basket);
-    inDoNextAction = false;
 
     if (!basket)
     {
@@ -312,11 +309,6 @@ bool Engine::MultiplyAndPush(NextAction** actions, float forceRelevance, bool sk
                     queue.Push(new ActionBasket(action, k, skipPrerequisites, event));
                     pushed = true;
                 }
-                else
-                {
-                    // ActionNode owned by cache, not deleted here
-                }
-
                 delete nextAction;
             }
             else
