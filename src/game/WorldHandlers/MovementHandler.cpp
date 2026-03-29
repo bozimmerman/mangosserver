@@ -648,6 +648,8 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
             plMover->m_transport->RemovePassenger(plMover);
             plMover->m_transport = NULL;
             movementInfo.ClearTransportData();
+            if (plMover->GetPet()) // disembarking pets from tram, if boarded
+                plMover->GetPet()->UpdateTransport(plMover);
         }
 
         if (movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) != plMover->IsInWater())
