@@ -707,7 +707,11 @@ void Pet::UpdateTransport(Player* plOwner)
         float dx = GetPositionX() - plOwner->GetPositionX();
         float dy = GetPositionY() - plOwner->GetPositionY();
         float dist2d = sqrt(dx*dx + dy*dy);
-        if (dist2d <= 6.0f)
+        if (dist2d <= 6.0f
+#ifdef ENABLE_PLAYERBOTS
+            || plOwner->GetPlayerbotAI()
+#endif
+            )
         {
             tr->AddPassenger(this);
             m_transport = tr;
