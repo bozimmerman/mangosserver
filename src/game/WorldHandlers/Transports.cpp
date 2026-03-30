@@ -220,11 +220,6 @@ LocalTransport::~LocalTransport()
     //sLog.outString("Deleting %s, map %u", GetGuidStr().c_str(), GetMap()->GetId());
 }
 
-void LocalTransport::Update(uint32 /*update_diff*/, uint32 /*p_time*/)
-{
-    UpdateCreaturePassengerPositions();
-}
-
 bool LocalTransport::Initialize(uint32 guid, Map* m)
 {
     if (m == NULL)

@@ -60,7 +60,6 @@ class LocalTransport : public Transport
         explicit LocalTransport();
         virtual ~LocalTransport();
         bool Initialize(uint32 guid, Map* m);
-        void Update(uint32 update_diff, uint32 p_time) override;
     private:
         uint32 m_period;
 };

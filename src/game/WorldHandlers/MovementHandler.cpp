@@ -650,6 +650,34 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
             movementInfo.ClearTransportData();
         }
 
+        if (plMover->m_transport && movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT)
+            && plMover->m_transport->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
+        {
+            float to = plMover->m_transport->GetOrientation();
+            float cos_o = cos(to), sin_o = sin(to);
+            Position const* tpos = movementInfo.GetTransportPos();
+            float tx = movementInfo.GetPos()->x - (cos_o * tpos->x - sin_o * tpos->y);
+            float ty = movementInfo.GetPos()->y - (sin_o * tpos->x + cos_o * tpos->y);
+            float tz = movementInfo.GetPos()->z - tpos->z;
+            for (Unit* unit : plMover->m_transport->GetPassengers())
+            {
+                if (unit == plMover)
+                    continue;
+                Position const* utpos = unit->m_movementInfo.GetTransportPos();
+                float wx = tx + cos_o * utpos->x - sin_o * utpos->y;
+                float wy = ty + sin_o * utpos->x + cos_o * utpos->y;
+                float wz = tz + utpos->z;
+                float wo = to + utpos->o;
+                if (Creature* c = unit->ToCreature())
+                    plMover->GetMap()->CreatureRelocation(c, wx, wy, wz, wo);
+#ifdef ENABLE_PLAYERBOTS
+                else if (Player* p = unit->ToPlayer())
+                    if (p->GetPlayerbotAI())
+                        plMover->GetMap()->PlayerRelocation(p, wx, wy, wz, wo);
+#endif
+            }
+        }
+
         if (movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) != plMover->IsInWater())
         {
             // now client not include swimming flag in case jumping under water
