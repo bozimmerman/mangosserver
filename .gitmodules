@@ -1,18 +1,24 @@
 [submodule "dep"]
     path = dep
     url = https://github.com/mangos/mangosDeps
+    ignore = all
 [submodule "src/realmd"]
     path = src/realmd
     url = https://github.com/mangos/realmd
+    ignore = all
 [submodule "src/modules/SD3"]
     path = src/modules/SD3
     url = https://github.com/mangos/ScriptDev3.git
+    ignore = all
 [submodule "src/tools/Extractor_projects"]
     path = src/tools/Extractor_projects
     url = https://github.com/mangos/Extractor_projects.git
+    ignore = all
 [submodule "win"]
     path = win
     url = https://github.com/mangostools/EasyBuild
+    ignore = all
 [submodule "src/modules/Eluna"]
-	path = src/modules/Eluna
-	url = https://github.com/ElunaLuaEngine/Eluna
+    path = src/modules/Eluna
+    url = https://github.com/ElunaLuaEngine/Eluna
+    ignore = all
