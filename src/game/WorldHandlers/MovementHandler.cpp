@@ -650,20 +650,6 @@ void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
             movementInfo.ClearTransportData();
         }
 
-        // Update transport position based on game client player data.
-        // The transport pos is technically calculable by the server, if we can discover how.
-        if (plMover->m_transport && movementInfo.HasMovementFlag(MOVEFLAG_ONTRANSPORT)
-            && plMover->m_transport->GetGoType() == GAMEOBJECT_TYPE_TRANSPORT)
-        {
-            float to = plMover->m_transport->GetOrientation();
-            float cos_o = cos(to), sin_o = sin(to);
-            Position const* tpos = movementInfo.GetTransportPos();
-            float tx = movementInfo.GetPos()->x - (cos_o * tpos->x - sin_o * tpos->y);
-            float ty = movementInfo.GetPos()->y - (sin_o * tpos->x + cos_o * tpos->y);
-            float tz = movementInfo.GetPos()->z - tpos->z;
-            plMover->m_transport->Relocate(tx, ty, tz, to);
-        }
-
         if (movementInfo.HasMovementFlag(MOVEFLAG_SWIMMING) != plMover->IsInWater())
         {
             // now client not include swimming flag in case jumping under water
