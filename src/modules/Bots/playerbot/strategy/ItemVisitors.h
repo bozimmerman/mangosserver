@@ -59,7 +59,6 @@ namespace ai
             {
                 return FindItemVisitor::Visit(item);
             }
-
             return true;
         }
 
@@ -355,5 +354,21 @@ namespace ai
         }
     private:
         uint32 spellCategory;
+    };
+
+    class FindLikeItemVisitor : public FindItemVisitor
+    {
+    public:
+        FindLikeItemVisitor(Item *item) : FindItemVisitor()
+        {
+            this->itemId = item->GetProto()->ItemId;
+        }
+
+        virtual bool Accept(const ItemPrototype* proto)
+        {
+            return proto->ItemId == itemId;
+        }
+    private:
+        uint32 itemId;
     };
 }
