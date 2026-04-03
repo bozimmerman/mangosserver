@@ -54,6 +54,17 @@ namespace ai
         }
     };
 
+    class BackOffAction : public ReachTargetAction
+    {
+    public:
+        BackOffAction(PlayerbotAI* ai) : ReachTargetAction(ai, "back off", sPlayerbotAIConfig.meleeDistance) {}
+
+        virtual bool isUseful()
+        {
+            return AI_VALUE2(float, "distance", "current target") < distance + sPlayerbotAIConfig.contactDistance + bot->GetObjectBoundingRadius();
+        }
+    };
+
     class ReachSpellAction : public ReachTargetAction
     {
     public:
