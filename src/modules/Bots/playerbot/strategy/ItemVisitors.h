@@ -285,6 +285,7 @@ namespace ai
     inline bool IsBuffFood(const ItemPrototype* proto)
     {
         if (proto->Class != ITEM_CLASS_CONSUMABLE ||
+            proto->SubClass == ITEM_SUBCLASS_BANDAGE ||
             proto->Spells[0].SpellCategory != SPELLCATEGORY_FOOD)
             return false;
         SpellEntry const* sp = sSpellStore.LookupEntry(proto->Spells[0].SpellId);
