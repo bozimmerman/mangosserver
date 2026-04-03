@@ -27,20 +27,4 @@ namespace ai
 
         virtual bool IsActive();
     };
-
-    class QuestGameObjectNearbyTrigger : public Trigger
-    {
-    public:
-        QuestGameObjectNearbyTrigger(PlayerbotAI* ai) : Trigger(ai, "quest gameobject nearby") {}
-
-        virtual bool IsActive();
-    };
-
-    class FarFromQuestGameObjectTrigger : public Trigger
-    {
-    public:
-        FarFromQuestGameObjectTrigger(PlayerbotAI* ai) : Trigger(ai, "far from quest gameobject") {}
-
-        virtual bool IsActive();
-    };
 }

@@ -520,8 +520,6 @@ set(BOT_SRCS
     playerbot/strategy/values/NearestGameObjects.h
     playerbot/strategy/values/NearestNpcsValue.cpp
     playerbot/strategy/values/NearestNpcsValue.h
-    playerbot/strategy/values/NearestQuestGameObject.cpp
-    playerbot/strategy/values/NearestQuestGameObject.h
     playerbot/strategy/values/NearestUnitsValue.h
     playerbot/strategy/values/PartyMemberToDispel.cpp
     playerbot/strategy/values/PartyMemberToDispel.h

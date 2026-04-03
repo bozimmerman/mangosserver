@@ -36,11 +36,4 @@ namespace ai
     protected:
         bool IsLootAllowed(uint32 itemid);
     };
-
-    class UseQuestObjectAction : public Action
-    {
-    public:
-        UseQuestObjectAction(PlayerbotAI* ai) : Action(ai, "use quest object") {}
-        virtual bool Execute(Event event);
-    };
 }

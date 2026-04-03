@@ -18,21 +18,3 @@ bool CanLootTrigger::IsActive()
 {
     return AI_VALUE(bool, "can loot");
 }
-
-bool QuestGameObjectNearbyTrigger::IsActive()
-{
-    ObjectGuid guid = AI_VALUE(ObjectGuid, "nearest quest gameobject");
-    if (!guid)
-        return false;
-    GameObject* go = ai->GetGameObject(guid);
-    return go && bot->GetDistance(go) <= INTERACTION_DISTANCE;
-}
-
-bool FarFromQuestGameObjectTrigger::IsActive()
-{
-    ObjectGuid guid = AI_VALUE(ObjectGuid, "nearest quest gameobject");
-    if (!guid)
-        return false;
-    GameObject* go = ai->GetGameObject(guid);
-    return go && bot->GetDistance(go) > INTERACTION_DISTANCE;
-}

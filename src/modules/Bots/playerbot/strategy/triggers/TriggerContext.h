@@ -87,8 +87,6 @@ namespace ai
             creators["far from master"] = &TriggerContext::far_from_master;
             creators["far from loot target"] = &TriggerContext::far_from_loot_target;
             creators["can loot"] = &TriggerContext::can_loot;
-            creators["quest gameobject nearby"] = &TriggerContext::quest_gameobject_nearby;
-            creators["far from quest gameobject"] = &TriggerContext::far_from_quest_gameobject;
             creators["swimming"] = &TriggerContext::swimming;
             creators["target changed"] = &TriggerContext::target_changed;
 
@@ -109,8 +107,6 @@ namespace ai
         static Trigger* swimming(PlayerbotAI* ai) { return new IsSwimmingTrigger(ai); }
         static Trigger* no_possible_targets(PlayerbotAI* ai) { return new NoPossibleTargetsTrigger(ai); }
         static Trigger* can_loot(PlayerbotAI* ai) { return new CanLootTrigger(ai); }
-        static Trigger* quest_gameobject_nearby(PlayerbotAI* ai) { return new QuestGameObjectNearbyTrigger(ai); }
-        static Trigger* far_from_quest_gameobject(PlayerbotAI* ai) { return new FarFromQuestGameObjectTrigger(ai); }
         static Trigger* far_from_loot_target(PlayerbotAI* ai) { return new FarFromCurrentLootTrigger(ai); }
         static Trigger* far_from_master(PlayerbotAI* ai) { return new FarFromMasterTrigger(ai); }
         static Trigger* behind_target(PlayerbotAI* ai) { return new IsBehindTargetTrigger(ai); }
