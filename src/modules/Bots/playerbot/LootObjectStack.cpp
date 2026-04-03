@@ -229,7 +229,8 @@ void LootObjectStack::Remove(ObjectGuid guid)
     if (i != availableLoot.end())
     {
         availableLoot.erase(i);
-        bot->GetPlayerbotAI()->SetUsed(guid);
+        if (bot->GetPlayerbotAI()->GetGameObject(guid))
+            bot->GetPlayerbotAI()->SetUsed(guid);
     }
 }
 

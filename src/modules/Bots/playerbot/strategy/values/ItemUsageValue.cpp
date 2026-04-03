@@ -87,7 +87,7 @@ ItemUsage ItemUsageValue::QueryItemUsageForEquip(ItemPrototype const * item)
     return ITEM_USAGE_NONE;
 }
 
-static bool IsFirstAidMaterial(uint32 itemId, uint32 botSkill)
+static bool IsClothMaterial(uint32 itemId, uint32 botSkill)
 {
     static std::map<uint32, uint32> firstAidMaterials;
     static bool initialized = false;
@@ -120,6 +120,30 @@ static bool IsFirstAidMaterial(uint32 itemId, uint32 botSkill)
     return it->second == 0 || botSkill < it->second;
 }
 
+static bool IsSkillMaterial(uint32 skillId, uint32 itemId)
+{
+    static std::map<uint32,std::set<uint32>> skillMaterials;
+    if (skillMaterials[skillId].size()==0)
+    {
+        for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
+        {
+            SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
+            if (!entry || entry->skillId != skillId)
+                continue;
+            SpellEntry const* spell = sSpellStore.LookupEntry(entry->spellId);
+            if (!spell)
+                continue;
+            for (int r = 0; r < MAX_SPELL_REAGENTS; ++r)
+            {
+                if (spell->Reagent[r] <= 0)
+                    continue;
+                skillMaterials[skillId].insert((uint32)spell->Reagent[r]);
+            }
+        }
+    }
+    return skillMaterials[skillId].count(itemId) > 0;
+}
+
 bool ItemUsageValue::IsItemUsefulForSkill(ItemPrototype const * proto)
 {
     switch (proto->Class)
@@ -132,7 +156,23 @@ bool ItemUsageValue::IsItemUsefulForSkill(ItemPrototype const * proto)
         case ITEM_SUBCLASS_DEVICES:
             return bot->HasSkill(SKILL_ENGINEERING);
         }
-        if (bot->HasSkill(SKILL_FIRST_AID) && IsFirstAidMaterial(proto->ItemId, bot->GetSkillValue(SKILL_FIRST_AID)))
+        if (bot->HasSkill(SKILL_FIRST_AID) && IsClothMaterial(proto->ItemId, bot->GetSkillValue(SKILL_FIRST_AID)))
+            return true;
+        if (bot->HasSkill(SKILL_HERBALISM) && IsSkillMaterial(SKILL_ALCHEMY, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_ALCHEMY) && IsSkillMaterial(SKILL_ALCHEMY, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_TAILORING) && IsSkillMaterial(SKILL_TAILORING, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_SKINNING) && IsSkillMaterial(SKILL_LEATHERWORKING, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_LEATHERWORKING) && IsSkillMaterial(SKILL_LEATHERWORKING, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_MINING) && IsSkillMaterial(SKILL_MINING, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_BLACKSMITHING) && IsSkillMaterial(SKILL_BLACKSMITHING, proto->ItemId))
+            return true;
+        if (bot->HasSkill(SKILL_ENGINEERING) && IsSkillMaterial(SKILL_ENGINEERING, proto->ItemId))
             return true;
         break;
     case ITEM_CLASS_RECIPE:

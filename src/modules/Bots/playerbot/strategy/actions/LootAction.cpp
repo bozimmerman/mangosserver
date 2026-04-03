@@ -304,7 +304,7 @@ bool StoreLootAction::Execute(Event event)
             continue;
         }
 
-        if (loot_type != LOOT_SKINNING && !IsLootAllowed(itemid))
+        if (!IsLootAllowed(itemid))
         {
             continue;
         }
