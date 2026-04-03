@@ -120,6 +120,5 @@ namespace ai
         static Action* set_facing(PlayerbotAI* ai) { return new SetFacingTargetAction(ai); }
         static Action* jump(PlayerbotAI* ai) { return new JumpAction(ai); }
         static Action* jump_up(PlayerbotAI* ai) { return new JumpInPlaceAction(ai); }
-        static Action* move_to_quest_object(PlayerbotAI* ai) { return new MoveToQuestObjectAction(ai); }
     };
 };
