@@ -187,6 +187,7 @@ public:
     void RequestJump();
     bool IsJumping() const { return m_isJumping; }
     bool IsPendingJump() const { return m_pendingJump; }
+    void UpdateJump();
 
     bool IsEating() const
     {
@@ -233,11 +234,5 @@ protected:
     float  m_spellAttackRange;  // actual range of spell requesting "reach spell" movement
 
     LootTargetList m_usedObjects;
-
-public:
-    bool HasUsed(ObjectGuid guid) { m_usedObjects.shrink(time(0) - 5 * MINUTE); return m_usedObjects.find(guid) != m_usedObjects.end(); }
-    void SetUsed(ObjectGuid guid) { m_usedObjects.insert(LootTarget(guid)); }
-
-    void UpdateJump();
 };
 

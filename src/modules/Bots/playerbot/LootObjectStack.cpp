@@ -201,9 +201,6 @@ bool LootObject::IsLootPossible(Player* bot)
 
 bool LootObjectStack::Add(ObjectGuid guid)
 {
-    if (bot->GetPlayerbotAI()->HasUsed(guid))
-        return false;
-
     if (!availableLoot.insert(guid).second)
     {
         return false;
@@ -229,8 +226,6 @@ void LootObjectStack::Remove(ObjectGuid guid)
     if (i != availableLoot.end())
     {
         availableLoot.erase(i);
-        if (bot->GetPlayerbotAI()->GetGameObject(guid))
-            bot->GetPlayerbotAI()->SetUsed(guid);
     }
 }
 
