@@ -62,7 +62,8 @@ namespace ai
                     if (spellRange)
                     {
                         float actualMaxRange = GetSpellMaxRange(spellRange);
-                        if (actualMaxRange > 0)  // Only clamp if spell has a defined range
+                        // Only clamp if spell has a defined range
+                        if (actualMaxRange > 0 && actualMaxRange < sPlayerbotAIConfig.spellDistance)
                             range = actualMaxRange;
                     }
                 }
@@ -77,16 +78,12 @@ namespace ai
 
         virtual NextAction** getPrerequisites()
         {
-            if (range > sPlayerbotAIConfig.spellDistance)
-            {
-                return NULL;
-            }
-            else if (range > ATTACK_DISTANCE)
+            if (range > ATTACK_DISTANCE)
             {
                 float currentDistance = AI_VALUE2(float, "distance", GetTargetName());
                 if (currentDistance <= range)
                 {
-                    return NextAction::merge(NextAction::array(0, new NextAction("back off"), NULL), Action::getPrerequisites());
+                    return Action::getPrerequisites();
                 }
                 else
                 {
