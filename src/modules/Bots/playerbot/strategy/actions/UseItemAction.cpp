@@ -109,14 +109,7 @@ bool UseItemAction::Execute(Event event)
 
     if (gos.empty())
     {
-        if (items.size() > 1)
-        {
-            list<Item*>::iterator i = items.begin();
-            Item* itemTarget = *i++;
-            Item* item = *i;
-            return UseItemOnItem(item, itemTarget);
-        }
-        else if (!items.empty())
+        if (!items.empty())
         {
             return UseItemAuto(*items.begin());
         }
