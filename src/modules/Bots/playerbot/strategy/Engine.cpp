@@ -582,10 +582,7 @@ void Engine::LogAction(const char* format, ...)
             return;
         }
 
-        if (ai->GetState() == BOT_STATE_COMBAT && strcmp(bot->GetName(), "Frosti") == 0)
-            sLog.outString("Frosti: %s", buf);
-        else
-            sLog.outDebug("%s %s", bot->GetName(), buf);
+        sLog.outDebug("%s %s", bot->GetName(), buf);
     }
 }
 
