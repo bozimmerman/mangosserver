@@ -175,11 +175,15 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Item* itemTarget)
     bot->clearUnitState( UNIT_STAT_CHASE );
     bot->clearUnitState( UNIT_STAT_FOLLOW );
 
+<<<<<<< HEAD
     if (bot->isMoving())
     {
         return false;
     }
 
+=======
+    if (!targetSelected)
+>>>>>>> e683fb38 (bot use items false stop fix)
     for (int i=0; i<MAX_ITEM_PROTO_SPELLS; i++)
     {
         uint32 spellId = item->GetProto()->Spells[i].SpellId;
