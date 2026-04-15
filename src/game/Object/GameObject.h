@@ -784,6 +784,7 @@ class GameObject : public WorldObject
         void TickCapturePoint();
         void UpdateModel();                                 // updates model in case displayId were changed
         void UpdateCollisionState() const;                  // updates state in Map's dynamic collision tree
+        void UpdateNavmeshBlockingState(bool blocked) const; // updates blocked polys in instance navmesh for door GOs
 
         GridReference<GameObject> m_gridRef;
 };

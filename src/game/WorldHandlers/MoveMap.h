@@ -50,6 +50,7 @@ namespace MMAP
 {
     typedef UNORDERED_MAP<uint32, dtTileRef> MMapTileSet;
     typedef UNORDERED_MAP<uint32, dtNavMeshQuery*> NavMeshQuerySet;
+    typedef UNORDERED_MAP<uint32, UNORDERED_SET<dtPolyRef>> InstanceBlockedPolysMap;
 
     // dummy struct to hold map's mmap data
     struct MMapData
@@ -71,8 +72,9 @@ namespace MMAP
         dtNavMesh* navMesh;
 
         // we have to use single dtNavMeshQuery for every instance, since those are not thread safe
-        NavMeshQuerySet navMeshQueries;     // instanceId to query
-        MMapTileSet mmapLoadedTiles;        // maps [map grid coords] to [dtTile]
+        NavMeshQuerySet navMeshQueries;             // instanceId to query
+        MMapTileSet mmapLoadedTiles;                // maps [map grid coords] to [dtTile]
+        InstanceBlockedPolysMap instanceBlockedPolys; // instanceId to set of closed-door poly refs
     };
 
 
@@ -94,6 +96,9 @@ namespace MMAP
             // the returned [dtNavMeshQuery const*] is NOT threadsafe
             dtNavMeshQuery const* GetNavMeshQuery(uint32 mapId, uint32 instanceId);
             dtNavMesh const* GetNavMesh(uint32 mapId);
+
+            const UNORDERED_SET<dtPolyRef>* GetInstanceBlockedPolys(uint32 mapId, uint32 instanceId);
+            void SetPolyBlocked(uint32 mapId, uint32 instanceId, dtPolyRef ref, bool blocked);
 
             uint32 getLoadedTilesCount() const { return loadedTiles; }
             uint32 getLoadedMapsCount() const { return loadedMMaps.size(); }

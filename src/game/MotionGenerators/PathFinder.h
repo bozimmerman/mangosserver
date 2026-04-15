@@ -31,6 +31,28 @@
 #include "MoveMapSharedDefines.h"
 #include "movement/MoveSplineInitArgs.h"
 
+#include <unordered_set>
+
+class InstanceDoorFilter : public dtQueryFilter
+{
+public:
+    InstanceDoorFilter() : m_blockedPolys(nullptr) {}
+
+    void setBlockedPolys(const std::unordered_set<dtPolyRef>* polys) { m_blockedPolys = polys; }
+
+    virtual bool passFilter(const dtPolyRef ref, const dtMeshTile* tile, const dtPoly* poly) const override
+    {
+        if (!dtQueryFilter::passFilter(ref, tile, poly))
+            return false;
+        if (m_blockedPolys && m_blockedPolys->count(ref))
+            return false;
+        return true;
+    }
+
+private:
+    const std::unordered_set<dtPolyRef>* m_blockedPolys;
+};
+
 using Movement::Vector3;
 using Movement::PointsArray;
 
@@ -159,7 +181,7 @@ class PathFinder
         const dtNavMesh*        m_navMesh;          // The navigation mesh
         const dtNavMeshQuery*   m_navMeshQuery;     // The navigation mesh query used to find the path
 
-        dtQueryFilter m_filter;                     // Use a single filter for all movements, update it when needed
+        InstanceDoorFilter m_filter;                // Use a single filter for all movements, update it when needed
 
         /**
          * @brief Set the start position of the path.
