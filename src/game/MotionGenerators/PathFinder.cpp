@@ -55,7 +55,12 @@ PathFinder::PathFinder(const Unit* owner)
     {
         MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
         m_navMesh = mmap->GetNavMesh(mapId);
-        m_navMeshQuery = mmap->GetNavMeshQuery(mapId, m_sourceUnit->GetInstanceId());
+        uint32 instanceId = m_sourceUnit->GetInstanceId();
+        m_navMeshQuery = mmap->GetNavMeshQuery(mapId, instanceId);
+        if (instanceId != 0)
+        {
+            m_filter.setBlockedPolys(mmap->GetInstanceBlockedPolys(mapId, instanceId));
+        }
     }
 
     createFilter();
