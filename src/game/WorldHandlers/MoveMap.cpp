@@ -410,6 +410,7 @@ namespace MMAP
 
         dtFreeNavMeshQuery(query);
         mmap->navMeshQueries.erase(instanceId);
+        mmap->instanceBlockedPolys.erase(instanceId);
         DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:unloadMapInstance: Unloaded mapId %03u instanceId %u", mapId, instanceId);
 
         return true;
@@ -448,8 +449,43 @@ namespace MMAP
 
             DEBUG_FILTER_LOG(LOG_FILTER_MAP_LOADING, "MMAP:GetNavMeshQuery: created dtNavMeshQuery for mapId %03u instanceId %u", mapId, instanceId);
             mmap->navMeshQueries.insert(std::pair<uint32, dtNavMeshQuery*>(instanceId, query));
+            // Ensure the blocked-poly set exists for this instance so PathFinders constructed
+            // before any door state change still get a valid (initially empty) pointer.
+            mmap->instanceBlockedPolys[instanceId];
         }
 
         return mmap->navMeshQueries[instanceId];
+    }
+
+    const UNORDERED_SET<dtPolyRef>* MMapManager::GetInstanceBlockedPolys(uint32 mapId, uint32 instanceId)
+    {
+        auto mmapIt = loadedMMaps.find(mapId);
+        if (mmapIt == loadedMMaps.end())
+            return nullptr;
+
+        auto it = mmapIt->second->instanceBlockedPolys.find(instanceId);
+        if (it == mmapIt->second->instanceBlockedPolys.end())
+            return nullptr;
+
+        return &it->second;
+    }
+
+    void MMapManager::SetPolyBlocked(uint32 mapId, uint32 instanceId, dtPolyRef ref, bool blocked)
+    {
+        auto mmapIt = loadedMMaps.find(mapId);
+        if (mmapIt == loadedMMaps.end())
+            return;
+
+        MMapData* mmap = mmapIt->second;
+        if (blocked)
+        {
+            mmap->instanceBlockedPolys[instanceId].insert(ref);
+        }
+        else
+        {
+            auto it = mmap->instanceBlockedPolys.find(instanceId);
+            if (it != mmap->instanceBlockedPolys.end())
+                it->second.erase(ref);
+        }
     }
 }
