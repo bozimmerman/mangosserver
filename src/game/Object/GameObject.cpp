@@ -46,6 +46,7 @@
 #include "Util.h"
 #include "ScriptMgr.h"
 #include "vmap/GameObjectModel.h"
+#include "MoveMap.h"
 #include "CreatureAISelector.h"
 #include "SQLStorages.h"
 #include "GameObjectAI.h"
@@ -120,6 +121,7 @@ void GameObject::AddToWorld()
 
     // After Object::AddToWorld so that for initial state the GO is added to the world (and hence handled correctly)
     UpdateCollisionState();
+    UpdateNavmeshBlockingState(IsCollisionEnabled());
 
 #ifdef ENABLE_ELUNA
     if (!inWorld)
@@ -169,6 +171,8 @@ void GameObject::RemoveFromWorld()
         {
             GetMap()->RemoveGameObjectModel(*m_model);
         }
+
+        UpdateNavmeshBlockingState(false);
 
         GetMap()->GetObjectsStore().erase<GameObject>(GetObjectGuid(), (GameObject*)NULL);
     }
@@ -2340,6 +2344,47 @@ void GameObject::SetGoState(GOState state)
     }
 #endif /* ENABLE_ELUNA */
     UpdateCollisionState();
+    UpdateNavmeshBlockingState(IsCollisionEnabled());
+}
+
+void GameObject::UpdateNavmeshBlockingState(bool blocked) const
+{
+    if (GetGoType() != GAMEOBJECT_TYPE_DOOR)
+        return;
+
+    uint32 instanceId = GetInstanceId();
+    if (instanceId == 0 || !IsInWorld())
+        return;
+
+    if (!MMAP::MMapFactory::IsPathfindingEnabled(GetMapId(), nullptr))
+        return;
+
+    MMAP::MMapManager* mmap = MMAP::MMapFactory::createOrGetMMapManager();
+    dtNavMeshQuery const* query = mmap->GetNavMeshQuery(GetMapId(), instanceId);
+    if (!query)
+        return;
+
+    // WoW uses Z-up; Detour uses Y-up. MaNGOS remaps as {wow.y, wow.z, wow.x} throughout PathFinder.cpp.
+    float center[3] = {GetPositionY(), GetPositionZ(), GetPositionX()};
+    float extents[3] = {1.0f, 2.0f, 1.0f};
+
+    dtQueryFilter filter;
+    filter.setIncludeFlags(0xFFFF);
+    filter.setExcludeFlags(0);
+
+    static const int MAX_DOOR_POLYS = 64;
+    dtPolyRef polys[MAX_DOOR_POLYS];
+    int polyCount = 0;
+    query->queryPolygons(center, extents, &filter, polys, &polyCount, MAX_DOOR_POLYS);
+
+    if (polyCount == MAX_DOOR_POLYS)
+        sLog.outDetail("UpdateNavmeshBlockingState: door GO %s hit MAX_DOOR_POLYS (%d) — some polys may be unregistered", GetGuidStr().c_str(), MAX_DOOR_POLYS);
+
+    if (polyCount == 0 && blocked)
+        sLog.outDetail("UpdateNavmeshBlockingState: closed door GO %s found 0 navmesh polys — navmesh tiles may not be loaded", GetGuidStr().c_str());
+
+    for (int i = 0; i < polyCount; ++i)
+        mmap->SetPolyBlocked(GetMapId(), instanceId, polys[i], blocked);
 }
 
 void GameObject::SetDisplayId(uint32 modelId)
