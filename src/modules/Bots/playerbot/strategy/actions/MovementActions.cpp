@@ -528,29 +528,30 @@ bool MoveRandomAction::Execute(Event event)
 {
     WorldObject* target = NULL;
 
-    if (!(rand() % 3))
+    list<ObjectGuid> npcs = AI_VALUE(list<ObjectGuid>, "nearest npcs");
+    for (list<ObjectGuid>::iterator i = npcs.begin(); i != npcs.end(); i++)
     {
-        list<ObjectGuid> npcs = AI_VALUE(list<ObjectGuid>, "nearest npcs");
-        for (list<ObjectGuid>::iterator i = npcs.begin(); i != npcs.end(); i++)
+        Unit* npc = ai->GetUnit(*i);
+        if (npc && bot->GetDistance(npc) > sPlayerbotAIConfig.tooCloseDistance)
         {
-            target = ai->GetUnit(*i);
-
-            if (target && bot->GetDistance(target) > sPlayerbotAIConfig.tooCloseDistance)
-            {
-                break;
-            }
+            target = npc;
+            break;
         }
     }
 
-    if (!target || !(rand() % 3))
+    if (!target)
     {
         list<ObjectGuid> gos = AI_VALUE(list<ObjectGuid>, "nearest game objects");
         for (list<ObjectGuid>::iterator i = gos.begin(); i != gos.end(); i++)
         {
-            target = ai->GetGameObject(*i);
+            GameObject* go = ai->GetGameObject(*i);
+            if (!go || bot->GetDistance(go) <= sPlayerbotAIConfig.tooCloseDistance)
+                continue;
 
-            if (target && bot->GetDistance(target) > sPlayerbotAIConfig.tooCloseDistance)
+            LootObject loot(bot, *i);
+            if (loot.skillId != SKILL_NONE && bot->HasSkill(loot.skillId))
             {
+                target = go;
                 break;
             }
         }
