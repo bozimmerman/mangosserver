@@ -97,6 +97,7 @@ namespace ai
             }
         }
 
+
     protected:
         string spell;
         float range;
