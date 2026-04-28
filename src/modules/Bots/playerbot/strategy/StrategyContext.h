@@ -27,7 +27,6 @@
 #include "generic/TankAssistStrategy.h"
 #include "generic/DpsAoeStrategy.h"
 #include "generic/DpsAssistStrategy.h"
-#include "generic/ThreatAssistStrategy.h"
 #include "generic/PassiveStrategy.h"
 #include "generic/GrindingStrategy.h"
 #include "generic/UsePotionsStrategy.h"
@@ -131,7 +130,6 @@ namespace ai
         AssistStrategyContext() : NamedObjectContext<Strategy>(false, true)
         {
             creators["dps assist"] = &AssistStrategyContext::dps_assist;
-            creators["threat assist"] = &AssistStrategyContext::threat_assist;
             creators["dps aoe"] = &AssistStrategyContext::dps_aoe;
             creators["tank assist"] = &AssistStrategyContext::tank_assist;
             creators["tank aoe"] = &AssistStrategyContext::tank_aoe;
@@ -142,7 +140,6 @@ namespace ai
 
     private:
         static Strategy* dps_assist(PlayerbotAI* ai) { return new DpsAssistStrategy(ai); }
-        static Strategy* threat_assist(PlayerbotAI* ai) { return new ThreatAssistStrategy(ai); }
         static Strategy* dps_aoe(PlayerbotAI* ai) { return new DpsAoeStrategy(ai); }
         static Strategy* tank_assist(PlayerbotAI* ai) { return new TankAssistStrategy(ai); }
         static Strategy* tank_aoe(PlayerbotAI* ai) { return new TankAoeStrategy(ai); }
