@@ -1053,7 +1053,6 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
     if (!player->GetPlayerbotAI())
     {
         players.push_back(player);
-        sLog.outDebug("Including non-random bot player %s into random bot update", player->GetName());
         m_playerZoneCounts[player->GetZoneId()]++;
     }
 }
@@ -1063,7 +1062,8 @@ void RandomPlayerbotMgr::OnPlayerZoneChange(Player* player, uint32 newZone)
     if (player->GetPlayerbotAI())
         return;
 
-    uint32 oldZone = player->GetZoneId();
+    // Use cached zone instead of GetZoneId() which already returns new zone after teleport
+    uint32 oldZone = player->GetCachedZoneId();
     if (oldZone == newZone)
         return;
 
