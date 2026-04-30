@@ -664,6 +664,12 @@ AreaTableEntry const* GetAreaEntryByAreaID(uint32 area_id)
 AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_id)
 {
     // 1.12.1 areatable have duplicates for areaflag
+    static std::map<uint64, AreaTableEntry const*> cache;
+    uint64 cacheKey = (static_cast<uint64>(area_flag) << 32) | static_cast<uint64>(map_id);
+    auto it = cache.find(cacheKey);
+    if (it != cache.end())
+        return it->second;
+
     AreaTableEntry const* aEntry = NULL;
     for (uint32 i = 0 ; i <= sAreaStore.GetNumRows() ; i++)
     {
@@ -676,6 +682,7 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
                     // area_flag found but it lets test map_id too
                     if (AreaEntry->mapid == map_id)
                     {
+                        cache[cacheKey] = AreaEntry;
                         return AreaEntry; // area_flag and map_id are ok so we can return value
                     }
                     // not same map_id so we store this entry and continue searching another better one
@@ -687,14 +694,18 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
 
     if (aEntry)
     {
+        cache[cacheKey] = aEntry;
         return aEntry;  // return last entry found if exist (not same map_id but it seem ok in some places)
     }
 
     if (MapEntry const* mapEntry = sMapStore.LookupEntry(map_id))
     {
-        return GetAreaEntryByAreaID(mapEntry->linked_zone);
+        AreaTableEntry const* result = GetAreaEntryByAreaID(mapEntry->linked_zone);
+        cache[cacheKey] = result;
+        return result;
     }
 
+    cache[cacheKey] = NULL;
     return NULL;
 }
 
