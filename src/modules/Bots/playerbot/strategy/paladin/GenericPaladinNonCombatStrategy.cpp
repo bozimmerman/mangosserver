@@ -20,7 +20,7 @@ void GenericPaladinNonCombatStrategy::InitTriggers(std::list<TriggerNode*> &trig
         NextAction::array(0, new NextAction("devotion aura", 8.0f), NULL)));
 
     triggers.push_back(new TriggerNode(
-        "blessing of kings on party",
+        "blessing",
         NextAction::array(0, new NextAction("blessing of kings on party", 11.0f), NULL)));
 
     triggers.push_back(new TriggerNode(

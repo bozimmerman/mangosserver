@@ -96,10 +96,8 @@ namespace ai
                 creators["judgement of light"] = &TriggerFactoryInternal::judgement_of_light;
                 creators["aura"] = &TriggerFactoryInternal::aura;
                 creators["blessing"] = &TriggerFactoryInternal::blessing;
-                creators["blessing of might"] = &TriggerFactoryInternal::blessing_of_might;
                 creators["seal"] = &TriggerFactoryInternal::seal;
                 creators["art of war"] = &TriggerFactoryInternal::art_of_war;
-                creators["blessing of kings on party"] = &TriggerFactoryInternal::blessing_of_kings_on_party;
                 creators["crusader aura"] = &TriggerFactoryInternal::crusader_aura;
                 creators["retribution aura"] = &TriggerFactoryInternal::retribution_aura;
                 creators["devotion aura"] = &TriggerFactoryInternal::devotion_aura;
@@ -129,10 +127,9 @@ namespace ai
             static Trigger* judgement_of_light(PlayerbotAI* ai) { return new JudgementOfLightTrigger(ai); }
             static Trigger* aura(PlayerbotAI* ai) { return new AuraTrigger(ai); }
             static Trigger* blessing(PlayerbotAI* ai) { return new BlessingTrigger(ai); }
-            static Trigger* blessing_of_might(PlayerbotAI* ai) { return new BlessingOfMightTrigger(ai); }
             static Trigger* seal(PlayerbotAI* ai) { return new SealTrigger(ai); }
             static Trigger* art_of_war(PlayerbotAI* ai) { return new ArtOfWarTrigger(ai); }
-            static Trigger* blessing_of_kings_on_party(PlayerbotAI* ai) { return new BlessingOfKingsOnPartyTrigger(ai); }
+            static Trigger* blessing_of_kings_on_party(PlayerbotAI* ai) { return new BlessingTrigger(ai); }
             static Trigger* crusader_aura(PlayerbotAI* ai) { return new CrusaderAuraTrigger(ai); }
             static Trigger* retribution_aura(PlayerbotAI* ai) { return new RetributionAuraTrigger(ai); }
             static Trigger* devotion_aura(PlayerbotAI* ai) { return new DevotionAuraTrigger(ai); }
