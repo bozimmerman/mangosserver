@@ -156,6 +156,10 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void Refresh(Player* bot);
         virtual void UpdateAIInternal(uint32 elapsed);
 
+#ifdef ENABLE_PLAYERBOTS
+        void HandleMeetingStoneClick(Player* player, GameObject* obj);
+#endif
+
     protected:
         /**
          * @brief Internal handler for bot login.

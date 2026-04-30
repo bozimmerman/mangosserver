@@ -38,6 +38,11 @@
 #include "LFGHandler.h"
 #include "LFGMgr.h"
 
+#ifdef ENABLE_PLAYERBOTS
+#include "PlayerbotMgr.h"
+#include "RandomPlayerbotMgr.h"
+#endif
+
 void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
 {
     ObjectGuid guid;
@@ -52,7 +57,7 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
         return;
     }
 
-    GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid);
+    GameObject *obj = _player->GetMap()->GetGameObject(guid);
 
     if (!obj)
     {
@@ -89,9 +94,15 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
     }
 
 
-   GameObjectInfo const* gInfo = ObjectMgr::GetGameObjectInfo(obj->GetEntry());
+    GameObjectInfo const* gInfo = ObjectMgr::GetGameObjectInfo(obj->GetEntry());
 
-   sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
+#ifdef ENABLE_PLAYERBOTS
+    // Delegate bot handling to RandomPlayerbotMgr BEFORE adding to LFG queue
+    sLog.outString("LFGHandler: ENABLE_PLAYERBOTS is defined, calling HandleMeetingStoneClick");
+    sRandomPlayerbotMgr.HandleMeetingStoneClick(_player, obj);
+#endif
+
+    sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
 }
 
 void WorldSession::HandleMeetingStoneLeaveOpcode(WorldPacket& /*recv_data*/)

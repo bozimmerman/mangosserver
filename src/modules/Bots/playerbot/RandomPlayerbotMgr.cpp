@@ -1288,3 +1288,138 @@ uint32 RandomPlayerbotMgr::GetTradeDiscount(Player* bot)
     Group* group = bot->GetGroup();
     return GetLootAmount(bot) / (group ? group->GetMembersCount() : 10);
 }
+
+
+#ifdef ENABLE_PLAYERBOTS
+#include "LFGMgr.h"
+#include "Group.h"
+#include "ObjectMgr.h"
+
+namespace {
+    bool PlayerCanFulfillRole(Player* player, uint32 role)
+    {
+        if (!player)
+            return false;
+        ClassRoles possibleRoles = sLFGMgr.CalculateRoles((Classes)player->getClass());
+        return (sLFGMgr.canPerformRole(possibleRoles, (ClassRoles)role) == (ClassRoles)role);
+    }
+}
+
+void RandomPlayerbotMgr::HandleMeetingStoneClick(Player* player, GameObject* obj)
+{
+    sLog.outString("HandleMeetingStoneClick: player=%s, obj=%s",
+        player ? player->GetName() : "null",
+        obj ? "valid" : "null");
+
+    if (!player || !obj)
+        return;
+
+    Group* grp = player->GetGroup();
+    if (!grp || !grp->IsLeader(player->GetObjectGuid()))
+    {
+        sLog.outString("HandleMeetingStoneClick: player not in group or not leader");
+        return;
+    }
+
+    sLog.outString("HandleMeetingStoneClick: group has %u members", grp->GetMembersCount());
+
+    // Step 1: Summon out-of-range bots in the group to the meeting stone
+    float stoneX, stoneY, stoneZ;
+    obj->GetPosition(stoneX, stoneY, stoneZ);
+    uint32 mapId = obj->GetMapId();
+
+    sLog.outString("HandleMeetingStoneClick: summoning out-of-range bots to map %u", mapId);
+
+    for (Group::member_citerator citr = grp->GetMemberSlots().begin();
+         citr != grp->GetMemberSlots().end(); ++citr)
+    {
+        Player* member = sObjectMgr.GetPlayer(citr->guid);
+        if (!member || member == player)
+            continue;
+
+        if (!IsRandomBot(member))
+            continue;
+
+        if (player->IsWithinDistInMap(member, sPlayerbotAIConfig.sightDistance))
+            continue;
+
+        sLog.outString("HandleMeetingStoneClick: teleporting bot %s to meeting stone", member->GetName());
+        member->GetMotionMaster()->Clear();
+        member->TeleportTo(mapId, stoneX, stoneY, stoneZ, 0);
+    }
+
+    // Step 2: Check for missing roles and invite eligible bots in the same zone
+    if (grp->IsFull())
+    {
+        sLog.outString("HandleMeetingStoneClick: group is full");
+        return;
+    }
+
+    LFGGroupQueueInfo queueInfo;
+    grp->CalculateLFGRoles(queueInfo);
+    uint32 missingRoles = queueInfo.availableRoles;
+
+    sLog.outString("HandleMeetingStoneClick: missingRoles=%u, members=%u",
+        missingRoles, grp->GetMembersCount());
+
+    if (missingRoles == 0)
+        return;
+
+    uint32 slotsAvailable = grp->GetMembersCount() < 5 ? 5 - grp->GetMembersCount() : 0;
+    if (slotsAvailable == 0)
+        return;
+
+    uint32 zoneId = player->GetZoneId();
+    uint32 team = player->GetTeam();
+    std::list<Player*> eligibleBots;
+
+    sLog.outString("HandleMeetingStoneClick: looking for bots in zone %u, team %u, slots=%u",
+        zoneId, team, slotsAvailable);
+
+    for (auto it = GetPlayerBotsBegin(); it != GetPlayerBotsEnd(); ++it)
+    {
+        Player* bot = it->second;
+        if (!bot || !bot->IsInWorld())
+            continue;
+        if (bot->GetGroup())
+            continue;
+        if (bot->GetZoneId() != zoneId)
+            continue;
+        if (bot->GetTeam() != team)
+            continue;
+
+        bool canFulfillMissingRole = false;
+        if ((missingRoles & LFG_ROLE_TANK) && PlayerCanFulfillRole(bot, LFG_ROLE_TANK))
+            canFulfillMissingRole = true;
+        else if ((missingRoles & LFG_ROLE_HEALER) && PlayerCanFulfillRole(bot, LFG_ROLE_HEALER))
+            canFulfillMissingRole = true;
+        else if ((missingRoles & LFG_ROLE_DPS) && PlayerCanFulfillRole(bot, LFG_ROLE_DPS))
+            canFulfillMissingRole = true;
+
+        if (canFulfillMissingRole)
+        {
+            eligibleBots.push_back(bot);
+            sLog.outString("HandleMeetingStoneClick: found eligible bot %s", bot->GetName());
+            if (eligibleBots.size() >= slotsAvailable)
+                break;
+        }
+    }
+
+    sLog.outString("HandleMeetingStoneClick: found %u eligible bots", (uint32)eligibleBots.size());
+
+    for (Player* bot : eligibleBots)
+    {
+        if (grp->IsFull())
+            break;
+
+        sLog.outString("HandleMeetingStoneClick: adding bot %s to group", bot->GetName());
+        grp->AddMember(bot->GetObjectGuid(), bot->GetName(), GROUP_LFG);
+
+        if (PlayerbotAI* ai = bot->GetPlayerbotAI())
+            ai->SetMaster(player);
+
+        bot->GetMotionMaster()->Clear();
+        bot->TeleportTo(mapId, stoneX, stoneY, stoneZ, 0);
+    }
+}
+#endif // ENABLE_PLAYERBOTS
