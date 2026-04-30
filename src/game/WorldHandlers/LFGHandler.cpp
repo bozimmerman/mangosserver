@@ -38,6 +38,11 @@
 #include "LFGHandler.h"
 #include "LFGMgr.h"
 
+#ifdef ENABLE_PLAYERBOTS
+#include "PlayerbotMgr.h"
+#include "RandomPlayerbotMgr.h"
+#endif
+
 void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
 {
     ObjectGuid guid;
@@ -89,7 +94,11 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
     }
 
 
-   GameObjectInfo const* gInfo = ObjectMgr::GetGameObjectInfo(obj->GetEntry());
+    GameObjectInfo const* gInfo = ObjectMgr::GetGameObjectInfo(obj->GetEntry());
+
+#ifdef ENABLE_PLAYERBOTS
+    sRandomPlayerbotMgr.HandleMeetingStoneClick(_player, obj);
+#endif
 
    sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
 }
