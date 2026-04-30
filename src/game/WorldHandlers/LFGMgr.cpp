@@ -166,6 +166,16 @@ void LFGQueue::RestoreOfflinePlayer(ObjectGuid plrGuid)
     }
 }
 
+bool LFGQueue::PlayerCanFulfillRole(Player* player, ClassRoles role)
+{
+    if (!player)
+    {
+        return false;
+    }
+    ClassRoles possibleRoles = CalculateRoles((Classes)player->getClass());
+    return canPerformRole(possibleRoles, role) == role;
+}
+
 /**
  * @brief Calculate possible roles for a class
  * @param playerClass Player's class (CLASS_* constant)
