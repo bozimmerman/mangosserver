@@ -1053,14 +1053,18 @@ void RandomPlayerbotMgr::OnPlayerLogin(Player* player)
     if (!player->GetPlayerbotAI())
     {
         players.push_back(player);
-        m_playerZoneCounts[player->GetZoneId()]++;
+        // do not add to m_playerZoneCounts, as OnPlayerZoneChange is called anyway
     }
 }
 
 void RandomPlayerbotMgr::OnPlayerZoneChange(Player* player, uint32 newZone)
 {
-    if (player->GetPlayerbotAI())
+    if (player->GetPlayerbotAI() ||
+        player->GetSession()->GetRemoteAddress() == "bot")
+    {
+        // PlayerbotAI is not set before calling this on entry, so remote address chk
         return;
+    }
 
     // Use cached zone instead of GetZoneId() which already returns new zone after teleport
     uint32 oldZone = player->GetCachedZoneId();
@@ -1075,7 +1079,6 @@ void RandomPlayerbotMgr::OnPlayerZoneChange(Player* player, uint32 newZone)
         else
             zi->second--;
     }
-
     m_playerZoneCounts[newZone]++;
 }
 
