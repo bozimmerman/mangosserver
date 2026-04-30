@@ -307,7 +307,9 @@ void PlayerbotAI::UpdateAI(uint32 elapsed)
         return;
     }
 
-    if (sPlayerbotAIConfig.randomBotActiveZoneOnly && !bot->GetGroup() && sRandomPlayerbotMgr.IsRandomBot(bot) &&
+    if (sPlayerbotAIConfig.randomBotActiveZoneOnly &&
+        !bot->GetGroup() && sRandomPlayerbotMgr.IsRandomBot(bot) &&
+        botOutgoingPacketHandlers.IsEmpty() &&
         !sRandomPlayerbotMgr.HasRealPlayerInZone(bot->GetZoneId()))
     {
         SetNextCheckDelay(5000);
