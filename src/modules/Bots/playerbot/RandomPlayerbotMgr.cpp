@@ -12,6 +12,9 @@
 #include "GridDefines.h"
 #include "Map.h"
 #include "MapManager.h"
+#include "LFGMgr.h"
+#include "Group.h"
+#include "ObjectMgr.h"
 
 INSTANTIATE_SINGLETON_1(RandomPlayerbotMgr);
 
@@ -1100,6 +1103,58 @@ Player* RandomPlayerbotMgr::GetRandomPlayer()
     return players[index];
 }
 
+ClassRoles RandomPlayerbotMgr::FillRoleMap(Player *bot, int &heal, int &dps, int &tank)
+{
+    int spec = AiFactory::GetPlayerSpecTab(bot);
+    switch (bot->getClass())
+    {
+    case CLASS_DRUID:
+        if (spec == 2)
+        {
+            heal++;
+            return LFG_ROLE_HEALER;
+        }
+        break;
+    case CLASS_PALADIN:
+        if (spec == 1)
+        {
+            tank++;
+            return LFG_ROLE_TANK;
+        }
+        else if (spec == 0)
+        {
+            heal++;
+            return LFG_ROLE_HEALER;
+        }
+        break;
+    case CLASS_PRIEST:
+        if (spec != 2)
+        {
+            heal++;
+            return LFG_ROLE_HEALER;
+        }
+        break;
+    case CLASS_SHAMAN:
+        if (spec == 2)
+        {
+            heal++;
+            return LFG_ROLE_HEALER;
+        }
+        break;
+    case CLASS_WARRIOR:
+        if (spec == 2)
+        {
+            tank++;
+            return LFG_ROLE_TANK;
+        }
+        break;
+    default:
+        break;
+    }
+    dps++;
+    return LFG_ROLE_DPS;
+}
+
 void RandomPlayerbotMgr::PrintStats()
 {
     sLog.outString("%d Random Bots online", playerBots.size());
@@ -1141,68 +1196,7 @@ void RandomPlayerbotMgr::PrintStats()
         {
             active++;
         }
-
-        int spec = AiFactory::GetPlayerSpecTab(bot);
-        switch (bot->getClass())
-        {
-        case CLASS_DRUID:
-            if (spec == 2)
-            {
-                heal++;
-            }
-            else
-            {
-                dps++;
-            }
-            break;
-        case CLASS_PALADIN:
-            if (spec == 1)
-            {
-                tank++;
-            }
-            else if (spec == 0)
-            {
-                heal++;
-            }
-            else
-            {
-                dps++;
-            }
-            break;
-        case CLASS_PRIEST:
-            if (spec != 2)
-            {
-                heal++;
-            }
-            else
-            {
-                dps++;
-            }
-            break;
-        case CLASS_SHAMAN:
-            if (spec == 2)
-            {
-                heal++;
-            }
-            else
-            {
-                dps++;
-            }
-            break;
-        case CLASS_WARRIOR:
-            if (spec == 2)
-            {
-                tank++;
-            }
-            else
-            {
-                dps++;
-            }
-            break;
-        default:
-            dps++;
-            break;
-        }
+        FillRoleMap(bot, heal, dps, tank);
     }
 
     sLog.outString("Per level:");
@@ -1292,130 +1286,98 @@ uint32 RandomPlayerbotMgr::GetTradeDiscount(Player* bot)
     return GetLootAmount(bot) / (group ? group->GetMembersCount() : 10);
 }
 
-
-#ifdef ENABLE_PLAYERBOTS
-#include "LFGMgr.h"
-#include "Group.h"
-#include "ObjectMgr.h"
-
-namespace {
-    bool PlayerCanFulfillRole(Player* player, uint32 role)
-    {
-        if (!player)
-            return false;
-        ClassRoles possibleRoles = sLFGMgr.CalculateRoles((Classes)player->getClass());
-        return (sLFGMgr.canPerformRole(possibleRoles, (ClassRoles)role) == (ClassRoles)role);
-    }
-}
-
 void RandomPlayerbotMgr::HandleMeetingStoneClick(Player* player, GameObject* obj)
 {
-    sLog.outString("HandleMeetingStoneClick: player=%s, obj=%s",
-        player ? player->GetName() : "null",
-        obj ? "valid" : "null");
-
     if (!player || !obj)
         return;
 
     Group* grp = player->GetGroup();
     if (!grp || !grp->IsLeader(player->GetObjectGuid()))
     {
-        sLog.outString("HandleMeetingStoneClick: player not in group or not leader");
         return;
     }
 
-    sLog.outString("HandleMeetingStoneClick: group has %u members", grp->GetMembersCount());
-
-    // Step 1: Summon out-of-range bots in the group to the meeting stone
     float stoneX, stoneY, stoneZ;
     obj->GetPosition(stoneX, stoneY, stoneZ);
+    GameObjectInfo const* gInfo = ObjectMgr::GetGameObjectInfo(obj->GetEntry());
+    uint32 minLevel = gInfo->meetingstone.minLevel;
+    uint32 maxLevel = gInfo->meetingstone.maxLevel;
+
     uint32 mapId = obj->GetMapId();
-
-    sLog.outString("HandleMeetingStoneClick: summoning out-of-range bots to map %u", mapId);
-
+    int healers, tanks, dpses;
+    vector<ClassRoles> missingRoles = {LFG_ROLE_TANK, LFG_ROLE_HEALER, LFG_ROLE_DPS, LFG_ROLE_DPS, LFG_ROLE_DPS};
     for (Group::member_citerator citr = grp->GetMemberSlots().begin();
          citr != grp->GetMemberSlots().end(); ++citr)
     {
         Player* member = sObjectMgr.GetPlayer(citr->guid);
-        if (!member || member == player)
-            continue;
-
-        if (!IsRandomBot(member))
-            continue;
-
-        if (player->IsWithinDistInMap(member, sPlayerbotAIConfig.sightDistance))
-            continue;
-
-        sLog.outString("HandleMeetingStoneClick: teleporting bot %s to meeting stone", member->GetName());
-        member->GetMotionMaster()->Clear();
-        member->TeleportTo(mapId, stoneX, stoneY, stoneZ, 0);
-    }
-
-    // Step 2: Check for missing roles and invite eligible bots in the same zone
-    if (grp->IsFull())
-    {
-        sLog.outString("HandleMeetingStoneClick: group is full");
-        return;
-    }
-
-    LFGGroupQueueInfo queueInfo;
-    grp->CalculateLFGRoles(queueInfo);
-    uint32 missingRoles = queueInfo.availableRoles;
-
-    sLog.outString("HandleMeetingStoneClick: missingRoles=%u, members=%u",
-        missingRoles, grp->GetMembersCount());
-
-    if (missingRoles == 0)
-        return;
-
-    uint32 slotsAvailable = grp->GetMembersCount() < 5 ? 5 - grp->GetMembersCount() : 0;
-    if (slotsAvailable == 0)
-        return;
-
-    uint32 zoneId = player->GetZoneId();
-    uint32 team = player->GetTeam();
-    std::list<Player*> eligibleBots;
-
-    sLog.outString("HandleMeetingStoneClick: looking for bots in zone %u, team %u, slots=%u",
-        zoneId, team, slotsAvailable);
-
-    for (auto it = GetPlayerBotsBegin(); it != GetPlayerBotsEnd(); ++it)
-    {
-        Player* bot = it->second;
-        if (!bot || !bot->IsInWorld())
-            continue;
-        if (bot->GetGroup())
-            continue;
-        if (bot->GetZoneId() != zoneId)
-            continue;
-        if (bot->GetTeam() != team)
-            continue;
-
-        bool canFulfillMissingRole = false;
-        if ((missingRoles & LFG_ROLE_TANK) && PlayerCanFulfillRole(bot, LFG_ROLE_TANK))
-            canFulfillMissingRole = true;
-        else if ((missingRoles & LFG_ROLE_HEALER) && PlayerCanFulfillRole(bot, LFG_ROLE_HEALER))
-            canFulfillMissingRole = true;
-        else if ((missingRoles & LFG_ROLE_DPS) && PlayerCanFulfillRole(bot, LFG_ROLE_DPS))
-            canFulfillMissingRole = true;
-
-        if (canFulfillMissingRole)
+        if(member)
         {
-            eligibleBots.push_back(bot);
-            sLog.outString("HandleMeetingStoneClick: found eligible bot %s", bot->GetName());
-            if (eligibleBots.size() >= slotsAvailable)
-                break;
+            ClassRoles role = FillRoleMap(member, healers, dpses, tanks);
+            auto it = find(missingRoles.begin(), missingRoles.end(), role);
+            if (it != missingRoles.end())
+                missingRoles.erase(it);
+sLog.outString("Member %s Role %d Remain %d",member->GetName(), role, missingRoles.size());
+
+            if (!member->GetPlayerbotAI() || member == player)
+                continue;
+
+
+            if (!player->IsWithinDistInMap(member, sPlayerbotAIConfig.sightDistance))
+            {
+                member->GetMotionMaster()->Clear();
+                member->TeleportTo(mapId, stoneX, stoneY, stoneZ, 0);
+            }
         }
     }
 
-    sLog.outString("HandleMeetingStoneClick: found %u eligible bots", (uint32)eligibleBots.size());
+    if (grp->IsFull())
+    {
+        return;
+    }
+
+    if (missingRoles.size() <= 0)
+        return;
+sLog.outString("Slots available %d",missingRoles.size());
+
+    uint32 team = player->GetTeam();
+    std::list<Player*> eligibleBots;
+    for(uint32_t zoneChk : {player->GetZoneId(), -1u})
+    {
+        if (missingRoles.size() == 0)
+            break;
+        for (auto botit = GetPlayerBotsBegin(); botit != GetPlayerBotsEnd(); ++botit)
+        {
+            Player* bot = botit->second;
+            if (!bot || !bot->IsInWorld())
+                continue;
+            if (bot->GetGroup())
+                continue;
+            if (zoneChk >= 0 && bot->GetZoneId() != zoneChk)
+                continue;
+            if (bot->GetTeam() != team)
+                continue;
+            if(bot->getLevel() < minLevel || bot->getLevel() > maxLevel)
+                continue;
+
+            ClassRoles role = FillRoleMap(bot, healers, dpses, tanks);
+            auto it = find(missingRoles.begin(), missingRoles.end(), role);
+            if (it != missingRoles.end())
+            {
+                missingRoles.erase(it);
+                eligibleBots.push_back(bot);
+                if (missingRoles.size() == 0)
+                    break;
+sLog.outString("Member %s Role %d Remain %d, Elligible %d",bot->GetName(), role, missingRoles.size(),eligibleBots.size());
+            }
+        }
+    }
 
     for (Player* bot : eligibleBots)
     {
         if (grp->IsFull())
             break;
+sLog.outString("Teleport In %s",bot->GetName());
 
-        sLog.outString("HandleMeetingStoneClick: adding bot %s to group", bot->GetName());
         grp->AddMember(bot->GetObjectGuid(), bot->GetName(), GROUP_LFG);
 
         if (PlayerbotAI* ai = bot->GetPlayerbotAI())
@@ -1425,4 +1387,3 @@ void RandomPlayerbotMgr::HandleMeetingStoneClick(Player* player, GameObject* obj
         bot->TeleportTo(mapId, stoneX, stoneY, stoneZ, 0);
     }
 }
-#endif // ENABLE_PLAYERBOTS

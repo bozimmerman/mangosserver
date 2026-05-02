@@ -6,6 +6,7 @@
 #include "PlayerbotMgr.h"
 #include <set>
 #include <unordered_map>
+#include "LFGMgr.h"
 
 class WorldPacket;
 class Player;
@@ -115,6 +116,14 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         void PrintStats();
 
         /**
+         * @brief Fill stats for role of the given bot.
+         * @param heal number of healers.
+         * @param dps number of dps.
+         * @param tank number of tanks.
+         */
+        ClassRoles FillRoleMap(Player *bot, int &heal, int &dps, int &tank);
+
+        /**
          * @brief Gets the buy multiplier for the given player bot.
          * @param bot Pointer to the player bot.
          * @return The buy multiplier.
@@ -150,15 +159,23 @@ class RandomPlayerbotMgr : public PlayerbotHolder
         uint32 GetTradeDiscount(Player* bot);
 
         /**
+         * @brief Handles meeting stone click by a real player.
+         * @param player the player who clicked.
+         * @param obj the meeting stone clicked.
+         */
+        void HandleMeetingStoneClick(Player* player, GameObject* obj);
+
+        /**
          * @brief Refreshes the given player bot.
          * @param bot Pointer to the player bot.
          */
         void Refresh(Player* bot);
-        virtual void UpdateAIInternal(uint32 elapsed);
 
-#ifdef ENABLE_PLAYERBOTS
-        void HandleMeetingStoneClick(Player* player, GameObject* obj);
-#endif
+        /**
+         * @brief Internal bot update tick method, exposed for manual updating.
+         * @param elapsed
+         */
+        virtual void UpdateAIInternal(uint32 elapsed);
 
     protected:
         /**
@@ -234,7 +251,21 @@ class RandomPlayerbotMgr : public PlayerbotHolder
          * @return The level of the zone.
          */
         uint32 GetZoneLevel(uint32 mapId, float teleX, float teleY, float teleZ);
+
+        /**
+         * @brief Returns whether a zone loc is a good random choice for a given bot.
+         * @param bot the bot to check for
+         * @param mapId The map ID.
+         * @param teleX The X coordinate.
+         * @param teleY The Y coordinate.
+         * @param teleZ The Z coordinate.
+         * @return true if the zone is good for random teleport, false otherwise
+         */
         bool IsZoneSafeForBot(Player* bot, uint32 mapId, float x, float y, float z);
+
+        /**
+         * @brief Calculate creature stats for various areas, to be used for bot teleport.
+         */
         void CalculateAreaCreatureStats();
 
     private:

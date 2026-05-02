@@ -57,7 +57,7 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
         return;
     }
 
-    GameObject *obj = _player->GetMap()->GetGameObject(guid);
+    GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid);
 
     if (!obj)
     {
@@ -97,12 +97,10 @@ void WorldSession::HandleMeetingStoneJoinOpcode(WorldPacket& recv_data)
     GameObjectInfo const* gInfo = ObjectMgr::GetGameObjectInfo(obj->GetEntry());
 
 #ifdef ENABLE_PLAYERBOTS
-    // Delegate bot handling to RandomPlayerbotMgr BEFORE adding to LFG queue
-    sLog.outString("LFGHandler: ENABLE_PLAYERBOTS is defined, calling HandleMeetingStoneClick");
     sRandomPlayerbotMgr.HandleMeetingStoneClick(_player, obj);
 #endif
 
-    sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
+   sLFGMgr.AddToQueue(_player, gInfo->meetingstone.areaID);
 }
 
 void WorldSession::HandleMeetingStoneLeaveOpcode(WorldPacket& /*recv_data*/)
