@@ -685,7 +685,7 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
     {
         return it->second;
     }
-    
+
     AreaTableEntry const* aEntry = NULL;
     for (uint32 i = 0 ; i <= sAreaStore.GetNumRows() ; i++)
     {
