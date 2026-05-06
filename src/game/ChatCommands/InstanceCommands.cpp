@@ -29,7 +29,7 @@
 
  /**********************************************************************
      CommandTable : instanceCommandTable
- /***********************************************************************/
+  ***********************************************************************/
 
 bool ChatHandler::HandleInstanceListBindsCommand(char* /*args*/)
 {
@@ -179,4 +179,3 @@ bool ChatHandler::HandleInstanceSaveDataCommand(char* /*args*/)
     iData->SaveToDB();
     return true;
 }
-

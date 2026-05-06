@@ -25,7 +25,6 @@
 #include "Chat.h"
 #include "ObjectMgr.h"
 
-
 void ChatHandler::ShowTriggerTargetListHelper(uint32 id, AreaTrigger const* at, bool subpart /*= false*/)
 {
     if (m_session)

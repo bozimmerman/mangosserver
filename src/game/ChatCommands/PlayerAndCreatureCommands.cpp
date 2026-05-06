@@ -32,7 +32,7 @@
 
  /**********************************************************************
       CommandTable : commandTable
- /***********************************************************************/
+  ***********************************************************************/
 
 // demorph player or unit
 bool ChatHandler::HandleDeMorphCommand(char* /*args*/)
@@ -214,7 +214,6 @@ bool ChatHandler::HandleDamageCommand(char* args)
 
     return true;
 }
-
 
 bool ChatHandler::HandleDieCommand(char* /*args*/)
 {

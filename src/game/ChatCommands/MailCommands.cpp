@@ -29,7 +29,7 @@
 
  /**********************************************************************
       CommandTable : mailCommandTable
- /***********************************************************************/
+  ***********************************************************************/
 // Send mail by command
 bool ChatHandler::HandleSendMailCommand(char* args)
 {
@@ -381,4 +381,3 @@ bool ChatHandler::HandleSendMassMoneyCommand(char* args)
     PSendSysMessage(LANG_MAIL_SENT, name);
     return true;
 }
-

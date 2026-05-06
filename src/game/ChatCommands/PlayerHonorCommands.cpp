@@ -27,7 +27,7 @@
 
  /**********************************************************************
      CommandTable : honorCommandTable
- /***********************************************************************/
+  ***********************************************************************/
 
 bool ChatHandler::HandleHonorShow(char* /*args*/)
 {
@@ -190,7 +190,7 @@ bool ChatHandler::HandleHonorUpdateCommand(char* /*args*/)
 
 /**********************************************************************
     CommandTable : modifyCommandTable
-/***********************************************************************/
+ ***********************************************************************/
 
 bool ChatHandler::HandleModifyHonorCommand(char* args)
 {
@@ -285,7 +285,7 @@ bool ChatHandler::HandleModifyHonorCommand(char* args)
 
 /**********************************************************************
     CommandTable : resetCommandTable
-/***********************************************************************/
+ ***********************************************************************/
 
 bool ChatHandler::HandleResetHonorCommand(char* args)
 {
@@ -298,4 +298,3 @@ bool ChatHandler::HandleResetHonorCommand(char* args)
     target->ResetHonor();
     return true;
 }
-
