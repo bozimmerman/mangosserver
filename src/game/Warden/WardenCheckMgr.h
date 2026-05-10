@@ -45,7 +45,6 @@ struct WardenCheck
     std::string Str;                                        // LUA, MPQ, DRIVER
     std::string Comment;
     uint16 CheckId;
-    uint16 GroupId;                                         // Optional grouping for rotation; 0 means ungrouped
     enum WardenActions Action;
 };
 
