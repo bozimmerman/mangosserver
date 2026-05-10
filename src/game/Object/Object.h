@@ -134,18 +134,18 @@ class WorldUpdateCounter
 
 /**
  * @brief Base class for all objects in the MaNGOS world
- * 
+ *
  * The Object class is the fundamental base class for all entities that exist
  * in the game world, including players, creatures, game objects, items, etc.
  * It provides core functionality for GUID management, update fields, and world state.
- * 
+ *
  * This class handles:
  * - Object identification and GUID management
  * - Update field system for client synchronization
  * - World state management (in/out of world)
  * - Type casting helpers for safe downcasting
  * - Value accessors for different data types
- * 
+ *
  * @note This is an abstract base class and should not be instantiated directly
  * @note All derived classes must implement virtual methods appropriately
  */
@@ -162,13 +162,13 @@ class Object
          * @return true if object is in world, false otherwise
          */
         const bool& IsInWorld() const { return m_inWorld; }
-        
+
         /**
          * @brief Add object to the game world
-         * 
+         *
          * This method initializes the object's world state and prepares it for
          * client updates. Should be called when object becomes active in world.
-         * 
+         *
          * @note If object is already in world, this method does nothing
          * @note Clears update mask to prevent sending stale data
          */
@@ -184,13 +184,13 @@ class Object
             // synchronize values mirror with values array (changes will send in updatecreate opcode any way
             ClearUpdateMask(false);                         // false - we can't have update data in update queue before adding to world
         }
-        
+
         /**
          * @brief Remove object from the game world
-         * 
+         *
          * This method cleans up the object's world state and prevents further
          * client updates. Should be called when object becomes inactive.
-         * 
+         *
          * @note Clears update mask to prevent sending updates after removal
          */
         virtual void RemoveFromWorld()
@@ -205,19 +205,19 @@ class Object
          * @return Reference to the object's GUID
          */
         ObjectGuid const& GetObjectGuid() const { return GetGuidValue(OBJECT_FIELD_GUID); }
-        
+
         /**
          * @brief Get the low part of the object's GUID
          * @return Low 32 bits of the GUID counter
          */
         uint32 GetGUIDLow() const { return GetObjectGuid().GetCounter(); }
-        
+
         /**
          * @brief Get the packed GUID representation
          * @return Reference to packed GUID for network transmission
          */
         PackedGuid const& GetPackGUID() const { return m_PackGUID; }
-        
+
         /**
          * @brief Get the GUID as a string
          * @return String representation of the GUID
@@ -229,7 +229,7 @@ class Object
          * @return Entry ID from appropriate DBC file
          */
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
-        
+
         /**
          * @brief Set the object's entry ID
          * @param entry Entry ID from DBC file
