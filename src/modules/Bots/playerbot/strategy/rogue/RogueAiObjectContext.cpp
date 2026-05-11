@@ -9,6 +9,7 @@
 #include "RogueAmbushStrategy.h"
 #include "RogueSapStrategy.h"
 #include "../NamedObjectContext.h"
+#include "../generic/PullStrategy.h"
 
 using namespace ai;
 
@@ -28,6 +29,7 @@ namespace ai
                 creators["nc"] = &rogue::StrategyFactoryInternal::nc;
                 creators["ambush"] = &rogue::StrategyFactoryInternal::ambush;
                 creators["sap"] = &rogue::StrategyFactoryInternal::sap_strategy;
+                creators["pull"] = &rogue::StrategyFactoryInternal::pull;
             }
 
         private:
@@ -35,6 +37,7 @@ namespace ai
             static Strategy* nc(PlayerbotAI* ai) { return new GenericRogueNonCombatStrategy(ai); }
             static Strategy* ambush(PlayerbotAI* ai) { return new RogueAmbushStrategy(ai); }
             static Strategy* sap_strategy(PlayerbotAI* ai) { return new RogueSapStrategy(ai); }
+            static Strategy* pull(PlayerbotAI* ai) { return new PullStrategy(ai, "ranged pull"); }
         };
     };
 };

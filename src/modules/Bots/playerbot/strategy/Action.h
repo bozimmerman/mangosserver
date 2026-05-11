@@ -66,8 +66,11 @@ namespace ai
         virtual Value<Unit*>* GetTargetValue();
         virtual string GetTargetName() { return "self target"; }
         void MakeVerbose() { verbose = true; }
+        void SetPersistenceStartTime(uint32 time) { m_persistStart = time; }
+        uint32 GetPersistenceStartTime() { return m_persistStart; }
 
     protected:
+        uint32 m_persistStart = 0;
         bool verbose;
     };
 
@@ -91,7 +94,14 @@ namespace ai
 
     public:
         Action* getAction() { return action; }
-        void setAction(Action* action) { this->action = action; }
+        void setAction(Action* action)
+        {
+            this->action = action;
+            if(action && isPersistent())
+            {
+                action->SetPersistenceStartTime(0);
+            }
+        }
         string getName() { return name; }
 
     public:
@@ -99,12 +109,37 @@ namespace ai
         NextAction** getAlternatives() { return NextAction::merge(NextAction::clone(alternatives), action ? action->getAlternatives() : NULL); }
         NextAction** getPrerequisites() { return NextAction::merge(NextAction::clone(prerequisites), action ? action->getPrerequisites() : NULL); }
 
+    public:
+        ActionNode* persist(uint32 timeoutMs)
+        {
+            m_persistTimeout = timeoutMs;
+            if(action)
+            {
+                action->SetPersistenceStartTime(0);
+            }
+            return this;
+        }
+        bool isPersistent() const { return m_persistTimeout > 0; }
+        bool hasPersistTimedOut()
+        {
+            if(!isPersistent())
+            {
+                return false;
+            }
+            if (action->GetPersistenceStartTime() == 0)
+            {
+                action->SetPersistenceStartTime(getMSTime());
+            }
+            return getMSTimeDiff(action->GetPersistenceStartTime(), getMSTime()) >= m_persistTimeout;
+        }
+
     private:
         string name;
         Action* action;
         NextAction** continuers;
         NextAction** alternatives;
         NextAction** prerequisites;
+        uint32 m_persistTimeout = 0;
     };
 
     //---------------------------------------------------------------------------------------------------------------------

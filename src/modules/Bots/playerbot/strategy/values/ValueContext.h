@@ -14,6 +14,7 @@
 #include "MasterTargetValue.h"
 #include "LineTargetValue.h"
 #include "TankTargetValue.h"
+#include "PullerTargetValue.h"
 #include "DpsTargetValue.h"
 #include "CcTargetValue.h"
 #include "CurrentCcTargetValue.h"
@@ -35,6 +36,7 @@
 #include "IsFacingValue.h"
 #include "ItemCountValue.h"
 #include "SpellIdValue.h"
+#include "SpellRangeValue.h"
 #include "ItemForSpellValue.h"
 #include "SpellCastUsefulValue.h"
 #include "LastSpellCastValue.h"
@@ -54,6 +56,7 @@
 #include "LfgValues.h"
 #include "EnemyHealerTargetValue.h"
 #include "ItemUsageValue.h"
+#include "LastTargetPositionValue.h"
 
 namespace ai
 {
@@ -77,6 +80,7 @@ namespace ai
             creators["master target"] = &ValueContext::master;
             creators["line target"] = &ValueContext::line_target;
             creators["tank target"] = &ValueContext::tank_target;
+            creators["puller target"] = &ValueContext::puller_target;
             creators["dps target"] = &ValueContext::dps_target;
             creators["least hp target"] = &ValueContext::least_hp_target;
             creators["enemy player target"] = &ValueContext::enemy_player_target;
@@ -117,6 +121,7 @@ namespace ai
             creators["inventory items"] = &ValueContext::inventory_item;
 
             creators["spell id"] = &ValueContext::spell_id;
+            creators["spell range"] = &ValueContext::spell_range;
             creators["item for spell"] = &ValueContext::item_for_spell;
             creators["spell cast useful"] = &ValueContext::spell_cast_useful;
             creators["last spell cast"] = &ValueContext::last_spell_cast;
@@ -140,6 +145,7 @@ namespace ai
             creators["enemy healer target"] = &ValueContext::enemy_healer_target;
             creators["item usage"] = &ValueContext::item_usage;
             creators["reach spell distance"] = &ValueContext::reach_spell_distance;
+            creators["last target position"] = &ValueContext::last_target_position;
         }
 
     private:
@@ -161,6 +167,7 @@ namespace ai
         static UntypedValue* spell_cast_useful(PlayerbotAI* ai) { return new SpellCastUsefulValue(ai); }
         static UntypedValue* item_for_spell(PlayerbotAI* ai) { return new ItemForSpellValue(ai); }
         static UntypedValue* spell_id(PlayerbotAI* ai) { return new SpellIdValue(ai); }
+        static UntypedValue* spell_range(PlayerbotAI* ai) { return new SpellRangeValue(ai); }
         static UntypedValue* inventory_item(PlayerbotAI* ai) { return new InventoryItemValue(ai); }
         static UntypedValue* item_count(PlayerbotAI* ai) { return new ItemCountValue(ai); }
         static UntypedValue* behind(PlayerbotAI* ai) { return new IsBehindValue(ai); }
@@ -203,6 +210,7 @@ namespace ai
         static UntypedValue* old_target(PlayerbotAI* ai) { return new CurrentTargetValue(ai); }
         static UntypedValue* self_target(PlayerbotAI* ai) { return new SelfTargetValue(ai); }
         static UntypedValue* master(PlayerbotAI* ai) { return new MasterTargetValue(ai); }
+        static UntypedValue* puller_target(PlayerbotAI* ai) { return new PullerTargetValue(ai); }
         static UntypedValue* line_target(PlayerbotAI* ai) { return new LineTargetValue(ai); }
         static UntypedValue* tank_target(PlayerbotAI* ai) { return new TankTargetValue(ai); }
         static UntypedValue* dps_target(PlayerbotAI* ai) { return new DpsTargetValue(ai); }
@@ -220,5 +228,6 @@ namespace ai
         static UntypedValue* lfg_proposal(PlayerbotAI* ai) { return new LfgProposalValue(ai); }
         static UntypedValue* bag_space(PlayerbotAI* ai) { return new BagSpaceValue(ai); }
         static UntypedValue* enemy_healer_target(PlayerbotAI* ai) { return new EnemyHealerTargetValue(ai); }
+        static UntypedValue* last_target_position(PlayerbotAI* ai) { return new LastTargetPositionValue(ai); }
     };
 };

@@ -2,6 +2,7 @@
 
 #include "../Action.h"
 #include "MovementActions.h"
+#include "GenericSpellActions.h"
 #include "../../PlayerbotAIConfig.h"
 
 namespace ai
@@ -69,15 +70,21 @@ namespace ai
     {
     public:
         ReachSpellAction(PlayerbotAI* ai) : ReachTargetAction(ai, "reach spell", sPlayerbotAIConfig.spellDistance) {}
-        virtual bool Execute(Event event)
+    };
+
+    class ReachShootRangeAction : public ReachTargetAction
+    {
+    public:
+        ReachShootRangeAction(PlayerbotAI* ai) : ReachTargetAction(ai, "reach shoot range", sPlayerbotAIConfig.spellDistance)
         {
-            distance = AI_VALUE(float, "reach spell distance");
-            return ReachTargetAction::Execute(event);
+            string spell = GetShootSpell(bot);
+            if(spell.length() > 0)
+            {
+                distance = AI_VALUE2(float, "spell range", spell);
+            }
         }
-        virtual bool isUseful()
-        {
-            distance = AI_VALUE(float, "reach spell distance");
-            return ReachTargetAction::isUseful();
-        }
+        static string GetShootSpell(Player *bot);
+        virtual void Reset();
+        virtual bool isUseful();
     };
 }
