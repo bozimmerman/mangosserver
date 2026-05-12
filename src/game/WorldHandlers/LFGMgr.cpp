@@ -22,6 +22,30 @@
  * and lore are copyrighted by Blizzard Entertainment, Inc.
  */
 
+/**
+ * @file LFGMgr.cpp
+ * @brief Looking For Group (LFG) queue management system
+ *
+ * This file implements the LFG (Meeting Stone) system which matches players
+ * and groups for dungeons. Key features:
+ *
+ * - Role-based matching (Tank, Healer, DPS)
+ * - Solo player and group queue support
+ * - Priority system based on class/role suitability
+ * - Offline player queue restoration
+ * - Automatic group formation when match found
+ *
+ * Queue process:
+ * 1. Players join queue at meeting stone (solo or as group leader)
+ * 2. System calculates needed roles based on party composition
+ * 3. Update() matches queued groups with solo players to fill roles
+ * 4. When suitable match found, groups are formed and teleported
+ *
+ * @see LFGMgr for the global manager
+ * @see LFGQueue for individual queue management
+ * @see LFGHandler for network opcode handling
+ */
+
 #include "Common.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
@@ -38,7 +62,21 @@
 #include "LFGHandler.h"
 #include "DisableMgr.h"
 
-// Add group or player into queue. If player has group and he's a leader then whole party will be added to queue.
+/**
+ * @brief Add player or group to LFG queue
+ * @param leader Player attempting to join (group leader if in group)
+ * @param queAreaID Area/dungeon ID to queue for
+ *
+ * Adds a player or entire group to the LFG queue. If the player is a
+ * group leader, the entire party is queued with calculated role needs.
+ * Solo players are queued with their individual role capabilities.
+ *
+ * Validation:
+ * - Map must not be disabled
+ * - Player must be leader if in a group
+ *
+ * On success, broadcasts queue status to group members or sends to solo player.
+ */
 void LFGQueue::AddToQueue(Player* leader, uint32 queAreaID)
 {
     if (!leader)
@@ -94,6 +132,16 @@ void LFGQueue::AddToQueue(Player* leader, uint32 queAreaID)
     }
 }
 
+/**
+ * @brief Restore queue status for player who went offline
+ * @param plrGuid ObjectGuid of player logging back in
+ *
+ * When a player disconnects while in LFG queue, their status is preserved
+ * in m_OfflinePlayers. On login, this function restores them to the active
+ * queue if they were queued.
+ *
+ * @note Called from LFGHandler when player requests queue status
+ */
 void LFGQueue::RestoreOfflinePlayer(ObjectGuid plrGuid)
 {
     Player* plr = sObjectMgr.GetPlayer(plrGuid);
@@ -128,6 +176,18 @@ bool LFGQueue::PlayerCanFulfillRole(Player* player, ClassRoles role)
     return canPerformRole(possibleRoles, role) == role;
 }
 
+/**
+ * @brief Calculate possible roles for a class
+ * @param playerClass Player's class (CLASS_* constant)
+ * @return Bitmask of possible roles (LFG_ROLE_*)
+ *
+ * Determines which LFG roles a class can fulfill based on their abilities:
+ * - TANK: Can taunt and absorb damage
+ * - HEALER: Can restore health
+ * - DPS: Can deal damage
+ *
+ * Returns a bitmask that may include multiple roles (e.g., Druid can be all three).
+ */
 ClassRoles LFGQueue::CalculateRoles(Classes playerClass)
 {
     switch (playerClass)
@@ -145,6 +205,21 @@ ClassRoles LFGQueue::CalculateRoles(Classes playerClass)
     }
 }
 
+/**
+ * @brief Get role priority for a class/role combination
+ * @param playerClass Player's class
+ * @param playerRoles Specific role being evaluated
+ * @return Priority level (LFG_PRIORITY_*)
+ *
+ * Determines how well a class performs in a specific role.
+ * Priorities:
+ * - HIGH: Class is excellent at this role (e.g., Warrior tank, Priest healer)
+ * - NORMAL: Class can perform role adequately (e.g., Druid DPS)
+ * - LOW: Class can do it but poorly (e.g., Paladin DPS in Classic)
+ * - NONE: Class cannot perform this role
+ *
+ * Used for matching optimization - high priority roles are preferred.
+ */
 RolesPriority LFGQueue::getPriority(Classes playerClass, ClassRoles playerRoles)
 {
     switch (playerRoles)

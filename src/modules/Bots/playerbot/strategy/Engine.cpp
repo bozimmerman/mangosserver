@@ -590,8 +590,6 @@ void Engine::LogAction(const char* format, ...)
         {
             return;
         }
-
-        sLog.outDebug("%s %s", bot->GetName(), buf);
     }
 }
 
