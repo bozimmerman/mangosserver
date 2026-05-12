@@ -141,7 +141,6 @@ bool AttackAction::Attack(Unit* target)
     context->GetValue<Unit*>("current target")->Set(target);
     context->GetValue<LootObjectStack*>("available loot")->Get()->Add(guid);
 
-
     Pet* pet = bot->GetPet();
     if (pet)
     {

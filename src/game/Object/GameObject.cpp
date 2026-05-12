@@ -2366,7 +2366,7 @@ void GameObject::UpdateNavmeshBlockingState(bool blocked) const
 
     // WoW uses Z-up; Detour uses Y-up. MaNGOS remaps as {wow.y, wow.z, wow.x} throughout PathFinder.cpp.
     float center[3] = {GetPositionY(), GetPositionZ(), GetPositionX()};
-    float extents[3] = {3.0f, 5.0f, 3.0f};
+    float extents[3] = {1.0f, 2.0f, 1.0f};
 
     dtQueryFilter filter;
     filter.setIncludeFlags(0xFFFF);

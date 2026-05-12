@@ -2,6 +2,7 @@
 
 #include "../Action.h"
 #include "MovementActions.h"
+
 namespace ai
 {
     class AttackAction : public MovementAction

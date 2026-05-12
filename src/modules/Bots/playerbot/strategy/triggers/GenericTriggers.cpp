@@ -70,6 +70,10 @@ Value<Unit*>* DebuffOnAttackerTrigger::GetTargetValue()
 {
     return context->GetValue<Unit*>("attacker without aura", spell);
 }
+bool HasThreatTrigger::IsActive()
+{
+    return !bot->getAttackers().empty();
+}
 
 bool NoAttackersTrigger::IsActive()
 {

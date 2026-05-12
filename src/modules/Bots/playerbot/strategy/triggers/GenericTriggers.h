@@ -256,15 +256,8 @@ namespace ai
     BEGIN_TRIGGER(NoAttackersTrigger, Trigger)
     END_TRIGGER()
 
-    class MemberUnderAttackTrigger : public Trigger
-    {
-    public:
-        MemberUnderAttackTrigger(PlayerbotAI* ai) : Trigger(ai, "member under attack") {}
-        virtual bool IsActive()
-        {
-            return !bot->getAttackers().empty();
-        }
-    };
+    BEGIN_TRIGGER(HasThreatTrigger, Trigger)
+    END_TRIGGER()
 
     BEGIN_TRIGGER(NoTargetTrigger, Trigger)
     END_TRIGGER()

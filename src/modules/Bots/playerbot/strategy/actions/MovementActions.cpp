@@ -561,14 +561,17 @@ bool MoveRandomAction::Execute(Event event)
 
     WorldObject* target = NULL;
 
-    list<ObjectGuid> npcs = AI_VALUE(list<ObjectGuid>, "nearest npcs");
-    for (list<ObjectGuid>::iterator i = npcs.begin(); i != npcs.end(); i++)
+    if (urand(0, 99) < 70)
     {
-        Unit* npc = ai->GetUnit(*i);
-        if (npc && bot->GetDistance(npc) > sPlayerbotAIConfig.tooCloseDistance)
+        list<ObjectGuid> npcs = AI_VALUE(list<ObjectGuid>, "nearest npcs");
+        for (list<ObjectGuid>::iterator i = npcs.begin(); i != npcs.end(); i++)
         {
-            target = npc;
-            break;
+            Unit* npc = ai->GetUnit(*i);
+            if (npc && bot->GetDistance(npc) > sPlayerbotAIConfig.tooCloseDistance)
+            {
+                target = npc;
+                break;
+            }
         }
     }
 

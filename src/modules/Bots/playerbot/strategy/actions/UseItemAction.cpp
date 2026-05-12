@@ -284,7 +284,13 @@ bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Object* target)
     bot->clearUnitState( UNIT_STAT_CHASE );
     bot->clearUnitState( UNIT_STAT_FOLLOW );
 
-    if (!targetSelected)
+    if (targetSelected)
+    {
+        ai->TellMasterNoFacing(out.str());
+        bot->GetSession()->QueuePacket(packet);
+        return true;
+    }
+
     for (int i=0; i<MAX_ITEM_PROTO_SPELLS; i++)
     {
         uint32 spellId = item->GetProto()->Spells[i].SpellId;
