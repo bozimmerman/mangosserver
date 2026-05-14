@@ -105,11 +105,4 @@ namespace ai
         JumpAction(PlayerbotAI* ai) : MovementAction(ai, "jump") {}
         virtual bool Execute(Event event);
     };
-
-    class JumpInPlaceAction : public MovementAction
-    {
-    public:
-        JumpInPlaceAction(PlayerbotAI* ai) : MovementAction(ai, "jump up") {}
-        virtual bool Execute(Event event);
-    };
 }

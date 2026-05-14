@@ -76,7 +76,6 @@ namespace ai
             creators["attack duel opponent"] = &ActionContext::attack_duel_opponent;
             creators["drop target"] = &ActionContext::drop_target;
             creators["jump"] = &ActionContext::jump;
-            creators["jump up"] = &ActionContext::jump_up;
             creators["back off"] = &ActionContext::back_off;
             creators["watch target approach"] = &ActionContext::watch_target_approach;
             creators["start pull"] = &ActionContext::start_pull;
@@ -139,7 +138,6 @@ namespace ai
         static Action* move_out_of_enemy_contact(PlayerbotAI* ai) { return new MoveOutOfEnemyContactAction(ai); }
         static Action* set_facing(PlayerbotAI* ai) { return new SetFacingTargetAction(ai); }
         static Action* jump(PlayerbotAI* ai) { return new JumpAction(ai); }
-        static Action* jump_up(PlayerbotAI* ai) { return new JumpInPlaceAction(ai); }
         static Action* watch_target_approach(PlayerbotAI* ai) { return new WatchTargetApproachAction(ai); }
         static Action* watch_group_pull(PlayerbotAI* ai) { return new WatchGroupPullAction(ai); }
         static Action* start_pull(PlayerbotAI* ai) { return new StartPullAction(ai); }
