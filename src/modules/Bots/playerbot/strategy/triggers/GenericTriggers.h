@@ -502,14 +502,6 @@ namespace ai
         virtual bool IsActive();
     };
 
-    class NotDpsTargetActiveTrigger : public Trigger
-    {
-    public:
-        NotDpsTargetActiveTrigger(PlayerbotAI* ai) : Trigger(ai, "not dps target active") {}
-    public:
-        virtual bool IsActive();
-    };
-
     class NoTanksTargetActiveTrigger : public Trigger
     {
     public:
