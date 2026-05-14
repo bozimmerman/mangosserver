@@ -57,6 +57,7 @@
 #include "EnemyHealerTargetValue.h"
 #include "ItemUsageValue.h"
 #include "LastTargetPositionValue.h"
+#include "DpsTanksTargetValue.h"
 
 namespace ai
 {
@@ -83,6 +84,7 @@ namespace ai
             creators["puller target"] = &ValueContext::puller_target;
             creators["dps target"] = &ValueContext::dps_target;
             creators["least hp target"] = &ValueContext::least_hp_target;
+            creators["dps tanks target"] = &ValueContext::dps_tanks_target;
             creators["enemy player target"] = &ValueContext::enemy_player_target;
             creators["cc target"] = &ValueContext::cc_target;
             creators["current cc target"] = &ValueContext::current_cc_target;
@@ -215,6 +217,7 @@ namespace ai
         static UntypedValue* tank_target(PlayerbotAI* ai) { return new TankTargetValue(ai); }
         static UntypedValue* dps_target(PlayerbotAI* ai) { return new DpsTargetValue(ai); }
         static UntypedValue* least_hp_target(PlayerbotAI* ai) { return new LeastHpTargetValue(ai); }
+        static UntypedValue* dps_tanks_target(PlayerbotAI* ai) { return new DpsTanksTargetValue(ai); }
         static UntypedValue* enemy_player_target(PlayerbotAI* ai) { return new EnemyPlayerValue(ai); }
         static UntypedValue* cc_target(PlayerbotAI* ai) { return new CcTargetValue(ai); }
         static UntypedValue* current_cc_target(PlayerbotAI* ai) { return new CurrentCcTargetValue(ai); }
