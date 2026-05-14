@@ -47,6 +47,19 @@ namespace ai
         virtual string GetTargetName() { return "least hp target"; }
     };
 
+    class AttackTanksTargetAction : public AttackAction
+    {
+    public:
+        AttackTanksTargetAction(PlayerbotAI* ai) : AttackAction(ai, "attack tanks target") {}
+        virtual string GetTargetName()
+        {
+            Player* tank = ai->GetGroupTank(bot);
+            if (!tank)
+                return "least hp target";
+            return "dps tanks target";
+        }
+    };
+
     class AttackEnemyPlayerAction : public AttackAction
     {
     public:
