@@ -262,6 +262,11 @@ RolesPriority LFGQueue::getPriority(Classes playerClass, ClassRoles playerRoles)
     }
 }
 
+/**
+ * @brief Recalculates available LFG roles for a queued group.
+ *
+ * @param groupId The queued group identifier.
+ */
 void LFGQueue::UpdateGroup(uint32 groupId)
 {
     QueuedGroupsMap::iterator qGroup = m_QueuedGroups.find(groupId);
@@ -278,6 +283,11 @@ void LFGQueue::UpdateGroup(uint32 groupId)
     }
 }
 
+/**
+ * @brief Updates queue timers and tries to match queued players into groups.
+ *
+ * @param diff The elapsed update time in milliseconds.
+ */
 void LFGQueue::Update(uint32 diff)
 {
     if (m_QueuedGroups.empty() && m_QueuedPlayers.empty())
@@ -458,6 +468,14 @@ void LFGQueue::Update(uint32 diff)
     }
 }
 
+/**
+ * @brief Attempts to assign a player to a queued group for a specific role.
+ *
+ * @param plr The player to add.
+ * @param grp The destination group.
+ * @param role The role to satisfy.
+ * @return true if the player was added to the group; otherwise false.
+ */
 bool LFGQueue::FindRoleToGroup(Player* plr, Group* grp, ClassRoles role)
 {
     // Safe check
@@ -631,6 +649,12 @@ bool LFGQueue::FindRoleToGroup(Player* plr, Group* grp, ClassRoles role)
     return false;
 }
 
+/**
+ * @brief Removes a queued player and optionally updates the client queue state.
+ *
+ * @param plrGuid The player guid.
+ * @param leaveMethod The reason for leaving the queue.
+ */
 void LFGQueue::RemovePlayerFromQueue(ObjectGuid plrGuid, PlayerLeaveMethod leaveMethod)
 {
     Player * plr = sObjectMgr.GetPlayer(plrGuid);
@@ -656,6 +680,12 @@ void LFGQueue::RemovePlayerFromQueue(ObjectGuid plrGuid, PlayerLeaveMethod leave
     }
 }
 
+/**
+ * @brief Removes a queued group and sends the appropriate queue status packets.
+ *
+ * @param groupId The queued group identifier.
+ * @param leaveMethod The reason for leaving the queue.
+ */
 void LFGQueue::RemoveGroupFromQueue(uint32 groupId, GroupLeaveMethod leaveMethod)
 {
     Group* grp = sObjectMgr.GetGroupById(groupId);
@@ -693,6 +723,13 @@ void LFGQueue::RemoveGroupFromQueue(uint32 groupId, GroupLeaveMethod leaveMethod
     }
 }
 
+/**
+ * @brief Builds the LFG queue status packet for a meeting stone area.
+ *
+ * @param data The packet to populate.
+ * @param areaId The meeting stone area identifier.
+ * @param status The queue status code.
+ */
 void LFGQueue::BuildSetQueuePacket(WorldPacket &data, uint32 areaId, uint8 status)
 {
     data.Initialize(SMSG_MEETINGSTONE_SETQUEUE, 5);
@@ -700,17 +737,33 @@ void LFGQueue::BuildSetQueuePacket(WorldPacket &data, uint32 areaId, uint8 statu
     data << uint8(status);
 }
 
+/**
+ * @brief Builds the packet announcing a new member added to an LFG group.
+ *
+ * @param data The packet to populate.
+ * @param plrGuid The added player guid.
+ */
 void LFGQueue::BuildMemberAddedPacket(WorldPacket &data, ObjectGuid plrGuid)
 {
     data.Initialize(SMSG_MEETINGSTONE_MEMBER_ADDED, 8);
     data << uint64(plrGuid);
 }
 
+/**
+ * @brief Builds the packet informing a group that queue assembly is still in progress.
+ *
+ * @param data The packet to populate.
+ */
 void LFGQueue::BuildInProgressPacket(WorldPacket &data)
 {
     data.Initialize(SMSG_MEETINGSTONE_IN_PROGRESS, 0);
 }
 
+/**
+ * @brief Builds the packet informing a group that queue assembly completed.
+ *
+ * @param data The packet to populate.
+ */
 void LFGQueue::BuildCompletePacket(WorldPacket &data)
 {
     data.Initialize(SMSG_MEETINGSTONE_COMPLETE, 0);
