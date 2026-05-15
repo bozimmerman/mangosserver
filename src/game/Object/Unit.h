@@ -3437,7 +3437,8 @@ class Unit : public WorldObject
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }
 
         void SetCurrentCastedSpell(Spell* pSpell);
-        virtual void ProhibitSpellSchool(SpellSchoolMask /*idSchoolMask*/, uint32 /*unTimeMs*/) { }
+        virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
+        bool IsSchoolLockedOut(SpellSchoolMask schoolMask) const;
         void InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true);
         void FinishSpell(CurrentSpellTypes spellType, bool ok = true);
 
@@ -3489,6 +3490,10 @@ class Unit : public WorldObject
 
         // Event handler
         EventProcessor m_Events;
+
+        // Per-school spell lockout (for non-Player units)
+        SpellSchoolMask m_schoolLockoutMask;
+        time_t m_schoolLockoutExpire;
 
         // stat system
         bool HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, float amount, bool apply);
