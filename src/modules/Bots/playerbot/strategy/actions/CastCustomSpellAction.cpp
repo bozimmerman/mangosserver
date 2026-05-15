@@ -4,6 +4,9 @@
 
 using namespace ai;
 
+/**
+ * Executes a custom spell cast request against the selected or named target.
+ */
 bool CastCustomSpellAction::Execute(Event event)
 {
     Unit* target = NULL;

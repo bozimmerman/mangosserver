@@ -3,6 +3,9 @@
 #include "DBCStore.h"
 #include "DBCStores.h"
 
+/**
+ * Performs a case-insensitive substring search in C strings.
+ */
 char * strstri (const char* str1, const char* str2);
 
 namespace ai
