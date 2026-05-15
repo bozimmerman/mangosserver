@@ -275,6 +275,9 @@ Unit::Unit() :
     m_isCreatureLinkingTrigger = false;
     m_isSpawningLinked = false;
     m_dummyCombatState = false;
+
+    m_schoolLockoutMask = SPELL_SCHOOL_MASK_NONE;
+    m_schoolLockoutExpire = 0;
 }
 
 Unit::~Unit()
@@ -3691,6 +3694,26 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed)
             m_currentSpells[spellType] = NULL;
         }
     }
+}
+
+void Unit::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
+{
+    if (GetTypeId() == TYPEID_PLAYER || !unTimeMs)
+        return;
+
+    m_schoolLockoutMask = idSchoolMask;
+    m_schoolLockoutExpire = time(nullptr) + unTimeMs / IN_MILLISECONDS;
+}
+
+bool Unit::IsSchoolLockedOut(SpellSchoolMask schoolMask) const
+{
+    if (!m_schoolLockoutMask || !schoolMask)
+        return false;
+    if (!(m_schoolLockoutMask & schoolMask))
+        return false;
+    if (time(nullptr) >= m_schoolLockoutExpire)
+        return false;
+    return true;
 }
 
 void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
