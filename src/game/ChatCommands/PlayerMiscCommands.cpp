@@ -307,6 +307,12 @@ bool ChatHandler::HandleResetAllCommand(char* args)
     return true;
 }
 
+/**
+ * @brief Parses reset-items command arguments into an option bitmask.
+ *
+ * @param args The raw command argument string.
+ * @return int The parsed reset-items option bitmask.
+ */
 int GetResetItemsBitMask(char* args)
 {
     int optionsBitMask = RESET_ITEMS_COMMAND_FLAG_OPTION_NONE;
@@ -589,6 +595,12 @@ bool ChatHandler::HandleResetItemsCommand(char* args)
     return true;
 }
 
+/**
+ * @brief Parses reset-mail command arguments into an option bitmask.
+ *
+ * @param args The raw command argument string.
+ * @return int The parsed reset-mail option bitmask.
+ */
 int GetResetMailBitMask(char* args)
 {
     int optionBitMask = RESET_MAIL_COMMAND_FLAG_OPTION_NONE;
