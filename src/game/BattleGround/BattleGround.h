@@ -301,21 +301,57 @@ public:
      * @brief Virtual destructor for BattleGroundScore.
      * Used when deleting score from scores map.
      */
+    /**
+     * @brief Battle Ground Score.
+     */
     virtual ~BattleGroundScore() {}
 
     // Accessors
+    /**
+     * @brief Get Killing Blows.
+     */
     uint32 GetKillingBlows() const { return KillingBlows; }
+    /**
+     * @brief Get Deaths.
+     */
     uint32 GetDeaths() const { return Deaths; }
+    /**
+     * @brief Get Honorable Kills.
+     */
     uint32 GetHonorableKills() const { return HonorableKills; }
+    /**
+     * @brief Get Bonus Honor.
+     */
     uint32 GetBonusHonor() const { return BonusHonor; }
+    /**
+     * @brief Get Damage Done.
+     */
     uint32 GetDamageDone() const { return 0; }
+    /**
+     * @brief Get Healing Done.
+     */
     uint32 GetHealingDone() const { return 0; }
 
     // Virtual attributes for BG-specific scoring
+    /**
+     * @brief Get Attr1.
+     */
     virtual uint32 GetAttr1() const { return 0; }
+    /**
+     * @brief Get Attr2.
+     */
     virtual uint32 GetAttr2() const { return 0; }
+    /**
+     * @brief Get Attr3.
+     */
     virtual uint32 GetAttr3() const { return 0; }
+    /**
+     * @brief Get Attr4.
+     */
     virtual uint32 GetAttr4() const { return 0; }
+    /**
+     * @brief Get Attr5.
+     */
     virtual uint32 GetAttr5() const { return 0; }
 
     uint32 KillingBlows; /**< Number of killing blows */
