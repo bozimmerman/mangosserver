@@ -3707,13 +3707,7 @@ void Unit::ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 
 bool Unit::IsSchoolLockedOut(SpellSchoolMask schoolMask) const
 {
-    if (!m_schoolLockoutMask || !schoolMask)
-        return false;
-    if (!(m_schoolLockoutMask & schoolMask))
-        return false;
-    if (time(nullptr) >= m_schoolLockoutExpire)
-        return false;
-    return true;
+    return (m_schoolLockoutMask & schoolMask) && time(nullptr) < m_schoolLockoutExpire;
 }
 
 void Unit::FinishSpell(CurrentSpellTypes spellType, bool ok /*= true*/)
