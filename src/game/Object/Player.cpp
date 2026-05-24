@@ -23567,6 +23567,17 @@ void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* targe
     {
         if (!target->IsVisibleForInState(this, viewPoint, true))
         {
+            if (m_transport)
+            {
+                Transport* targetTransport = nullptr;
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    targetTransport = ((Player*)target)->GetTransport();
+                else if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsPet())
+                    targetTransport = ((Pet*)target->ToCreature())->GetTransport();
+                if (targetTransport && targetTransport == m_transport)
+                    return;
+            }
+
             ObjectGuid t_guid = target->GetObjectGuid();
 
             if (target->GetTypeId() == TYPEID_UNIT)
@@ -23614,6 +23625,17 @@ void Player::UpdateVisibilityOf(WorldObject const* viewPoint, WorldObject* targe
     {
         if (!target->IsVisibleForInState(this, viewPoint, true))
         {
+            if (m_transport)
+            {
+                Transport* targetTransport = nullptr;
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    targetTransport = ((Player*)target)->GetTransport();
+                else if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsPet())
+                    targetTransport = ((Pet*)target->ToCreature())->GetTransport();
+                if (targetTransport && targetTransport == m_transport)
+                    return;
+            }
+
             if (target->GetTypeId() == TYPEID_UNIT)
             {
                 Creature* c = target->ToCreature();
