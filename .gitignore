@@ -77,6 +77,7 @@ cmake_install.cmake
 CMakeCache.txt
 CMakeFiles
 ipch
+AGENTS.md
 
 # EasyBuild created debug files
 cmake.cmd
