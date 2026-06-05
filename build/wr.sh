@@ -1,1 +1,1 @@
-chmod -R a+w /opt/mangos/zero/cur/server/src
+# No longer needed — source tree is owned by mangos
