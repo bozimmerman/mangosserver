@@ -58,6 +58,8 @@ callgrind.out.*
 .tmproj
 nbproject
 Thumbs.db
+.omo
+.claude
 
 # Configuration files to be customized
 
