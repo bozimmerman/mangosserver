@@ -44,10 +44,10 @@ bool QuestAction::ProcessQuests(ObjectGuid questGiver)
                     item.m_gOptionId == GOSSIP_OPTION_QUESTGIVER)
                 {
                     bot->OnGossipSelect(gameObject, i);
-                    return ProcessQuests(gameObject);
+                    ProcessQuests(gameObject);
+                    break;
                 }
             }
-            return false;
         }
         return true;
     }
@@ -141,7 +141,6 @@ bool QuestAction::AcceptQuest(Quest const* quest, uint64 questGiver)
         {
             out << "Accepted " << chat->formatQuest(quest);
             ai->TellMaster(out);
-            return true;
         }
     }
 
