@@ -221,6 +221,7 @@ class PlayerbotAI : public PlayerbotAIBase
         void RequestJump(bool here = false);
         bool IsJumping() const { return m_isJumping; }
         bool IsPendingJump() const { return m_pendingJump; }
+        void UpdateJump();
 
         bool IsEating() const
         {
@@ -273,6 +274,4 @@ class PlayerbotAI : public PlayerbotAIBase
         bool   m_jumpHere;
         uint32 m_jumpRequestTime;
         float  m_jumpTargetX, m_jumpTargetY, m_jumpTargetZ, m_jumpTargetO;
-
-        void UpdateJump();
 };
