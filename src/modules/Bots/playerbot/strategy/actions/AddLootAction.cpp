@@ -73,11 +73,6 @@ bool AddGatheringLootAction::AddLoot(ObjectGuid guid)
         return false;
     }
 
-    if (bot->GetMap()->IsDungeon() && loot.skillId != SKILL_LOCKPICKING)
-    {
-        return false;
-    }
-
     if (!loot.IsLootPossible(bot))
     {
         return false;

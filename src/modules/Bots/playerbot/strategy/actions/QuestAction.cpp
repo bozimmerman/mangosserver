@@ -44,8 +44,7 @@ bool QuestAction::ProcessQuests(ObjectGuid questGiver)
                     item.m_gOptionId == GOSSIP_OPTION_QUESTGIVER)
                 {
                     bot->OnGossipSelect(gameObject, i);
-                    ProcessQuests(gameObject);
-                    break;
+                    return ProcessQuests(gameObject);
                 }
             }
         }
