@@ -48,6 +48,7 @@ bool QuestAction::ProcessQuests(ObjectGuid questGiver)
                     break;
                 }
             }
+            return false;
         }
         return true;
     }
