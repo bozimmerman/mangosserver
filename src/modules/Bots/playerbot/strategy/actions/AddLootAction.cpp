@@ -85,12 +85,13 @@ bool AddGatheringLootAction::AddLoot(ObjectGuid guid)
 
 bool AddGatheringLootAction::isUseful()
 {
-    // NC gathering is a problem if you are supposed to be following
+    // NC gathering is a problem if you are supposed to be following or drowning
     Player* master = ai->GetMaster();
     if (master && bot->GetGroup())
     {
         float masterDist = bot->GetDistance(master);
-        if (masterDist > sPlayerbotAIConfig.reactDistance)
+        if ((masterDist > sPlayerbotAIConfig.reactDistance) ||
+                AI_VALUE2(bool, "swimming", "self target"))
         {
             return false;
         }
