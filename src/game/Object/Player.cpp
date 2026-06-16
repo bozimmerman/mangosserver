@@ -2143,10 +2143,15 @@ bool Player::IsUnderWater() const
 
 bool Player::IsDrowning() const
 {
+<<<<<<< HEAD
     return (m_MirrorTimerFlags & UNDERWATER_INWATER) &&
             m_MirrorTimer[BREATH_TIMER] != DISABLED_MIRROR_TIMER &&
             !HasAuraType(SPELL_AURA_WATER_BREATHING) &&
             m_MirrorTimer[BREATH_TIMER] < 2000 && IsAlive();
+=======
+    return m_MirrorTimer[BREATH_TIMER] != DISABLED_MIRROR_TIMER &&
+           m_MirrorTimer[BREATH_TIMER] <= 0;
+>>>>>>> 256b0e62 (bots stop drowning themselves)
 }
 
 /**
