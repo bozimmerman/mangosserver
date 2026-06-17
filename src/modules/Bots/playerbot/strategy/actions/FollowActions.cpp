@@ -12,29 +12,7 @@ bool FollowLineAction::Execute(Event event)
 
 bool FollowMasterAction::Execute(Event event)
 {
-    bool result = Follow(AI_VALUE(Unit*, "master target"));
-
-    if (result && bot->IsUnderWater())
-    {
-        Player* master = GetMaster();
-        if (master && !master->IsUnderWater())
-        {
-            float waterLevel = bot->GetMap()->GetTerrain()->GetWaterLevel(
-                bot->GetPositionX(), bot->GetPositionY(), bot->GetPositionZ());
-            if (waterLevel > -500.0f)
-            {
-                float surfaceZ = waterLevel - 2.0f;
-                float maxNudge = 5.0f;
-                if (bot->GetPositionZ() >= surfaceZ - maxNudge && bot->GetPositionZ() < surfaceZ)
-                {
-                    MotionMaster &mm = *bot->GetMotionMaster();
-                    mm.MovePoint(bot->GetMapId(), bot->GetPositionX(), bot->GetPositionY(), surfaceZ);
-                }
-            }
-        }
-    }
-
-    return result;
+    return Follow(AI_VALUE(Unit*, "master target"));
 }
 
 bool FollowMasterAction::isUseful()
