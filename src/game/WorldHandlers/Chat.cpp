@@ -3227,6 +3227,8 @@ static char const* const spellKeys[] =
  */
 uint32 ChatHandler::ExtractSpellIdFromLink(char** text)
 {
+    std::string original(*text ? *text : "");
+
     // number or [name] Shift-click form |color|Henchant:recipe_spell_id|h[prof_name: recipe_name]|h|r
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
     // number or [name] Shift-click form |color|Htalent:talent_id,rank|h[name]|h|r

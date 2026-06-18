@@ -36,7 +36,6 @@
 #include "Language.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "Util.h"
 
 /**********************************************************************
  CommandTable : castCommandTable
@@ -70,29 +69,7 @@ bool ChatHandler::HandleCastCommand(char* args)
     uint32 spell = ExtractSpellIdFromLink(&args);
     if (!spell)
     {
-        bool multipleExact = false;
-        std::vector<std::pair<uint32, std::string>> candidates;
-        spell = FindSpellByName(args, multipleExact, candidates);
-
-        if (!spell)
-        {
-            if (multipleExact || !candidates.empty())
-            {
-                SendSysMessage(multipleExact
-                    ? "Multiple spells found with that name:"
-                    : "No exact match. Close matches:");
-                for (auto const& c : candidates)
-                {
-                    PSendSysMessage("  %u - %s", c.first, c.second.c_str());
-                }
-            }
-            else
-            {
-                SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-            }
-            SetSentErrorMessage(true);
-            return false;
-        }
+        return false;
     }
 
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
@@ -602,143 +579,4 @@ bool ChatHandler::HandleUnAuraGroupCommand(char* args)
 
         return true;
     }
-}
-
-uint32 ChatHandler::FindSpellByName(char const* args, bool& multipleExact, std::vector<std::pair<uint32, std::string>>& candidates) const
-{
-    LocaleConstant locale = GetSessionDbcLocale();
-
-    if (!args || !*args)
-    {
-        return 0;
-    }
-
-    std::string nameStr = args;
-    std::wstring wname;
-
-    if (!Utf8toWStr(nameStr, wname))
-    {
-        return 0;
-    }
-
-    wstrToLower(wname);
-
-    uint32 exactId = 0;
-    for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
-    {
-        SpellEntry const* spell = sSpellStore.LookupEntry(id);
-        if (!spell)
-        {
-            continue;
-        }
-
-        std::string sName = spell->SpellName[locale];
-        if (sName.empty())
-        {
-            continue;
-        }
-
-        std::wstring wSpellName;
-        if (!Utf8toWStr(sName, wSpellName))
-        {
-            continue;
-        }
-        wstrToLower(wSpellName);
-
-        if (wSpellName == wname)
-        {
-            if (exactId == 0)
-            {
-                exactId = id;
-            }
-            else
-            {
-                multipleExact = true;
-            }
-        }
-    }
-
-    if (exactId != 0 && !multipleExact)
-    {
-        candidates.clear();
-        return exactId;
-    }
-
-    candidates.clear();
-
-    if (multipleExact)
-    {
-        std::wstring wname2;
-        Utf8toWStr(nameStr, wname2);
-        wstrToLower(wname2);
-        for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
-        {
-            SpellEntry const* spell = sSpellStore.LookupEntry(id);
-            if (!spell)
-            {
-                continue;
-            }
-            std::string sName = spell->SpellName[locale];
-            if (sName.empty())
-            {
-                continue;
-            }
-            std::wstring wSpellName2;
-            if (!Utf8toWStr(sName, wSpellName2))
-            {
-                continue;
-            }
-            wstrToLower(wSpellName2);
-            if (wSpellName2 == wname2)
-            {
-                candidates.push_back({id, spell->SpellName[locale]});
-            }
-        }
-    }
-    else
-    {
-        for (uint32 id = 0; id < sSpellStore.GetNumRows(); ++id)
-        {
-            SpellEntry const* spell = sSpellStore.LookupEntry(id);
-            if (!spell)
-            {
-                continue;
-            }
-
-            int loc = locale;
-            std::string sName = spell->SpellName[loc];
-            if (sName.empty())
-            {
-                continue;
-            }
-
-            if (!Utf8FitTo(sName, wname))
-            {
-                loc = 0;
-                for (; loc < MAX_LOCALE; ++loc)
-                {
-                    if (loc == locale)
-                    {
-                        continue;
-                    }
-                    sName = spell->SpellName[loc];
-                    if (sName.empty())
-                    {
-                        continue;
-                    }
-                    if (Utf8FitTo(sName, wname))
-                    {
-                        break;
-                    }
-                }
-            }
-
-            if (loc < MAX_LOCALE)
-            {
-                candidates.push_back({id, spell->SpellName[locale]});
-            }
-        }
-    }
-
-    return 0;
 }
