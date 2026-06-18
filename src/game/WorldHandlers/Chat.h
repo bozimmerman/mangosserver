@@ -31,9 +31,6 @@
 #include "ObjectGuid.h"
 #include "Language.h"
 
-#include <utility>
-#include <vector>
-
 struct AreaTrigger;
 struct AreaTriggerEntry;
 struct FactionEntry;
@@ -773,7 +770,6 @@ class ChatHandler
         void ShowQuestListHelper(uint32 questId, int32 loc_idx, Player* target = NULL);
         bool ShowPlayerListHelper(QueryResult* result, uint32* limit = NULL, bool title = true, bool error = true);
         void ShowSpellListHelper(Player* target, SpellEntry const* spellInfo, LocaleConstant loc);
-        uint32 FindSpellByName(char const* args, bool& multipleExact, std::vector<std::pair<uint32, std::string>>& candidates) const;
         void ShowPoolListHelper(uint16 pool_id);
         void ShowTicket(GMTicket const* ticket);
         void ShowTriggerListHelper(AreaTriggerEntry const* atEntry);
