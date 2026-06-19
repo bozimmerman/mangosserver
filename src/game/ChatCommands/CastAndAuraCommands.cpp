@@ -81,7 +81,7 @@ bool ChatHandler::HandleCastCommand(char* args)
     if (!m_session)
     {
         target->CastSpell(target, spell, true);
-        PSendSysMessage("Cast spell %u (%s) on %s (triggered, console)",
+        PSendSysMessage("Cast spell %u (%s) on %s",
             spell, spellInfo->SpellName[GetSessionDbcLocale()],
             target->GetName());
         return true;
