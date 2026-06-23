@@ -76,6 +76,11 @@ namespace ai
     {
         public:
             HasHealthstoneTrigger(PlayerbotAI* ai) : WarlockConjuredItemTrigger(ai, "healthstone") {}
+
+            virtual bool IsActive()
+            {
+                return ItemCountTrigger::IsActive() && AI_VALUE2(uint8, "item count", "soul shard") > 1;
+            }
     };
 
     class FearTrigger : public HasCcTargetTrigger
