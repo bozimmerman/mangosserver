@@ -11715,7 +11715,7 @@ void Unit::InterruptMoving(bool forceSendStop /*=false*/)
     if (!movespline->Finalized())
     {
         Movement::Location loc = movespline->ComputePosition();
-        movespline->_Interrupt();
+        StopMoving(true);
         if (GetTypeId() == TYPEID_PLAYER)
         {
             ((Player*)this)->SetPosition(loc.x, loc.y, loc.z, loc.orientation);
@@ -11724,10 +11724,10 @@ void Unit::InterruptMoving(bool forceSendStop /*=false*/)
         {
             GetMap()->CreatureRelocation((Creature*)this, loc.x, loc.y, loc.z, loc.orientation);
         }
-        isMoving = true;
+        return;
     }
 
-    StopMoving(forceSendStop || isMoving);
+    StopMoving(forceSendStop);
 }
 
 /**
