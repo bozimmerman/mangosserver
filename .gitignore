@@ -82,6 +82,10 @@ CMakeCache.txt
 CMakeFiles
 ipch
 AGENTS.md
+/src/ah-service/Makefile
+/src/ah-service/ah-service
+/src/ah-service/ah-service.conf.dist
+/src/ipc/Makefile
 
 # EasyBuild created debug files
 cmake.cmd
