@@ -163,8 +163,8 @@ perf.data.old
 /src/.cproject
 src/game/st??????
 win
-/src/ah-service/Makefile
-/src/ah-service/ah-service
-/src/ah-service/ah-service.conf.dist
-/src/ipc/Makefile
+src/ah-service/Makefile
+src/ah-service/ah-service
+src/ah-service/ah-service.conf.dist
+src/ipc/Makefile
 
