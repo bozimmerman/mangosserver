@@ -410,6 +410,12 @@ bool MovementAction::Follow(Unit* target, float distance, float angle)
         ai->InterruptSpell();
     }
 
+    // Don't restart follow if already moving — kills in-flight
+    // movement and causes jitter when path calc overflows in narrow
+    // corridors.
+    if (!bot->movespline->Finalized())
+        return true;
+
     float followX = target->GetPositionX() + cos(angle) * distance;
     float followY = target->GetPositionY() + sin(angle) * distance;
     if (IsAggroPosition(followX, followY))
