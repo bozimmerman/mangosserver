@@ -542,13 +542,45 @@ void PathFinder::BuildPointPath(const float* startPoint, const float* endPoint)
 
     if (pointCount < 2 || dtStatusFailed(dtResult))
     {
-        // only happens if pass bad data to findStraightPath or navmesh is broken
-        // single point paths can be generated here
-        // TODO : check the exact cases
-        DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ PathFinder::BuildPointPath FAILED! path sized %d returned for %s\n", pointCount, m_sourceUnit->GetGuidStr().c_str());
-        BuildShortcut();
-        m_type = PATHFIND_NOPATH;
-        return;
+        // Smooth path overflowed the buffer.  If the points are densely
+        // packed, compress to meaningful waypoints.
+        if (pointCount > 1)
+        {
+            uint32 dst = 1;
+            const uint32 originalCount = pointCount;
+            const float minDistSq = 9.0f; // 3.0f^2
+            for (uint32 src = 1; src < pointCount; ++src)
+            {
+                if (dtVdist2DSqr(&pathPoints[src * VERTEX_SIZE],
+                                 &pathPoints[(dst - 1) * VERTEX_SIZE]) >= minDistSq)
+                {
+                    dtVcopy(&pathPoints[dst * VERTEX_SIZE],
+                            &pathPoints[src * VERTEX_SIZE]);
+                    ++dst;
+                }
+            }
+            if (dtVdist2DSqr(&pathPoints[(dst - 1) * VERTEX_SIZE], endPoint) >= minDistSq)
+            {
+                dtVcopy(&pathPoints[dst * VERTEX_SIZE], endPoint);
+                ++dst;
+            }
+            // Only use compressed path if the original was genuinely
+            // dense (over half the points were redundant micro-steps).
+            if (dst * 2 < originalCount && dst >= 2)
+            {
+                pointCount = dst;
+                dtResult = DT_SUCCESS;
+            }
+        }
+
+        // Still failed — fall back to shortcut
+        if (pointCount < 2 || dtStatusFailed(dtResult))
+        {
+            DEBUG_FILTER_LOG(LOG_FILTER_PATHFINDING, "++ PathFinder::BuildPointPath FAILED! path sized %d returned for %s\n", pointCount, m_sourceUnit->GetGuidStr().c_str());
+            BuildShortcut();
+            m_type = PATHFIND_NOPATH;
+            return;
+        }
     }
 
     m_pathPoints.resize(pointCount);
