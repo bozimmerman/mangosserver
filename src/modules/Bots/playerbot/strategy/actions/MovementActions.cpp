@@ -410,18 +410,6 @@ bool MovementAction::Follow(Unit* target, float distance, float angle)
         ai->InterruptSpell();
     }
 
-    // Don't restart follow if already moving — kills in-flight
-    // movement and causes jitter when path calc overflows in narrow
-    // corridors.
-    if (!bot->movespline->Finalized())
-    {
-        LastMovement& movement = AI_VALUE(LastMovement&, "last movement");
-        float masterDist = target->GetDistance2d(movement.lastMasterX, movement.lastMasterY);
-        if (masterDist <= sPlayerbotAIConfig.followDistance)
-            return true;
-        mm.Clear();
-    }
-
     float followX = target->GetPositionX() + cos(angle) * distance;
     float followY = target->GetPositionY() + sin(angle) * distance;
     if (IsAggroPosition(followX, followY))
