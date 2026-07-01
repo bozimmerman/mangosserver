@@ -74,11 +74,6 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T& owner, bool up
         {
             if (!owner.movespline->Finalized())
             {
-                if (this->GetMovementGeneratorType() == CHASE_MOTION_TYPE)
-                {
-                    D::_clearUnitStateMove(owner);
-                    owner.InterruptMoving();
-                }
                 return;
             }
         }
