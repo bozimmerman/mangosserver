@@ -130,7 +130,7 @@ PlayerbotAI::PlayerbotAI(Player* bot)
     masterIncomingPacketHandlers.AddHandler(CMSG_GROUP_UNINVITE_GUID, "uninvite");
     masterIncomingPacketHandlers.AddHandler(CMSG_PUSHQUESTTOPARTY, "quest share");
     botOutgoingPacketHandlers.AddHandler(SMSG_PETITION_SHOW_SIGNATURES, "petition sign");
-    masterIncomingPacketHandlers.AddHandler(CMSG_GUILD_INVITE, "guild invite");
+    botOutgoingPacketHandlers.AddHandler(SMSG_GUILD_INVITE, "guild invite");
     masterIncomingPacketHandlers.AddHandler(CMSG_REPOP_REQUEST, "master released spirit");
     masterIncomingPacketHandlers.AddHandler(CMSG_SPIRIT_HEALER_ACTIVATE, "master spirit healer");
 
