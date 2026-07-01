@@ -17,9 +17,6 @@ namespace ai
                 lastFollow = NULL;
                 lastAreaTrigger = 0; // Initialize lastAreaTrigger
                 lastFollowState = false;
-                lastMasterX = 0;
-                lastMasterY = 0;
-                lastMasterZ = 0;
             }
 
             // Copy constructor to copy movement details from another LastMovement object
@@ -34,9 +31,6 @@ namespace ai
                 lastMoveToZ = other.lastMoveToZ;
                 lastMoveToOri = other.lastMoveToOri;
                 lastFollowState = other.lastFollowState;
-                lastMasterX = other.lastMasterX;
-                lastMasterY = other.lastMasterY;
-                lastMasterZ = other.lastMasterZ;
             }
 
             // Set the last follow unit and reset movement coordinates
@@ -44,12 +38,6 @@ namespace ai
             {
                 Set(0.0f, 0.0f, 0.0f, 0.0f);
                 this->lastFollow = lastFollow;
-                if (lastFollow)
-                {
-                    lastMasterX = lastFollow->GetPositionX();
-                    lastMasterY = lastFollow->GetPositionY();
-                    lastMasterZ = lastFollow->GetPositionZ();
-                }
             }
 
             // Set the last movement coordinates and orientation
@@ -69,7 +57,6 @@ namespace ai
             uint32 lastAreaTrigger; // ID of the last area trigger
             bool lastFollowState; // whether follow was removed temprarily
             float lastMoveToX, lastMoveToY, lastMoveToZ, lastMoveToOri; // Last movement coordinates and orientation
-            float lastMasterX, lastMasterY, lastMasterZ; // Last master position when follow was issued
     };
 
     // Class to manage the last movement value
