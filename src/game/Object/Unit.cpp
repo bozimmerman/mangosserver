@@ -5326,10 +5326,10 @@ void Unit::InterruptMoving(bool forceSendStop /*=false*/)
         {
             GetMap()->CreatureRelocation((Creature*)this, loc.x, loc.y, loc.z, loc.orientation);
         }
-        return;
+        isMoving = true;
     }
 
-    StopMoving(forceSendStop);
+    StopMoving(forceSendStop || isMoving);
 }
 
 /**
