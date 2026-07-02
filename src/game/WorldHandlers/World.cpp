@@ -630,6 +630,7 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading AreaTrigger definitions...");
     sObjectMgr.LoadAreaTriggerTeleports();                  // must be after item template load
+    sObjectMgr.LoadInstanceExitTriggers();                   // must be after area trigger teleport load
 
     sLog.outString("Loading Quest Area Triggers...");
     sObjectMgr.LoadQuestAreaTriggers();                     // must be after LoadQuests

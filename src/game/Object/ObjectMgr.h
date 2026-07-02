@@ -642,6 +642,7 @@ class ObjectMgr
 
         AreaTrigger const* GetGoBackTrigger(uint32 Map) const;
         AreaTrigger const* GetMapEntranceTrigger(uint32 Map) const;
+        bool IsInsideExitTrigger(uint32 mapId, float x, float y, float z) const;
 
         RepRewardRate const* GetRepRewardRate(uint32 factionId) const
         {
@@ -754,6 +755,7 @@ class ObjectMgr
         void LoadGossipText();
 
         void LoadAreaTriggerTeleports();
+        void LoadInstanceExitTriggers();
         void LoadQuestAreaTriggers();
         void LoadTavernAreaTriggers();
         void LoadGameObjectForQuests();
@@ -1329,6 +1331,10 @@ class ObjectMgr
         GameObjectForQuestSet mGameObjectForQuestSet;
         GossipTextMap       mGossipText;
         AreaTriggerMap      mAreaTriggers;
+
+        typedef std::vector<AreaTriggerEntry const*> InstanceExitTriggerList;
+        typedef UNORDERED_MAP<uint32, InstanceExitTriggerList> InstanceExitTriggerMap;
+        InstanceExitTriggerMap m_instanceExitTriggers;
 
         RepRewardRateMap    m_RepRewardRateMap;
         RepOnKillMap        mRepOnKill;

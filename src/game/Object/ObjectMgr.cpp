@@ -1687,16 +1687,223 @@ void ObjectMgr::LoadTavernAreaTriggers()
     sLog.outString();
 }
 
+/**
+ * @brief Loads area trigger teleport destinations and access requirements.
+ */
+void ObjectMgr::LoadAreaTriggerTeleports()
+{
+    mAreaTriggers.clear();                                  // need for reload case
 
+    uint32 count = 0;
 
+    //                                                0         1                2                       3                  4                  5                                6                    7
+    QueryResult* result = WorldDatabase.Query("SELECT `id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`, `status_failed_mangos_string_id`, `condition_id` FROM `areatrigger_teleport`");
+    if (!result)
+    {
+        BarGoLink bar(1);
+        bar.step();
+        sLog.outString(">> Loaded %u area trigger teleport definitions", count);
+        sLog.outString();
+        return;
+    }
 
+    BarGoLink bar(result->GetRowCount());
 
+    do
+    {
+        Field* fields = result->Fetch();
 
+        bar.step();
 
+        ++count;
 
+        uint32 Trigger_ID = fields[0].GetUInt32();
 
+        AreaTrigger at;
 
+        at.target_mapId                 = fields[1].GetUInt32();
+        at.target_X                     = fields[2].GetFloat();
+        at.target_Y                     = fields[3].GetFloat();
+        at.target_Z                     = fields[4].GetFloat();
+        at.target_Orientation           = fields[5].GetFloat();
+        at.failed_text_mangos_string_id = fields[6].GetUInt32();
+        at.condition                    = fields[7].GetUInt16();
 
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
+        if (!atEntry)
+        {
+            sLog.outErrorDb("Table `areatrigger_teleport` has area trigger (ID:%u) not listed in `AreaTrigger.dbc`.", Trigger_ID);
+            continue;
+        }
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(at.target_mapId);
+        if (!mapEntry)
+        {
+            sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent target map (ID: %u) for Area trigger (ID:%u).", at.target_mapId, Trigger_ID);
+            continue;
+        }
+
+        if (at.target_X == 0 && at.target_Y == 0 && at.target_Z == 0)
+        {
+            sLog.outErrorDb("Table `areatrigger_teleport` has area trigger (ID:%u) without target coordinates.", Trigger_ID);
+            continue;
+        }
+
+        if (at.condition && !sConditionStorage.LookupEntry<PlayerCondition>(at.condition))
+        {
+            sLog.outErrorDb("Table `areatrigger_teleport` has nonexistent condition (ID:%u) for Area trigger (ID:%u).", at.condition, Trigger_ID);
+            continue;
+        }
+
+        mAreaTriggers[Trigger_ID] = at;
+    }
+    while (result->NextRow());
+
+    delete result;
+
+    sLog.outString(">> Loaded %u area trigger teleport definitions", count);
+    sLog.outString();
+}
+
+/**
+ * Loads exit area triggers per instance map (triggers that teleport to a different map).
+ * Pre-computed once at startup for efficient runtime queries.
+ */
+void ObjectMgr::LoadInstanceExitTriggers()
+{
+    m_instanceExitTriggers.clear();
+
+    uint32 count = 0;
+
+    for (uint32 id = 0; id < sAreaTriggerStore.GetNumRows(); ++id)
+    {
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(id);
+        if (!atEntry)
+            continue;
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(atEntry->mapid);
+        if (!mapEntry || !mapEntry->Instanceable())
+            continue;
+
+        AreaTrigger const* at = GetAreaTrigger(id);
+        if (!at)
+            continue;
+
+        if (at->target_mapId == atEntry->mapid)
+            continue;
+
+        m_instanceExitTriggers[atEntry->mapid].push_back(atEntry);
+        ++count;
+    }
+
+    sLog.outString(">> Loaded %u instance exit area triggers", count);
+    sLog.outString();
+}
+
+bool ObjectMgr::IsInsideExitTrigger(uint32 mapId, float x, float y, float z) const
+{
+    InstanceExitTriggerMap::const_iterator it = m_instanceExitTriggers.find(mapId);
+    if (it == m_instanceExitTriggers.end())
+        return false;
+
+    for (InstanceExitTriggerList::const_iterator triggerIt = it->second.begin();
+         triggerIt != it->second.end(); ++triggerIt)
+    {
+        if (IsPointInAreaTriggerZone(*triggerIt, mapId, x, y, z))
+            return true;
+    }
+
+    return false;
+}
+
+/**
+ * Searches for the areatrigger which teleports players out of the given map (only direct to continent)
+ */
+AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 map_id) const
+{
+    InstanceTemplate const* temp = GetInstanceTemplate(map_id);
+    if (!temp)
+    {
+        return NULL;
+    }
+
+    // Try to find one that teleports to the map we want to enter
+    std::list<AreaTrigger const*> ghostTrigger;
+    AreaTrigger const* compareTrigger = NULL;
+    for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); ++itr)
+    {
+        if (itr->second.target_mapId == uint32(temp->ghostEntranceMap))
+        {
+            ghostTrigger.push_back(&itr->second);
+            // First run, only consider AreaTrigger that teleport in the proper map
+            if ((!compareTrigger || itr->second.IsLessOrEqualThan(compareTrigger)) && sAreaTriggerStore.LookupEntry(itr->first)->mapid == map_id)
+            {
+                if (itr->second.IsMinimal())
+                {
+                    return &itr->second;
+                }
+
+                compareTrigger = &itr->second;
+            }
+        }
+    }
+    if (compareTrigger)
+    {
+        return compareTrigger;
+    }
+
+    // Second attempt: take one fitting
+    for (std::list<AreaTrigger const*>::const_iterator itr = ghostTrigger.begin(); itr != ghostTrigger.end(); ++itr)
+    {
+        if (!compareTrigger || (*itr)->IsLessOrEqualThan(compareTrigger))
+        {
+            if ((*itr)->IsMinimal())
+            {
+                return *itr;
+            }
+
+            compareTrigger = *itr;
+        }
+    }
+    return compareTrigger;
+}
+
+/**
+ * Searches for the areatrigger which teleports players to the given map
+ */
+AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
+{
+    AreaTrigger const* compareTrigger = NULL;
+    MapEntry const* mEntry = sMapStore.LookupEntry(Map);
+
+    for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); ++itr)
+    {
+        if (itr->second.target_mapId == Map)
+        {
+            if (mEntry->Instanceable())
+            {
+                // Remark that IsLessOrEqualThan is no total order, and a->IsLeQ(b) != !b->IsLeQ(a)
+                if (!compareTrigger || compareTrigger->IsLessOrEqualThan(&itr->second))
+                {
+                    compareTrigger = &itr->second;
+                }
+            }
+            else
+            {
+                if (!compareTrigger || itr->second.IsLessOrEqualThan(compareTrigger))
+                {
+                    if (itr->second.IsMinimal())
+                    {
+                        return &itr->second;
+                    }
+
+                    compareTrigger = &itr->second;
+                }
+            }
+        }
+    }
+    return compareTrigger;
+}
 
 /**
  * @brief Renumbers group ids into a compact sequential range.
