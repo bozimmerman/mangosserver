@@ -304,6 +304,7 @@ bool ChatHandler::HandleReloadAreaTriggerTeleportCommand(char* /*args*/)
 {
     sLog.outString("Re-Loading AreaTrigger teleport definitions...");
     sObjectMgr.LoadAreaTriggerTeleports();
+    sObjectMgr.LoadInstanceExitTriggers();
     SendGlobalSysMessage("DB table `areatrigger_teleport` reloaded.", SEC_MODERATOR);
     return true;
 }

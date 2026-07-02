@@ -137,7 +137,14 @@ bool FleeingMovementGenerator<T>::_getPoint(T& owner, float& x, float& y, float&
         return false;
     }
 
-    if (owner.GetTypeId() == TYPEID_PLAYER)
+    // Reject points inside exit area triggers in dungeons (prevent
+    // NPCs and bots from fleeing through dungeon exit portals).
+    if (owner.GetMap()->IsDungeon() &&
+        sObjectMgr.IsInsideExitTrigger(owner.GetMapId(), x, y, z))
+    {
+        return false;
+    }
+
     {
         // Check any collision
         float testZ = z + 0.5f; // Needed to avoid some false positive hit detection of terrain or passable little object

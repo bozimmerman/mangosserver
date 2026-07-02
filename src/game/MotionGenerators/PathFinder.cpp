@@ -31,6 +31,7 @@
 #include "PathFinder.h"
 #include "Log.h"
 #include "Player.h"
+#include "ObjectMgr.h"
 
 #include <cfloat>
 
@@ -619,6 +620,17 @@ void PathFinder::BuildShortcut()
         if (!m_sourceUnit->GetMap()->GetTerrain()->IsInWater(point.x, point.y, point.z))
             m_sourceUnit->UpdateAllowedPositionZ(point.x, point.y, point.z);
         m_pathPoints[i] = point;
+    }
+
+    // Reject destinations inside exit area triggers — prevents NPCs
+    // from pathing through dungeon exit portals when navmesh is missing.
+    if (m_sourceUnit->GetMap()->IsDungeon() &&
+        sObjectMgr.IsInsideExitTrigger(m_sourceUnit->GetMapId(),
+                                       end.x, end.y, end.z))
+    {
+        clear();
+        m_type = PATHFIND_NOPATH;
+        return;
     }
 
     m_type = PATHFIND_SHORTCUT;

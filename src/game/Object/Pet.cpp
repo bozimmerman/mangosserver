@@ -655,10 +655,14 @@ bool Pet::CanTakeMoreActiveSpells(uint32 spellid)
 bool Pet::HasTPForSpell(uint32 spellid)
 {
     int32 neededtrainp = GetTPForSpell(spellid);
+    sLog.outString("HasTPForSpell: spellid=%u, m_TrainingPoints=%d, neededtrainp=%d, diff=%d",
+        spellid, m_TrainingPoints, neededtrainp, m_TrainingPoints - neededtrainp);
     if ((m_TrainingPoints - neededtrainp < 0 || neededtrainp < 0) && neededtrainp != 0)
     {
+        sLog.outString("HasTPForSpell: BLOCKED");
         return false;
     }
+    sLog.outString("HasTPForSpell: ALLOWED");
     return true;
 }
 

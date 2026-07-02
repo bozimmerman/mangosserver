@@ -636,6 +636,7 @@ void World::SetInitialWorldSettings()
 
     StartupUI::Step("Loading AreaTrigger definitions...");
     sObjectMgr.LoadAreaTriggerTeleports();                  // must be after item template load
+    sObjectMgr.LoadInstanceExitTriggers();                   // must be after area trigger teleport load
 
     StartupUI::Step("Loading Quest Area Triggers...");
     sObjectMgr.LoadQuestAreaTriggers();                     // must be after LoadQuests

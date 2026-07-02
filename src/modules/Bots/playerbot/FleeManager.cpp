@@ -84,6 +84,12 @@ void FleeManager::calculatePossibleDestinations(list<FleePoint*> &points)
                 continue;
             }
 
+            if (bot->GetMap()->IsDungeon() &&
+                sObjectMgr.IsInsideExitTrigger(bot->GetMapId(), x, y, botPosZ))
+            {
+                continue;
+            }
+
             FleePoint *point = new FleePoint(x, y, botPosZ);
             calculateDistanceToPlayers(point);
             calculateDistanceToCreatures(point);

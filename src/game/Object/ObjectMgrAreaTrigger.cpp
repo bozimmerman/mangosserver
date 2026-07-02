@@ -189,6 +189,57 @@ AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 map_id) const
 }
 
 /**
+ * Loads exit area triggers per instance map (triggers that teleport to a different map).
+ * Pre-computed once at startup for efficient runtime queries.
+ */
+void ObjectMgr::LoadInstanceExitTriggers()
+{
+    m_instanceExitTriggers.clear();
+
+    uint32 count = 0;
+
+    for (uint32 id = 0; id < sAreaTriggerStore.GetNumRows(); ++id)
+    {
+        AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(id);
+        if (!atEntry)
+            continue;
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(atEntry->mapid);
+        if (!mapEntry || !mapEntry->Instanceable())
+            continue;
+
+        AreaTrigger const* at = GetAreaTrigger(id);
+        if (!at)
+            continue;
+
+        if (at->target_mapId == atEntry->mapid)
+            continue;
+
+        m_instanceExitTriggers[atEntry->mapid].push_back(atEntry);
+        ++count;
+    }
+
+    sLog.outString(">> Loaded %u instance exit area triggers", count);
+    sLog.outString();
+}
+
+bool ObjectMgr::IsInsideExitTrigger(uint32 mapId, float x, float y, float z) const
+{
+    InstanceExitTriggerMap::const_iterator it = m_instanceExitTriggers.find(mapId);
+    if (it == m_instanceExitTriggers.end())
+        return false;
+
+    for (InstanceExitTriggerList::const_iterator triggerIt = it->second.begin();
+            triggerIt != it->second.end(); ++triggerIt)
+    {
+        if (IsPointInAreaTriggerZone(*triggerIt, mapId, x, y, z))
+            return true;
+    }
+
+    return false;
+}
+
+/**
  * Searches for the areatrigger which teleports players to the given map
  */
 AreaTrigger const* ObjectMgr::GetMapEntranceTrigger(uint32 Map) const
