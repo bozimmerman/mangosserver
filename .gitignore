@@ -137,4 +137,8 @@ src/ah-service/Makefile
 src/ah-service/ah-service
 src/ah-service/ah-service.conf.dist
 src/ipc/Makefile
+src/modules/AhWorker/Makefile
+src/modules/AhWorker/ah-service
+src/modules/AhWorker/ah-service.conf.dist
+src/modules/AhWorker/difftest/Makefile
 
