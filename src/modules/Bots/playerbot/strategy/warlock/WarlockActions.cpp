@@ -50,7 +50,6 @@ bool EquipSpellstoneAction::Execute(Event event)
     WorldPacket* const packet = new WorldPacket(CMSG_AUTOEQUIP_ITEM, 2);
     *packet << bagIndex << slot;
     bot->GetSession()->QueuePacket(packet);
-
     return true;
 }
 
