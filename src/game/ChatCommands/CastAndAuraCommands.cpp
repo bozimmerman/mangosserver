@@ -82,7 +82,7 @@ bool ChatHandler::HandleCastCommand(char* args)
     {
         target->CastSpell(target, spell, true);
         PSendSysMessage("Cast spell %u (%s) on %s",
-            spell, spellInfo->SpellName[GetSessionDbcLocale()],
+            spell, spellInfo->Name_lang[GetSessionDbcLocale()],
             target->GetName());
         return true;
     }
