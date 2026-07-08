@@ -193,12 +193,26 @@ bool Unit::IsHostileTo(Unit const* unit) const
                 return *force <= REP_HOSTILE;
             }
 
-            // if faction have reputation then hostile state for tester at 100% dependent from at_war state
+            // rank-based hostility: Hated/Hostile always hostile,
+            // Friendly+ never hostile, Unfriendly/Neutral use AtWar.
+            // When AtWar is off, fall through to template check.
             if (FactionEntry const* raw_target_faction = sFactionStore.LookupEntry(target_faction->Faction))
             {
                 if (FactionState const* factionState = ((Player*)tester)->GetReputationMgr().GetState(raw_target_faction))
                 {
-                    return (factionState->Flags & FACTION_FLAG_AT_WAR);
+                    ReputationRank rank = ((Player const*)tester)->GetReputationMgr().GetRank(raw_target_faction);
+                    if (rank <= REP_HOSTILE)
+                    {
+                        return true;
+                    }
+                    if (rank >= REP_FRIENDLY)
+                    {
+                        return false;
+                    }
+                    if (factionState->Flags & FACTION_FLAG_AT_WAR)
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -349,12 +363,26 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
                 return *force >= REP_FRIENDLY;
             }
 
-            // if faction have reputation then friendly state for tester at 100% dependent from at_war state
+            // rank-based friendliness: Hated/Hostile never friendly,
+            // Friendly+ always friendly, Unfriendly/Neutral use AtWar.
+            // When AtWar is off, fall through to template check.
             if (FactionEntry const* raw_target_faction = sFactionStore.LookupEntry(target_faction->Faction))
             {
                 if (FactionState const* factionState = ((Player*)tester)->GetReputationMgr().GetState(raw_target_faction))
                 {
-                    return !(factionState->Flags & FACTION_FLAG_AT_WAR);
+                    ReputationRank rank = ((Player const*)tester)->GetReputationMgr().GetRank(raw_target_faction);
+                    if (rank <= REP_HOSTILE)
+                    {
+                        return false;
+                    }
+                    if (rank >= REP_FRIENDLY)
+                    {
+                        return true;
+                    }
+                    if (factionState->Flags & FACTION_FLAG_AT_WAR)
+                    {
+                        return false;
+                    }
                 }
             }
         }
