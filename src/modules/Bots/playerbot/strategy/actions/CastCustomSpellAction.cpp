@@ -30,6 +30,23 @@ bool CastCustomSpellAction::Execute(Event event)
         spell = AI_VALUE2(uint32, "spell id", text);
     }
 
+    if (spell)
+    {
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
+        if (spellInfo)
+        {
+            ShapeshiftForm form = bot->GetShapeshiftForm();
+            if (form != FORM_NONE)
+            {
+                if (spellInfo->ShapeshiftMask == 0 ||
+                    !(spellInfo->ShapeshiftMask & (1 << (form - 1))))
+                {
+                    ai->RemoveShapeshift();
+                }
+            }
+        }
+    }
+
     ostringstream msg;
     if (!ai->CanCastSpell(spell, target))
     {
