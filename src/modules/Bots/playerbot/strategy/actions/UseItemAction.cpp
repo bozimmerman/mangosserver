@@ -179,6 +179,11 @@ bool UseItemAction::UseItemOnItem(Item* item, Item* itemTarget)
 
 bool UseItemAction::UseItem(Item* item, ObjectGuid goGuid, Object* target)
 {
+    if (bot->GetShapeshiftForm() != FORM_NONE)
+    {
+        ai->RemoveShapeshift();
+    }
+
     if (bot->CanUseItem(item) != EQUIP_ERR_OK)
     {
         return false;
