@@ -20,3 +20,15 @@ bool NearestNpcsValue::AcceptUnit(Unit* unit)
 {
     return !dynamic_cast<Player*>(unit);
 }
+
+void NearestInteractableNpcsValue::FindUnits(list<Unit*> &targets)
+{
+    AnyUnitInObjectRangeCheck u_check(bot, range);
+    UnitListSearcher<AnyUnitInObjectRangeCheck> searcher(targets, u_check);
+    Cell::VisitAllObjects(bot, searcher, range);
+}
+
+bool NearestInteractableNpcsValue::AcceptUnit(Unit* unit)
+{
+    return !dynamic_cast<Player*>(unit) && !bot->IsHostileTo(unit);
+}

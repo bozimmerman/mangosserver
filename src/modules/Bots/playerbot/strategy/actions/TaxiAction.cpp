@@ -68,7 +68,7 @@ bool TaxiAction::Execute(Event event)
         return true;
     }
 
-    list<ObjectGuid> units = *context->GetValue<list<ObjectGuid> >("nearest npcs");
+    list<ObjectGuid> units = *context->GetValue<list<ObjectGuid> >("nearest interactable npcs");
     for (list<ObjectGuid>::iterator i = units.begin(); i != units.end(); i++)
     {
         Creature *npc = bot->GetNPCIfCanInteractWith(*i, UNIT_NPC_FLAG_FLIGHTMASTER);

@@ -71,6 +71,7 @@ namespace ai
             {
                 creators["nearest game objects"] = &ValueContext::nearest_game_objects;
                 creators["nearest npcs"] = &ValueContext::nearest_npcs;
+                creators["nearest interactable npcs"] = &ValueContext::nearest_interactable_npcs;
                 creators["nearest players"] = &ValueContext::nearest_players;
                 creators["possible targets"] = &ValueContext::possible_targets;
                 creators["nearest adds"] = &ValueContext::nearest_adds;
@@ -212,6 +213,7 @@ namespace ai
             static UntypedValue* nearest_game_objects(PlayerbotAI* ai) { return new NearestGameObjects(ai); }
             static UntypedValue* log_level(PlayerbotAI* ai) { return new LogLevelValue(ai); }
             static UntypedValue* nearest_npcs(PlayerbotAI* ai) { return new NearestNpcsValue(ai); }
+            static UntypedValue* nearest_interactable_npcs(PlayerbotAI* ai) { return new NearestInteractableNpcsValue(ai); }
             static UntypedValue* nearest_players(PlayerbotAI* ai) { return new NearestPlayersValue(ai); }
             static UntypedValue* nearest_corpses(PlayerbotAI* ai) { return new NearestCorpsesValue(ai); }
             static UntypedValue* possible_targets(PlayerbotAI* ai) { return new PossibleTargetsValue(ai); }
