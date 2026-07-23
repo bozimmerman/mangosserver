@@ -49,6 +49,7 @@
 #include "ModelInstance.h"
 #include "WorldModel.h"
 #include "VMapDefinitions.h"
+#include "DBCStores.h"
 
 using G3D::Vector3;
 
@@ -360,9 +361,17 @@ namespace VMAP
                 {
                     floor = info.ground_Z;
                     type = info.hitModel->GetLiquidType();
-                    if (ReqLiquidType && !(type & ReqLiquidType))
+                    if (ReqLiquidType)
                     {
-                        return false;
+                        uint32 typeFlags = type;
+                        if (LiquidTypeEntry const* liq = sLiquidTypeStore.LookupEntry(type))
+                        {
+                            typeFlags = 1 << liq->Type;
+                        }
+                        if (!(typeFlags & ReqLiquidType))
+                        {
+                            return false;
+                        }
                     }
                     if (info.hitInstance->GetLiquidLevel(pos, info, level))
                     {
