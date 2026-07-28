@@ -142,6 +142,13 @@ namespace ai
              */
             LootObject GetLoot(float maxDistance = 0);
 
+            /**
+             * @brief Computes a hash of the current loot pool GUIDs.
+             *
+             * @return Hash value, or 0 if pool is empty.
+             */
+            uint32 GetPoolHash() const;
+
         private:
             /**
              * @brief Orders the loot objects by distance.

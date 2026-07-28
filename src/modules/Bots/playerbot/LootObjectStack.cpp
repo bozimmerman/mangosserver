@@ -252,6 +252,17 @@ LootObject LootObjectStack::GetLoot(float maxDistance)
     return ordered.empty() ? LootObject() : *ordered.begin();
 }
 
+uint32 LootObjectStack::GetPoolHash() const
+{
+    uint32 hash = 0;
+    for (LootTargetList::const_iterator i = availableLoot.begin(); i != availableLoot.end(); ++i)
+    {
+        hash ^= (uint32)i->guid.GetCounter() + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+    }
+    hash ^= (uint32)availableLoot.size() << 16;
+    return hash;
+}
+
 vector<LootObject> LootObjectStack::OrderByDistance(float maxDistance)
 {
     availableLoot.shrink(time(0) - 30);
