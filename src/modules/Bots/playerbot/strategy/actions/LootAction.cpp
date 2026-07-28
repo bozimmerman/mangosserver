@@ -46,7 +46,9 @@ bool OpenLootAction::Execute(Event event)
     bool result = DoLoot(lootObject);
     if (result)
     {
-        AI_VALUE(LootObjectStack*, "available loot")->Remove(lootObject.guid);
+        LootObjectStack* pool = AI_VALUE(LootObjectStack*, "available loot");
+        pool->Remove(lootObject.guid);
+        context->GetValue<uint32>("loot pool hash")->Set(pool->GetPoolHash());
         context->GetValue<LootObject>("loot target")->Set(LootObject());
     }
     return result;

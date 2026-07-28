@@ -44,12 +44,26 @@ bool AddLootAction::isUseful()
 
 bool AddAllLootAction::isUseful()
 {
+    uint32 lastPoolHash = AI_VALUE(uint32, "loot pool hash");
+    LootObjectStack* pool = AI_VALUE(LootObjectStack*, "available loot");
+    uint32 currentHash = pool->GetPoolHash();
+    if (currentHash == lastPoolHash)
+    {
+        return false;
+    }
+
     return AI_VALUE(uint8, "bag space") < 80;
 }
 
 bool AddAllLootAction::AddLoot(ObjectGuid guid)
 {
-    return AI_VALUE(LootObjectStack*, "available loot")->Add(guid);
+    LootObjectStack* stack = AI_VALUE(LootObjectStack*, "available loot");
+    bool result = stack->Add(guid);
+    if (result)
+    {
+        context->GetValue<uint32>("loot pool hash")->Set(stack->GetPoolHash());
+    }
+    return result;
 }
 
 bool AddGatheringLootAction::AddLoot(ObjectGuid guid)

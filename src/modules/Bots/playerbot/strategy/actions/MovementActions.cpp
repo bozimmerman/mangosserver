@@ -804,12 +804,14 @@ bool MoveRandomAction::Execute(Event event)
 bool MoveToLootAction::Execute(Event event)
 {
     LootObject loot = AI_VALUE(LootObject, "loot target");
-    if (!loot.IsLootPossible(bot))
+    if (!loot.IsLootPossible(bot) ||
+        !MoveNear(loot.GetWorldObject(bot)) ||
+        bot->movespline->Finalized()) // immediate finalized means premature movement end
     {
+        AI_VALUE(LootObjectStack*, "available loot")->Remove(loot.guid);
         return false;
     }
-
-    return MoveNear(loot.GetWorldObject(bot));
+    return true;
 }
 
 bool MoveOutOfEnemyContactAction::Execute(Event event)

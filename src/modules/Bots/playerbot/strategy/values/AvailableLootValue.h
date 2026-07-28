@@ -39,4 +39,10 @@ namespace ai
                 return !loot.IsEmpty() && loot.GetWorldObject(bot) && AI_VALUE2(float, "distance", "loot target") <= INTERACTION_DISTANCE;
             }
     };
+
+    class LootPoolHashValue : public ManualSetValue<uint32>
+    {
+        public:
+            LootPoolHashValue(PlayerbotAI* ai) : ManualSetValue<uint32>(ai, ~0u) {}
+    };
 }
