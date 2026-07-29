@@ -150,4 +150,12 @@ src/modules/AhWorker/Makefile
 src/modules/AhWorker/ah-service
 src/modules/AhWorker/ah-service.conf.dist
 src/modules/AhWorker/difftest/Makefile
+src/proto/Makefile
+src/shared/Geometry/Makefile
+src/shared/terrain/Makefile
+src/tools/Extractor_projects/
+src/tools/extractor/Makefile
+src/tools/extractor/mangos-extractor
+src/tools/height-check/Makefile
+src/tools/height-check/mangos-height-check
 
