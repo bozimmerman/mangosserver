@@ -55,6 +55,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "Transports.h"
+#include "TransportMap.h"
 #include "GridDefines.h"
 #include "World.h"
 #include "CellImpl.h"
@@ -193,7 +194,11 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj)
         m = FindMap(id);
         if (m == NULL)
         {
-            m = new WorldMap(id, i_gridCleanUpDelay);
+            if (Transport::IsVesselMapId(id))
+                m = new TransportMap(id, i_gridCleanUpDelay,
+                                     const_cast<Transport*>(static_cast<Transport const*>(obj)));
+            else
+                m = new WorldMap(id, i_gridCleanUpDelay);
             // add map into container
             i_maps[MapID(id)] = m;
 

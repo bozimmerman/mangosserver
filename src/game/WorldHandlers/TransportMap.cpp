@@ -131,6 +131,7 @@ namespace
 
         c->GetMap()->Remove(c, false);
         c->Place().MoveTo(x, y, z, master->Where().Facing());
+        c->m_movementInfo.ChangePosition(x, y, z, master->Where().Facing());
         dest->Add(c);
 
         c->GetMotionMaster()->Initialize();
@@ -353,6 +354,9 @@ void TransportMap::Disembark(Player* passenger, float x, float y, float z, float
 
     Remove(passenger, false);
     passenger->Place().MoveTo(x, y, z, o);
+    passenger->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
+    passenger->m_movementInfo.ClearTransportData();
+    passenger->m_movementInfo.ChangePosition(x, y, z, o);
     sailed->Add(passenger);
 }
 

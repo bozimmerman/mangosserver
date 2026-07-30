@@ -3511,6 +3511,7 @@ class Player : public Unit
         void RelocateToHomebind()
         {
             SetLocationMapId(m_homebindMapId); Place().MoveTo(m_homebindX, m_homebindY, m_homebindZ);
+            m_movementInfo.ChangePosition(m_homebindX, m_homebindY, m_homebindZ, Where().Facing());
         }
 
         // Teleport the player to the homebind location

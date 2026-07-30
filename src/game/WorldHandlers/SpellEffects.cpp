@@ -286,6 +286,7 @@ void Spell::EffectSummon(SpellEffectIndex eff_idx)
         if (m_targets.m_targetMask & TARGET_FLAG_DEST_LOCATION)
         {
             spawnCreature->Place().MoveTo(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->Where().Facing() + M_PI_F);
+            spawnCreature->m_movementInfo.ChangePosition(m_targets.m_destX, m_targets.m_destY, m_targets.m_destZ, m_caster->Where().Facing() + M_PI_F);
         }
 
         // set timer for unsummon

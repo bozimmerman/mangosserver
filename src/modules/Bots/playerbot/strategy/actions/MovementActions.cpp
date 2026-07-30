@@ -295,6 +295,9 @@ bool MovementAction::FollowOnTransport(Unit* target, Player* master)
         bot->Place().MoveTo(master->Where().X() + offsetX,
                             master->Where().Y() + offsetY,
                             master->Where().Z(), bot->Where().Facing());
+        bot->m_movementInfo.ChangePosition(master->Where().X() + offsetX,
+                                           master->Where().Y() + offsetY,
+                                           master->Where().Z(), bot->Where().Facing());
 
         AI_VALUE(LastMovement&, "last movement").Set(target);
         return true;

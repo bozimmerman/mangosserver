@@ -246,8 +246,22 @@ void WorldObject::GetZoneAndAreaId(uint32& zoneid, uint32& areaid) const
     GetTerrain()->GetZoneAndAreaId(zoneid, areaid, Where().X(), Where().Y(), Where().Z());
 }
 
-void WorldObject::Relocate(float x, float y, float z, float o) { Place().MoveTo(x, y, z, o); }
-void WorldObject::Relocate(float x, float y, float z) { Place().MoveTo(x, y, z); }
+void WorldObject::Relocate(float x, float y, float z, float o)
+{
+    Place().MoveTo(x, y, z, o);
+    if (isType(TYPEMASK_UNIT))
+    {
+        ((Unit*)this)->m_movementInfo.ChangePosition(x, y, z, o);
+    }
+}
+void WorldObject::Relocate(float x, float y, float z)
+{
+    Place().MoveTo(x, y, z);
+    if (isType(TYPEMASK_UNIT))
+    {
+        ((Unit*)this)->m_movementInfo.ChangePosition(x, y, z, GetOrientation());
+    }
+}
 void WorldObject::SetOrientation(float o) { Place().Face(o); }
 
 #endif // MANGOS_SCRIPT_COMPAT
