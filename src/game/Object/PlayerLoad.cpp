@@ -697,6 +697,9 @@ bool Player::LoadFromDB(ObjectGuid guid, SqlQueryHolder* holder)
     // has to be called after last Relocate() in Player::LoadFromDB
     SetFallInformation(0, Where().Z());
 
+    // sync m_movementInfo with the loaded position — Place().MoveTo() doesn't do this
+    m_movementInfo.ChangePosition(Where().X(), Where().Y(), Where().Z(), Where().Facing());
+
     _LoadSpellCooldowns(holder->GetResult(PLAYER_LOGIN_QUERY_LOADSPELLCOOLDOWNS));
 
     // Spell code allow apply any auras to dead character in load time in aura/spell/item loading

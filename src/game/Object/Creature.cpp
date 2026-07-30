@@ -189,6 +189,7 @@ void CreatureCreatePos::SelectFinalPoint(Creature* cr)
 bool CreatureCreatePos::PlaceOn(Creature* cr) const
 {
     cr->Place().MoveTo(m_pos.x, m_pos.y, m_pos.z, m_pos.o);
+    cr->m_movementInfo.ChangePosition(m_pos.x, m_pos.y, m_pos.z, m_pos.o);
 
     if (!IsPlaceable(*cr))
     {
@@ -1745,6 +1746,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map* map)
             if (data->posZ - tz > 0.1)
             {
                 Place().MoveTo(data->posX, data->posY, tz);
+                m_movementInfo.ChangePosition(data->posX, data->posY, tz, Where().Facing());
             }
         }
     }
@@ -1780,6 +1782,7 @@ bool Creature::LoadFromDB(uint32 guidlow, Map* map)
                 if (data->posZ - tz > 0.1)
                 {
                     Place().MoveTo(data->posX, data->posY, tz);
+                    m_movementInfo.ChangePosition(data->posX, data->posY, tz, Where().Facing());
                 }
             }
         }

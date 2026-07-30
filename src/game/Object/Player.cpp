@@ -778,6 +778,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
     // Set player's initial location
     SetLocationMapId(info->mapId);
     Place().MoveTo(info->positionX, info->positionY, info->positionZ, info->orientation);
+    m_movementInfo.ChangePosition(info->positionX, info->positionY, info->positionZ, info->orientation);
 
     // Set the player's map
     SetMap(sMapMgr.CreateMap(info->mapId, this));

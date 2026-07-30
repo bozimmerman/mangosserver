@@ -164,6 +164,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     GetPlayer()->SetMap(map);
     GetPlayer()->Place().MoveTo(loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation);
+    GetPlayer()->m_movementInfo.ChangePosition(loc.coord_x, loc.coord_y, loc.coord_z, loc.orientation);
 
     // The client threw away every object it had when it left the old map, so the set of
     // "things he already has" is now a lie in the one direction that hurts: anything still

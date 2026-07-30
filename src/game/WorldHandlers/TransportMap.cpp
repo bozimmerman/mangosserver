@@ -131,6 +131,7 @@ namespace
 
         c->GetMap()->Remove(c, false);
         c->Place().MoveTo(x, y, z, master->Where().Facing());
+        c->m_movementInfo.ChangePosition(x, y, z, master->Where().Facing());
         dest->Add(c);
 
         c->GetMotionMaster()->Initialize();
@@ -335,6 +336,24 @@ void TransportMap::Embark(Player* passenger)
     // Login and the far side of a seam do not come through here -- they never touch the
     // world's grid at all, they are added straight to this map.
     passenger->GetMap()->Remove(passenger, false);
+
+    // Sync m_movementInfo for transport boarding: Place().MoveTo() doesn't do this.
+    passenger->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
+    if (Transport* vessel = m_vessel)
+    {
+        passenger->m_movementInfo.SetTransportData(
+            vessel->GetObjectGuid(),
+            passenger->Where().X() - vessel->Where().X(),
+            passenger->Where().Y() - vessel->Where().Y(),
+            passenger->Where().Z() - vessel->Where().Z(),
+            passenger->Where().Facing() - vessel->Where().Facing(),
+            getMSTime());
+    }
+    else
+    {
+        passenger->m_movementInfo.ClearTransportData();
+    }
+
     Add(passenger);
 }
 
@@ -353,6 +372,9 @@ void TransportMap::Disembark(Player* passenger, float x, float y, float z, float
 
     Remove(passenger, false);
     passenger->Place().MoveTo(x, y, z, o);
+    passenger->m_movementInfo.RemoveMovementFlag(MOVEFLAG_ONTRANSPORT);
+    passenger->m_movementInfo.ClearTransportData();
+    passenger->m_movementInfo.ChangePosition(x, y, z, o);
     sailed->Add(passenger);
 }
 

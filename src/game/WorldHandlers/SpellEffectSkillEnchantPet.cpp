@@ -716,6 +716,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
             ClosePointNear(*m_caster, px, py, pz, OldSummon->Where().Extent());
 
             OldSummon->Place().MoveTo(px, py, pz, OldSummon->Where().Facing());
+            OldSummon->m_movementInfo.ChangePosition(px, py, pz, OldSummon->Where().Facing());
             m_caster->GetMap()->Add((Creature*)OldSummon);
 
             if (m_caster->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled())
